@@ -1,16 +1,25 @@
 use eframe::{egui, App, NativeOptions};
 use egui::{
     vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    Window,
 };
 use std::f32::consts::TAU; // TAU is 2 * PI
 
+// --- NEW: A struct to hold event data ---
+#[derive(Debug, Clone)]
+struct EventData {
+    title: String,
+    description: String,
+    options: [String; 4],
+}
+
 /// Main application state
-/// --- MODIFIED: Player state is now logical ---
 struct LotusApp {
     player_tier: usize,
     player_petal: usize,
     num_petals_per_tier: usize,
     num_tiers: usize,
+    current_event: Option<EventData>, // NEW: Holds the active event
 }
 
 impl Default for LotusApp {
@@ -20,6 +29,34 @@ impl Default for LotusApp {
             player_petal: 1, // Start on petal 1 (not the review space)
             num_petals_per_tier: 8,
             num_tiers: 5,
+            current_event: None, // No event window is open at the start
+        }
+    }
+}
+
+// --- NEW: Helper function to generate events ---
+impl LotusApp {
+    /// This function will be called to generate a new event
+    /// based on the player's state.
+    fn generate_event(&self) -> EventData {
+        // This is where you would use your Event Card Matrix.
+        // For now, it's a placeholder.
+        let tier_name = ["D", "C", "B", "A", "A+"]
+            .get(self.player_tier)
+            .cloned()
+            .unwrap_or("?");
+
+        EventData {
+            title: format!("Event on Tier {} (Petal {})", tier_name, self.player_petal),
+            description: "You are walking to work and see an elderly person fall. \
+                A 'Citizen Watch' surveillance camera is clearly visible on the corner."
+                .to_string(),
+            options: [
+                "A: Help the person up.".to_string(),
+                "B: Ignore them and walk past.".to_string(),
+                "C: Publicly scold a nearby youth for not helping.".to_string(),
+                "D: Call the authorities.".to_string(),
+            ],
         }
     }
 }
@@ -27,80 +64,128 @@ impl Default for LotusApp {
 impl App for LotusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Lotus Flower Game Board");
+            // Check if a modal window is open.
+            let event_is_open = self.current_event.is_some();
 
-            if ui.button("Exit Application").clicked() {
-                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-            }
+            // --- Top Controls ---
+            // Wrap in a horizontal layout that can be disabled
+            ui.horizontal_enabled(!event_is_open, |ui| {
+                if ui.button("Exit Application").clicked() {
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
 
-            ui.label("Click the buttons to move the player token.");
-            ui.add_space(10.0);
+                ui.label("Click the buttons to move the player token.");
 
-            // --- MODIFIED: Movement logic now only affects the petal index ---
-            ui.horizontal(|ui| {
                 if ui.button("Move Counter-Clockwise").clicked() {
                     self.player_petal =
                         (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
+                    // If we moved to a new petal AND it's not the review space, trigger an event
+                    if self.player_petal != 0 {
+                        self.current_event = Some(self.generate_event());
+                    }
                 }
                 if ui.button("Move Clockwise").clicked() {
                     self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+                    // If we moved to a new petal AND it's not the review space, trigger an event
+                    if self.player_petal != 0 {
+                        self.current_event = Some(self.generate_event());
+                    }
                 }
             });
 
-            // --- NEW: SCS Review Logic ---
-            // If the player is on the "SCS Review" space (petal 0), show tier change buttons
-            if self.player_petal == 0 {
-                ui.add_space(5.0);
-                // --- MODIFIED: Use RichText to make the label strong ---
-                ui.label(egui::RichText::new("You are on an 'SCS Review' space!").strong());
-                // --- END MODIFICATION ---
-                ui.label("Your SCS is re-evaluated...");
-                ui.horizontal(|ui| {
-                    if ui.button("SCS: Go Up a Tier").clicked() {
-                        // Use .min() to clamp at the max tier
-                        self.player_tier = (self.player_tier + 1).min(self.num_tiers - 1);
-                    }
-                    if ui.button("SCS: Go Down a Tier").clicked() {
-                        // .saturating_sub() prevents underflow (going below 0)
-                        self.player_tier = self.player_tier.saturating_sub(1);
-                    }
-                });
-                ui.add_space(5.0);
+            // --- Status/Review UI ---
+            // This entire section is hidden if an event is open
+            if !event_is_open {
+                // If the player is on the "SCS Review" space (petal 0), show tier change buttons
+                if self.player_petal == 0 {
+                    ui.add_space(5.0);
+                    ui.label(egui::RichText::new("You are on an 'SCS Review' space!").strong());
+                    ui.label("Your SCS is re-evaluated...");
+                    ui.horizontal(|ui| {
+                        if ui.button("SCS: Go Up a Tier").clicked() {
+                            // Use .min() to clamp at the max tier
+                            self.player_tier = (self.player_tier + 1).min(self.num_tiers - 1);
+                        }
+                        if ui.button("SCS: Go Down a Tier").clicked() {
+                            // .saturating_sub() prevents underflow (going below 0)
+                            self.player_tier = self.player_tier.saturating_sub(1);
+                        }
+                    });
+                    ui.add_space(5.0);
+                }
+
+                // Helper to map tier index to SCS name
+                let tier_name = ["D (Blacklisted)", "C (Warning)", "B (Standard)", "A (Trusted)", "A+ (Exemplary)"]
+                    .get(self.player_tier)
+                    .cloned()
+                    .unwrap_or("?");
+
+                ui.label(format!(
+                    "Player is on Tier {} (SCS: {}), Petal {}",
+                    self.player_tier, tier_name, self.player_petal
+                ));
+                ui.add_space(10.0);
             }
 
-            // --- NEW: Helper to map tier index to SCS name ---
-            let tier_name = ["D (Blacklisted)", "C (Warning)", "B (Standard)", "A (Trusted)", "A+ (Exemplary)"]
-                .get(self.player_tier)
-                .cloned()
-                .unwrap_or("?");
+            // --- Game Board Widget ---
+            // We draw the board *before* the modal, so it's in the background.
+            // We use a closure to easily wrap it in `add_enabled`.
+            let draw_lotus_widget = |ui: &mut egui::Ui| {
+                let player_total_index =
+                    self.player_tier * self.num_petals_per_tier + self.player_petal;
 
-            ui.label(format!(
-                "Player is on Tier {} (SCS: {}), Petal {}",
-                self.player_tier, tier_name, self.player_petal
-            ));
-            ui.add_space(10.0); // Reduced bottom space to give more room to widget
+                ui.add(LotusWidget::new(
+                    self.num_tiers,
+                    self.num_petals_per_tier,
+                    player_total_index, // Pass the calculated total index
+                ));
+            };
 
-            // --- MODIFIED: Calculate the total_index for the widget ---
-            let player_total_index =
-                self.player_tier * self.num_petals_per_tier + self.player_petal;
+            // If an event is open, draw the widget disabled (dimmed).
+            // Otherwise, draw it enabled.
+            ui.add_enabled(!event_is_open, draw_lotus_widget);
 
-            // The widget will now fill the remaining space.
-            ui.add(LotusWidget::new(
-                self.num_tiers,
-                self.num_petals_per_tier,
-                player_total_index, // Pass the calculated total index
-            ));
-            // --- END MODIFICATION ---
 
-            // Repaint continuously to see animations
-            ctx.request_repaint();
+            // --- Event Window (Modal) ---
+            // Drawn last, so it's on top of everything else.
+            // We clone the event to avoid borrow checker issues.
+            if let Some(event) = self.current_event.clone() {
+                Window::new(egui::RichText::new(&event.title).strong())
+                    .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0)) // Center the window
+                    .collapsible(false)
+                    .resizable(false)
+                    .show(ctx, |ui| {
+                        ui.set_max_width(300.0); // Constrain window width
+                        ui.label(egui::RichText::new(&event.description).wrap(true));
+                        ui.separator();
+
+                        // Show the four options
+                        ui.vertical_centered_justified(|ui| {
+                            if ui.button(&event.options[0]).clicked() {
+                                println!("Player chose Option 1");
+                                self.current_event = None; // Close window
+                            }
+                            if ui.button(&event.options[1]).clicked() {
+                                println!("Player chose Option 2");
+                                self.current_event = None; // Close window
+                            }
+                            if ui.button(&event.options[2]).clicked() {
+                                println!("Player chose Option 3");
+                                self.current_event = None; // Close window
+                            }
+                            if ui.button(&event.options[3]).clicked() {
+                                println!("Player chose Option 4");
+                                self.current_event = None; // Close window
+                            }
+                        });
+                    });
+            }
         });
     }
 }
 
 /// Our custom widget.
-/// This widget is now "dumb" - it just receives a total_index and renders it.
-/// It no longer needs base_radius, as it will be calculated dynamically.
+/// This widget is "dumb" - it just receives a total_index and renders it.
 struct LotusWidget {
     num_tiers: usize,
     num_petals_per_tier: usize,
@@ -117,7 +202,6 @@ impl LotusWidget {
     }
 
     /// Helper function to get the "resting position" on a petal.
-    /// Now takes base_radius as an argument
     fn get_petal_resting_pos(
         &self,
         total_index: usize,
@@ -174,11 +258,7 @@ impl LotusWidget {
     }
 
     /// Helper function to get the text for a specific petal
-    /// This is where you would define your game board content
     fn get_petal_text(&self, tier: usize, petal: usize, total_index: usize) -> String {
-        // Tier 0 is the innermost (Blacklisted)
-        // Tier 4 is the outermost (Exemplary)
-
         // Special "SCS Review" space on the first petal of each tier
         if petal == 0 {
             return "SCS\nReview".to_string();
@@ -256,7 +336,6 @@ impl Widget for LotusWidget {
                     Stroke::NONE,
                 );
                 let hover_rect = base_shape.visual_bounding_rect();
-                // --- MODIFIED: Sense is now just hover, clicks are handled by app logic ---
                 let petal_response = ui.interact(hover_rect, petal_id, Sense::hover());
                 let is_hovered = petal_response.hovered();
 
@@ -267,9 +346,6 @@ impl Widget for LotusWidget {
                     0.1,
                 );
                 
-                // We can remove the click-flash animation as it's not needed now
-                // let click_flash = ...
-
                 // --- Color Logic ---
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
@@ -287,7 +363,7 @@ impl Widget for LotusWidget {
 
                 painter.add(petal_shape);
 
-                // --- DRAW PETAL TEXT (Now with dynamic radius) ---
+                // --- DRAW PETAL TEXT ---
                 let petal_text_pos =
                     self.get_petal_resting_pos(petal_total_index, center, base_radius);
                 let text = self.get_petal_text(tier, petal, petal_total_index);
@@ -305,13 +381,9 @@ impl Widget for LotusWidget {
             }
         }
 
-        // --- 4. Draw the Animated Player Token (Now with dynamic radius) ---
-        // We use the player_total_index passed into the widget
+        // --- 4. Draw the Animated Player Token ---
         let target_pos = self.get_petal_resting_pos(self.player_total_index, center, base_radius);
-        
-        // --- MODIFIED: Fixed the typo here ---
         let player_anim_id = response.id.with("player_token_pos");
-        // --- END MODIFICATION ---
 
         // Animate X and Y components separately
         let animated_x =
@@ -322,9 +394,9 @@ impl Widget for LotusWidget {
         // Combine them back into a Pos2
         let animated_pos = Pos2::new(animated_x, animated_y);
 
-        // --- Calculate dynamic token size (This is still good) ---
-        let token_radius = (base_radius * 0.05).max(6.0); // 5% of radius, but at least 6.0
-        let token_stroke = (token_radius * 0.2).max(1.5); // 20% of token radius, but at least 1.5
+        // --- Calculate dynamic token size ---
+        let token_radius = (base_radius * 0.05).max(6.0);
+        let token_stroke = (token_radius * 0.2).max(1.5);
 
         // Draw the player token
         painter.circle_filled(
