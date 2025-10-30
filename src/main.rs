@@ -68,30 +68,33 @@ impl App for LotusApp {
             let event_is_open = self.current_event.is_some();
 
             // --- Top Controls ---
-            // Wrap in a horizontal layout that can be disabled
-            ui.horizontal_enabled(!event_is_open, |ui| {
-                if ui.button("Exit Application").clicked() {
-                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-                }
-
-                ui.label("Click the buttons to move the player token.");
-
-                if ui.button("Move Counter-Clockwise").clicked() {
-                    self.player_petal =
-                        (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
-                    // If we moved to a new petal AND it's not the review space, trigger an event
-                    if self.player_petal != 0 {
-                        self.current_event = Some(self.generate_event());
+            // --- MODIFIED: Wrap the horizontal layout in add_enabled ---
+            ui.add_enabled(!event_is_open, |ui| {
+                ui.horizontal(|ui| {
+                    if ui.button("Exit Application").clicked() {
+                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
-                }
-                if ui.button("Move Clockwise").clicked() {
-                    self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-                    // If we moved to a new petal AND it's not the review space, trigger an event
-                    if self.player_petal != 0 {
-                        self.current_event = Some(self.generate_event());
+
+                    ui.label("Click the buttons to move the player token.");
+
+                    if ui.button("Move Counter-Clockwise").clicked() {
+                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
+                            % self.num_petals_per_tier;
+                        // If we moved to a new petal AND it's not the review space, trigger an event
+                        if self.player_petal != 0 {
+                            self.current_event = Some(self.generate_event());
+                        }
                     }
-                }
+                    if ui.button("Move Clockwise").clicked() {
+                        self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+                        // If we moved to a new petal AND it's not the review space, trigger an event
+                        if self.player_petal != 0 {
+                            self.current_event = Some(self.generate_event());
+                        }
+                    }
+                });
             });
+            // --- END MODIFICATION ---
 
             // --- Status/Review UI ---
             // This entire section is hidden if an event is open
@@ -129,7 +132,7 @@ impl App for LotusApp {
 
             // --- Game Board Widget ---
             // We draw the board *before* the modal, so it's in the background.
-            // We use a closure to easily wrap it in `add_enabled`.
+            // --- MODIFIED: The closure must return the Response ---
             let draw_lotus_widget = |ui: &mut egui::Ui| {
                 let player_total_index =
                     self.player_tier * self.num_petals_per_tier + self.player_petal;
@@ -138,13 +141,13 @@ impl App for LotusApp {
                     self.num_tiers,
                     self.num_petals_per_tier,
                     player_total_index, // Pass the calculated total index
-                ));
+                )) // Removed semicolon to return the Response
             };
+            // --- END MODIFICATION ---
 
             // If an event is open, draw the widget disabled (dimmed).
             // Otherwise, draw it enabled.
             ui.add_enabled(!event_is_open, draw_lotus_widget);
-
 
             // --- Event Window (Modal) ---
             // Drawn last, so it's on top of everything else.
@@ -156,7 +159,11 @@ impl App for LotusApp {
                     .resizable(false)
                     .show(ctx, |ui| {
                         ui.set_max_width(300.0); // Constrain window width
-                        ui.label(egui::RichText::new(&event.description).wrap(true));
+
+                        // --- MODIFIED: Use egui::Label::new(...).wrap(true) ---
+                        ui.add(egui::Label::new(&event.description).wrap(true));
+                        // --- END MODIFICATION ---
+
                         ui.separator();
 
                         // Show the four options
@@ -245,7 +252,7 @@ impl LotusWidget {
         let cp1_base = vec2(-petal_width, -petal_length);
         let cp2_base = vec2(petal_width, -petal_length);
 
-        // Rotate the control points by the petal's angle
+        // Rotate the control points by the angle
         let p1 = center + rotate_vec(cp1_base, angle);
         let p2 = center + rotate_vec(cp2_base, angle);
 
@@ -345,11 +352,11 @@ impl Widget for LotusWidget {
                     if is_hovered { 1.2 } else { 1.0 },
                     0.1,
                 );
-                
+
                 // --- Color Logic ---
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
-                let final_color: Color32 = color_rgba.into();
+                let final_.into();
 
                 // --- Drawing: ---
                 let petal_shape = self.create_petal_shape(
