@@ -1,7 +1,7 @@
 use eframe::{egui, App};
 use egui::{vec2, Align2, Window};
 
-// --- MODIFIED: Removed unused `EventData` import ---
+// Use the items we've moved to other files
 use super::game_data::generate_event;
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
@@ -10,9 +10,9 @@ use super::LotusApp;
 impl Default for LotusApp {
     fn default() -> Self {
         Self {
-            player_tier: 2,  // Start on Tier 2 (SCS Tier 'B')
+            player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
             player_petal: 1, // Start on petal 1 (not the review space)
-            num_petals_per_tier: 8,
+            num_petals_per_tier: 13, // 13 petals per tier
             num_tiers: 5,
             current_event: None, // No event window is open at the start
         }
@@ -27,7 +27,6 @@ impl App for LotusApp {
             let event_is_open = self.current_event.is_some();
 
             // --- Top Controls ---
-            // --- MODIFIED: Use `add_enabled_ui` instead of `add_enabled` ---
             ui.add_enabled_ui(!event_is_open, |ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
@@ -42,13 +41,26 @@ impl App for LotusApp {
                         // If we moved to a new petal AND it's not the review space, trigger an event
                         if self.player_petal != 0 {
                             // Use the generate_event function from our game_data module
-                            self.current_event =
-                                Some(generate_event(self.player_tier, self.player_petal));
+                            self.current_event = Some(generate_event(
+                                self.player_tier,
+                                self.player_petal,
+                            ));
+                        }
+                    }
+                    if ui.button("Move Clockwise").clicked() {
+                        self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+                        // If we moved to a new petal AND it's not the review space, trigger an event
+                        if self.player_petal != 0 {
+                            // Use the generate_event function from our game_data module
+                            self.current_event = Some(generate_event(
+                                self.player_tier,
+                                self.player_petal,
+                            ));
                         }
                     }
                 });
             });
-            // --- END MODIFICATION ---
+            // --- END Top Controls ---
 
             // --- Status/Review UI ---
             // This entire section is hidden if an event is open
@@ -72,16 +84,10 @@ impl App for LotusApp {
                 }
 
                 // Helper to map tier index to SCS name
-                let tier_name = [
-                    "D (Blacklisted)",
-                    "C (Warning)",
-                    "B (Standard)",
-                    "A (Trusted)",
-                    "A+ (Exemplary)",
-                ]
-                .get(self.player_tier)
-                .cloned()
-                .unwrap_or("?");
+                let tier_name = ["D (Blacklisted)", "C (Warning)", "B (Standard)", "A (Trusted)", "A+ (Exemplary)"]
+                    .get(self.player_tier)
+                    .cloned()
+                    .unwrap_or("?");
 
                 ui.label(format!(
                     "Player is on Tier {} (SCS: {}), Petal {}",
@@ -146,3 +152,4 @@ impl App for LotusApp {
         });
     }
 }
+

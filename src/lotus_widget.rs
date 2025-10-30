@@ -87,11 +87,11 @@ impl LotusWidget {
 
         // --- Example Game Logic ---
         match tier {
-            0 => "Re-education".to_string(), // Tier D (Blacklisted)
-            1 => "Job Warning".to_string(),  // Tier C (Warning)
-            2 => format!("Event\n{}", total_index), // Tier B (Standard)
-            3 => "Party Banquet".to_string(), // Tier A (Trusted)
-            4 => "Honored!".to_string(),     // Tier A+ (Exemplary)
+            0 => format!("Re-education {}", petal), // Tier D (Blacklisted)
+            1 => format!("Job Warning {}", petal),  // Tier C (Warning)
+            2 => format!("Event {}", petal), // Tier B (Standard)
+            3 => format!("Party Banquet {}", petal), // Tier A (Trusted)
+            4 => format!("Honored! {}", petal),     // Tier A+ (Exemplary)
             _ => "??".to_string(),
         }
     }
