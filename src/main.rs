@@ -1,6 +1,7 @@
 use eframe::{egui, App, NativeOptions};
 use egui::{
-    vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    vec2, Align2, Color32, FontId, Pos2, Rect, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2,
+    Widget,
 };
 use std::f32::consts::TAU; // TAU is 2 * PI
 
@@ -49,18 +50,17 @@ impl App for LotusApp {
                 "Player is on petal index: {}",
                 self.player_total_index
             ));
-            ui.add_space(50.0);
+            ui.add_space(10.0); // Reduced bottom space to give more room to widget
 
-            // Center the widget
-            ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
-                // Add our custom lotus widget, passing in the player's target index
-                ui.add(LotusWidget::new(
-                    self.num_tiers,
-                    self.num_petals_per_tier,
-                    150.0, // Increased base radius further to fit text
-                    self.player_total_index,
-                ));
-            });
+            // --- MODIFIED: ---
+            // The widget will now fill the remaining space.
+            // We pass control to the LotusWidget, which will handle its own layout.
+            ui.add(LotusWidget::new(
+                self.num_tiers,
+                self.num_petals_per_tier,
+                self.player_total_index,
+            ));
+            // --- END MODIFICATION ---
 
             // Repaint continuously to see animations
             ctx.request_repaint();
@@ -69,36 +69,36 @@ impl App for LotusApp {
 }
 
 /// Our custom widget.
+/// --- MODIFIED: Removed base_radius, as it will be calculated dynamically ---
 struct LotusWidget {
     num_tiers: usize,
     num_petals_per_tier: usize,
-    base_radius: f32, // The radius of the *outermost* tier
     player_total_index: usize,
 }
 
 impl LotusWidget {
-    pub fn new(
-        num_tiers: usize,
-        num_petals_per_tier: usize,
-        base_radius: f32,
-        player_total_index: usize,
-    ) -> Self {
+    pub fn new(num_tiers: usize, num_petals_per_tier: usize, player_total_index: usize) -> Self {
         Self {
             num_tiers,
             num_petals_per_tier,
-            base_radius,
             player_total_index,
         }
     }
 
     /// Helper function to get the "resting position" on a petal.
-    fn get_petal_resting_pos(&self, total_index: usize, center: Pos2) -> Pos2 {
+    /// --- MODIFIED: Now takes base_radius as an argument ---
+    fn get_petal_resting_pos(
+        &self,
+        total_index: usize,
+        center: Pos2,
+        base_radius: f32,
+    ) -> Pos2 {
         let tier = total_index / self.num_petals_per_tier;
         let petal = total_index % self.num_petals_per_tier;
 
         // Calculate this tier's radius (from 1/N to N/N)
         let tier_radius_factor = (tier as f32 + 1.0) / self.num_tiers as f32;
-        let tier_radius = self.base_radius * tier_radius_factor;
+        let tier_radius = base_radius * tier_radius_factor;
 
         // Offset each tier's rotation by half a petal
         let tier_rotation = (tier as f32 * (TAU / self.num_petals_per_tier as f32)) / 2.0;
@@ -124,10 +124,10 @@ impl LotusWidget {
         let p3 = center;
 
         // Petal size is relative to the tier's radius
-        // --- MODIFIED ---
-        let petal_width = radius * 0.8 * scale; // Increased from 0.5 to 0.8
-        let petal_length = radius * 1.0 * scale; // Decreased from 1.2 to 1.0
-        // --- END MODIFICATION ---
+        // --- MODIFIED: Increased width and length for more overlap ---
+        let petal_width = radius * 0.9 * scale; // Increased from 0.8
+        let petal_length = radius * 1.1 * scale; // Increased from 1.0
+                                                // --- END MODIFICATION ---
 
         let cp1_base = vec2(-petal_width, -petal_length);
         let cp2_base = vec2(petal_width, -petal_length);
@@ -170,12 +170,18 @@ impl LotusWidget {
 /// Implementation of the `Widget` trait for our `LotusWidget`.
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        // 1. Allocate space for the widget
-        // Accommodate the largest radius
-        let desired_size = vec2(self.base_radius * 2.5, self.base_radius * 2.5);
-        let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::hover());
+        // --- MODIFIED: ---
+        // 1. Allocate available space for the widget
+        // We will fill the available rectangle.
+        let (rect, mut response) =
+            ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
 
+        // 2. Calculate dynamic radius based on the allocated space
+        // Use 45% of the smallest dimension to leave a small margin
+        let base_radius = rect.width().min(rect.height()) * 0.45;
         let center = rect.center();
+        // --- END MODIFICATION ---
+
         let painter = ui.painter();
         let ctx = ui.ctx();
 
@@ -188,12 +194,16 @@ impl Widget for LotusWidget {
             Rgba::from(Color32::from_rgb(255, 220, 100)), // Tier 4 (A+ - Exemplary) - Gold
         ];
 
-        // 2. Iterate and draw each petal for each tier
+        // --- NEW: Calculate dynamic font size ---
+        let font_size = (base_radius * 0.08).max(10.0); // 8% of radius, but at least 10.0
+        let text_font = FontId::proportional(font_size);
+
+        // 3. Iterate and draw each petal for each tier
         // (Reversed loop, draws from back (largest) to front (smallest))
         for tier in (0..self.num_tiers).rev() {
             // Calculate this tier's radius (from 1/N to N/N)
             let tier_radius_factor = (tier as f32 + 1.0) / self.num_tiers as f32;
-            let tier_radius = self.base_radius * tier_radius_factor;
+            let tier_radius = base_radius * tier_radius_factor;
 
             // Offset each tier's rotation by half a petal
             let tier_rotation = (tier as f32 * (TAU / self.num_petals_per_tier as f32)) / 2.0;
@@ -255,27 +265,26 @@ impl Widget for LotusWidget {
 
                 painter.add(petal_shape);
 
-                // --- NEW: DRAW PETAL TEXT ---
-                // We draw this *after* the petal shape, so it's on top
-                let petal_text_pos = self.get_petal_resting_pos(petal_total_index, center);
+                // --- DRAW PETAL TEXT (Now with dynamic radius) ---
+                let petal_text_pos =
+                    self.get_petal_resting_pos(petal_total_index, center, base_radius);
                 let text = self.get_petal_text(tier, petal, petal_total_index);
 
                 painter.text(
                     petal_text_pos,
                     Align2::CENTER_CENTER,
                     text,
-                    FontId::proportional(12.0),
+                    text_font.clone(), // Use dynamic font
                     Color32::BLACK,
                 );
-                // --- END NEW ---
+                // --- END TEXT ---
 
                 response |= petal_response;
             }
         }
 
-        // --- 3. Draw the Animated Player Token ---
-        // (This is drawn last, so it's always on top, which is correct)
-        let target_pos = self.get_petal_resting_pos(self.player_total_index, center);
+        // --- 4. Draw the Animated Player Token (Now with dynamic radius) ---
+        let target_pos = self.get_petal_resting_pos(self.player_total_index, center, base_radius);
         let player_anim_id = response.id.with("player_token_pos");
 
         // Animate X and Y components separately
@@ -287,16 +296,20 @@ impl Widget for LotusWidget {
         // Combine them back into a Pos2
         let animated_pos = Pos2::new(animated_x, animated_y);
 
+        // --- NEW: Calculate dynamic token size ---
+        let token_radius = (base_radius * 0.05).max(6.0); // 5% of radius, but at least 6.0
+        let token_stroke = (token_radius * 0.2).max(1.5); // 20% of token radius, but at least 1.5
+
         // Draw the player token
         painter.circle_filled(
             animated_pos,
-            10.0,
+            token_radius,
             Color32::from_rgb(255, 220, 0), // Yellow
         );
         painter.circle_stroke(
             animated_pos,
-            10.0,
-            Stroke::new(2.0, Color32::from_black_alpha(150)),
+            token_radius,
+            Stroke::new(token_stroke, Color32::from_black_alpha(150)),
         );
 
         response
@@ -312,8 +325,8 @@ fn rotate_vec(v: Vec2, angle: f32) -> Vec2 {
 /// Main function to run the app
 fn main() -> eframe::Result<()> {
     let options = NativeOptions {
-        // Increased window size
-        viewport: egui::ViewportBuilder::default().with_inner_size(vec2(800.0, 800.0)), // Made window larger
+        // Set a default window size, but it's now fully resizable
+        viewport: egui::ViewportBuilder::default().with_inner_size(vec2(800.0, 800.0)),
         ..Default::default()
     };
 
