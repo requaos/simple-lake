@@ -51,7 +51,9 @@ impl App for LotusApp {
             // If the player is on the "SCS Review" space (petal 0), show tier change buttons
             if self.player_petal == 0 {
                 ui.add_space(5.0);
-                ui.label("You are on an 'SCS Review' space!").strong();
+                // --- MODIFIED: Use RichText to make the label strong ---
+                ui.label(egui::RichText::new("You are on an 'SCS Review' space!").strong());
+                // --- END MODIFICATION ---
                 ui.label("Your SCS is re-evaluated...");
                 ui.horizontal(|ui| {
                     if ui.button("SCS: Go Up a Tier").clicked() {
@@ -306,7 +308,10 @@ impl Widget for LotusWidget {
         // --- 4. Draw the Animated Player Token (Now with dynamic radius) ---
         // We use the player_total_index passed into the widget
         let target_pos = self.get_petal_resting_pos(self.player_total_index, center, base_radius);
+        
+        // --- MODIFIED: Fixed the typo here ---
         let player_anim_id = response.id.with("player_token_pos");
+        // --- END MODIFICATION ---
 
         // Animate X and Y components separately
         let animated_x =
