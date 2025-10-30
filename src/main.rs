@@ -121,8 +121,8 @@ impl LotusWidget {
         let p3 = center;
 
         // Petal size is relative to the tier's radius
-        let petal_width = radius * 0.9 * scale; // Increased from 0.8
-        let petal_length = radius * 1.1 * scale; // Increased from 1.0
+        let petal_width = radius * 0.9 * scale;
+        let petal_length = radius * 1.1 * scale;
 
         let cp1_base = vec2(-petal_width, -petal_length);
         let cp2_base = vec2(petal_width, -petal_length);
@@ -165,9 +165,7 @@ impl LotusWidget {
 /// Implementation of the `Widget` trait for our `LotusWidget`.
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        // --- MODIFIED: ---
         // 1. Allocate available space for the widget
-        // We will fill the available rectangle.
         let mut response =
             ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
         let rect = response.rect; // Get the Rect *from* the Response
@@ -176,7 +174,6 @@ impl Widget for LotusWidget {
         // Use 45% of the smallest dimension to leave a small margin
         let base_radius = rect.width().min(rect.height()) * 0.45;
         let center = rect.center();
-        // --- END MODIFICATION ---
 
         let painter = ui.painter();
         let ctx = ui.ctx();
@@ -190,9 +187,9 @@ impl Widget for LotusWidget {
             Rgba::from(Color32::from_rgb(255, 220, 100)), // Tier 4 (A+ - Exemplary) - Gold
         ];
 
-        // --- NEW: Calculate dynamic font size ---
-        let font_size = (base_radius * 0.08).max(10.0); // 8% of radius, but at least 10.0
-        let text_font = FontId::proportional(font_size);
+        // --- MODIFIED: Set a constant, readable font size ---
+        let text_font = FontId::proportional(12.0);
+        // --- END MODIFICATION ---
 
         // 3. Iterate and draw each petal for each tier
         // (Reversed loop, draws from back (largest) to front (smallest))
@@ -270,7 +267,7 @@ impl Widget for LotusWidget {
                     petal_text_pos,
                     Align2::CENTER_CENTER,
                     text,
-                    text_font.clone(), // Use dynamic font
+                    text_font.clone(), // --- MODIFIED: Use fixed font
                     Color32::BLACK,
                 );
                 // --- END TEXT ---
@@ -292,7 +289,7 @@ impl Widget for LotusWidget {
         // Combine them back into a Pos2
         let animated_pos = Pos2::new(animated_x, animated_y);
 
-        // --- NEW: Calculate dynamic token size ---
+        // --- Calculate dynamic token size (This is still good) ---
         let token_radius = (base_radius * 0.05).max(6.0); // 5% of radius, but at least 6.0
         let token_stroke = (token_radius * 0.2).max(1.5); // 20% of token radius, but at least 1.5
 
