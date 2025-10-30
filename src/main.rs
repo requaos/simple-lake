@@ -159,7 +159,10 @@ impl Widget for LotusWidget {
         let outer_color = Rgba::from(Color32::from_rgb(255, 105, 180)); // Dark Pink
 
         // 2. Iterate and draw each petal for each tier
-        for tier in 0..self.num_tiers {
+        //
+        // *** FIX: Reverse the loop to draw from back (largest) to front (smallest) ***
+        //
+        for tier in (0..self.num_tiers).rev() {
             // Calculate this tier's radius (from 1/N to N/N)
             let tier_radius_factor = (tier as f32 + 1.0) / self.num_tiers as f32;
             let tier_radius = self.base_radius * tier_radius_factor;
@@ -230,6 +233,7 @@ impl Widget for LotusWidget {
         }
 
         // --- 3. Draw the Animated Player Token ---
+        // (This is drawn last, so it's always on top, which is correct)
         let target_pos = self.get_petal_resting_pos(self.player_total_index, center);
         let player_anim_id = response.id.with("player_token_pos");
 
