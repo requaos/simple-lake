@@ -1,6 +1,6 @@
 use eframe::{egui, App, NativeOptions};
 use egui::{
-    vec2, Color32, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
 use std::f32::consts::TAU; // TAU is 2 * PI
 
@@ -57,7 +57,7 @@ impl App for LotusApp {
                 ui.add(LotusWidget::new(
                     self.num_tiers,
                     self.num_petals_per_tier,
-                    120.0, // Increased base radius to fit all tiers
+                    150.0, // Increased base radius further to fit text
                     self.player_total_index,
                 ));
             });
@@ -124,8 +124,11 @@ impl LotusWidget {
         let p3 = center;
 
         // Petal size is relative to the tier's radius
-        let petal_width = radius * 0.5 * scale;
-        let petal_length = radius * 1.2 * scale;
+        // --- MODIFIED ---
+        let petal_width = radius * 0.8 * scale; // Increased from 0.5 to 0.8
+        let petal_length = radius * 1.0 * scale; // Decreased from 1.2 to 1.0
+        // --- END MODIFICATION ---
+
         let cp1_base = vec2(-petal_width, -petal_length);
         let cp2_base = vec2(petal_width, -petal_length);
 
@@ -139,6 +142,28 @@ impl LotusWidget {
             fill,
             stroke: stroke.into(),
         })
+    }
+
+    /// Helper function to get the text for a specific petal
+    /// This is where you would define your game board content
+    fn get_petal_text(&self, tier: usize, petal: usize, total_index: usize) -> String {
+        // Tier 0 is the innermost (Blacklisted)
+        // Tier 4 is the outermost (Exemplary)
+
+        // Special "SCS Review" space on the first petal of each tier
+        if petal == 0 {
+            return "SCS\nReview".to_string();
+        }
+
+        // --- Example Game Logic ---
+        match tier {
+            0 => "Re-education".to_string(), // Tier D (Blacklisted)
+            1 => "Job Warning".to_string(),  // Tier C (Warning)
+            2 => format!("Event\n{}", total_index), // Tier B (Standard)
+            3 => "Party Banquet".to_string(), // Tier A (Trusted)
+            4 => "Honored!".to_string(),     // Tier A+ (Exemplary)
+            _ => "??".to_string(),
+        }
     }
 }
 
@@ -154,14 +179,17 @@ impl Widget for LotusWidget {
         let painter = ui.painter();
         let ctx = ui.ctx();
 
-        // Tier colors
-        let inner_color = Rgba::from(Color32::from_rgb(255, 220, 230)); // Very Light Pink
-        let outer_color = Rgba::from(Color32::from_rgb(255, 105, 180)); // Dark Pink
+        // Tier colors (Mapped to SCS Tiers)
+        let tier_colors = [
+            Rgba::from(Color32::from_rgb(80, 80, 80)),      // Tier 0 (D - Blacklisted) - Dark Grey
+            Rgba::from(Color32::from_rgb(255, 100, 100)),   // Tier 1 (C - Warning) - Red
+            Rgba::from(Color32::from_rgb(255, 180, 105)),   // Tier 2 (B - Standard) - Pink/Orange
+            Rgba::from(Color32::from_rgb(105, 200, 255)),   // Tier 3 (A - Trusted) - Blue
+            Rgba::from(Color32::from_rgb(255, 220, 100)), // Tier 4 (A+ - Exemplary) - Gold
+        ];
 
         // 2. Iterate and draw each petal for each tier
-        //
-        // *** FIX: Reverse the loop to draw from back (largest) to front (smallest) ***
-        //
+        // (Reversed loop, draws from back (largest) to front (smallest))
         for tier in (0..self.num_tiers).rev() {
             // Calculate this tier's radius (from 1/N to N/N)
             let tier_radius_factor = (tier as f32 + 1.0) / self.num_tiers as f32;
@@ -169,14 +197,12 @@ impl Widget for LotusWidget {
 
             // Offset each tier's rotation by half a petal
             let tier_rotation = (tier as f32 * (TAU / self.num_petals_per_tier as f32)) / 2.0;
-            
-            // Calculate tier color
-            let tier_progress = if self.num_tiers > 1 {
-                tier as f32 / (self.num_tiers - 1) as f32
-            } else {
-                1.0
-            };
-            let base_color_rgba = egui::lerp(inner_color..=outer_color, tier_progress);
+
+            // Get tier color
+            let base_color_rgba = tier_colors
+                .get(tier)
+                .cloned()
+                .unwrap_or(Rgba::from(Color32::GRAY));
             let hover_color_rgba = egui::lerp(base_color_rgba..=Rgba::WHITE, 0.4);
 
             for petal in 0..self.num_petals_per_tier {
@@ -228,6 +254,21 @@ impl Widget for LotusWidget {
                 );
 
                 painter.add(petal_shape);
+
+                // --- NEW: DRAW PETAL TEXT ---
+                // We draw this *after* the petal shape, so it's on top
+                let petal_text_pos = self.get_petal_resting_pos(petal_total_index, center);
+                let text = self.get_petal_text(tier, petal, petal_total_index);
+
+                painter.text(
+                    petal_text_pos,
+                    Align2::CENTER_CENTER,
+                    text,
+                    FontId::proportional(12.0),
+                    Color32::BLACK,
+                );
+                // --- END NEW ---
+
                 response |= petal_response;
             }
         }
@@ -272,7 +313,7 @@ fn rotate_vec(v: Vec2, angle: f32) -> Vec2 {
 fn main() -> eframe::Result<()> {
     let options = NativeOptions {
         // Increased window size
-        viewport: egui::ViewportBuilder::default().with_inner_size(vec2(600.0, 600.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size(vec2(800.0, 800.0)), // Made window larger
         ..Default::default()
     };
 
