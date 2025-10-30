@@ -20,9 +20,16 @@ impl Default for LotusApp {
 }
 
 impl App for LotusApp {
+    // MODIFICATION 1: `frame` is no longer needed, so it's `_frame` again.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Lotus Flower Game Board");
+
+            // MODIFICATION 2: Use `ctx.send_viewport_cmd` to close the window.
+            if ui.button("Exit Application").clicked() {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            }
+
             ui.label("Click the buttons to move the player token.");
             ui.add_space(10.0);
 
