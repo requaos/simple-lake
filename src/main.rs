@@ -5,8 +5,10 @@ use egui::{
 use std::f32::consts::TAU; // TAU is 2 * PI
 
 /// Main application state
+/// --- MODIFIED: Player state is now logical ---
 struct LotusApp {
-    player_total_index: usize,
+    player_tier: usize,
+    player_petal: usize,
     num_petals_per_tier: usize,
     num_tiers: usize,
 }
@@ -14,7 +16,8 @@ struct LotusApp {
 impl Default for LotusApp {
     fn default() -> Self {
         Self {
-            player_total_index: 0,
+            player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
+            player_petal: 1, // Start on petal 1 (not the review space)
             num_petals_per_tier: 8,
             num_tiers: 5,
         }
@@ -33,31 +36,59 @@ impl App for LotusApp {
             ui.label("Click the buttons to move the player token.");
             ui.add_space(10.0);
 
-            let total_petals = self.num_petals_per_tier * self.num_tiers;
-
-            // --- UI Controls to move the player ---
+            // --- MODIFIED: Movement logic now only affects the petal index ---
             ui.horizontal(|ui| {
                 if ui.button("Move Counter-Clockwise").clicked() {
-                    self.player_total_index =
-                        (self.player_total_index + total_petals - 1) % total_petals;
+                    self.player_petal =
+                        (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
                 }
                 if ui.button("Move Clockwise").clicked() {
-                    self.player_total_index = (self.player_total_index + 1) % total_petals;
+                    self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                 }
             });
+
+            // --- NEW: SCS Review Logic ---
+            // If the player is on the "SCS Review" space (petal 0), show tier change buttons
+            if self.player_petal == 0 {
+                ui.add_space(5.0);
+                ui.label("You are on an 'SCS Review' space!").strong();
+                ui.label("Your SCS is re-evaluated...");
+                ui.horizontal(|ui| {
+                    if ui.button("SCS: Go Up a Tier").clicked() {
+                        // Use .min() to clamp at the max tier
+                        self.player_tier = (self.player_tier + 1).min(self.num_tiers - 1);
+                    }
+                    if ui.button("SCS: Go Down a Tier").clicked() {
+                        // .saturating_sub() prevents underflow (going below 0)
+                        self.player_tier = self.player_tier.saturating_sub(1);
+                    }
+                });
+                ui.add_space(5.0);
+            }
+
+            // --- NEW: Helper to map tier index to SCS name ---
+            let tier_name = ["D (Blacklisted)", "C (Warning)", "B (Standard)", "A (Trusted)", "A+ (Exemplary)"]
+                .get(self.player_tier)
+                .cloned()
+                .unwrap_or("?");
+
             ui.label(format!(
-                "Player is on petal index: {}",
-                self.player_total_index
+                "Player is on Tier {} (SCS: {}), Petal {}",
+                self.player_tier, tier_name, self.player_petal
             ));
             ui.add_space(10.0); // Reduced bottom space to give more room to widget
 
+            // --- MODIFIED: Calculate the total_index for the widget ---
+            let player_total_index =
+                self.player_tier * self.num_petals_per_tier + self.player_petal;
+
             // The widget will now fill the remaining space.
-            // We pass control to the LotusWidget, which will handle its own layout.
             ui.add(LotusWidget::new(
                 self.num_tiers,
                 self.num_petals_per_tier,
-                self.player_total_index,
+                player_total_index, // Pass the calculated total index
             ));
+            // --- END MODIFICATION ---
 
             // Repaint continuously to see animations
             ctx.request_repaint();
@@ -66,7 +97,8 @@ impl App for LotusApp {
 }
 
 /// Our custom widget.
-/// Removed base_radius, as it will be calculated dynamically
+/// This widget is now "dumb" - it just receives a total_index and renders it.
+/// It no longer needs base_radius, as it will be calculated dynamically.
 struct LotusWidget {
     num_tiers: usize,
     num_petals_per_tier: usize,
@@ -187,9 +219,8 @@ impl Widget for LotusWidget {
             Rgba::from(Color32::from_rgb(255, 220, 100)), // Tier 4 (A+ - Exemplary) - Gold
         ];
 
-        // --- MODIFIED: Set a constant, readable font size ---
+        // Set a constant, readable font size
         let text_font = FontId::proportional(12.0);
-        // --- END MODIFICATION ---
 
         // 3. Iterate and draw each petal for each tier
         // (Reversed loop, draws from back (largest) to front (smallest))
@@ -223,9 +254,9 @@ impl Widget for LotusWidget {
                     Stroke::NONE,
                 );
                 let hover_rect = base_shape.visual_bounding_rect();
-                let petal_response = ui.interact(hover_rect, petal_id, Sense::click_and_drag());
+                // --- MODIFIED: Sense is now just hover, clicks are handled by app logic ---
+                let petal_response = ui.interact(hover_rect, petal_id, Sense::hover());
                 let is_hovered = petal_response.hovered();
-                let is_clicked = petal_response.is_pointer_button_down_on();
 
                 // --- Animation: ---
                 let scale_anim = ctx.animate_value_with_time(
@@ -233,18 +264,14 @@ impl Widget for LotusWidget {
                     if is_hovered { 1.2 } else { 1.0 },
                     0.1,
                 );
-                let click_flash = ctx.animate_value_with_time(
-                    petal_id.with("click"),
-                    if is_clicked { 1.0 } else { 0.0 },
-                    0.1,
-                );
+                
+                // We can remove the click-flash animation as it's not needed now
+                // let click_flash = ...
 
                 // --- Color Logic ---
-                let click_color = Rgba::from(Color32::WHITE);
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
-                let color_rgba_with_click = egui::lerp(color_rgba..=click_color, click_flash);
-                let final_color: Color32 = color_rgba_with_click.into();
+                let final_color: Color32 = color_rgba.into();
 
                 // --- Drawing: ---
                 let petal_shape = self.create_petal_shape(
@@ -267,7 +294,7 @@ impl Widget for LotusWidget {
                     petal_text_pos,
                     Align2::CENTER_CENTER,
                     text,
-                    text_font.clone(), // --- MODIFIED: Use fixed font
+                    text_font.clone(), // Use fixed font
                     Color32::BLACK,
                 );
                 // --- END TEXT ---
@@ -277,6 +304,7 @@ impl Widget for LotusWidget {
         }
 
         // --- 4. Draw the Animated Player Token (Now with dynamic radius) ---
+        // We use the player_total_index passed into the widget
         let target_pos = self.get_petal_resting_pos(self.player_total_index, center, base_radius);
         let player_anim_id = response.id.with("player_token_pos");
 
