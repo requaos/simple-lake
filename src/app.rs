@@ -2,7 +2,7 @@ use eframe::{egui, App};
 use egui::{vec2, Align2, Window};
 
 // Use the items we've moved to other files
-use super::game_data::generate_event;
+use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
 
@@ -12,10 +12,40 @@ impl Default for LotusApp {
         Self {
             player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
             player_petal: 1, // Start on petal 1 (not the review space)
-            num_petals_per_tier: 13, // 13 petals per tier
+            num_petals_per_tier: 13,
             num_tiers: 5,
             current_event: None, // No event window is open at the start
+
+            // --- NEW: Initialize Player Stats ---
+            social_credit_score: 500, // Tier B
+            finances: 1000,
+            career_level: 1,
+            guanxi_family: 2,
+            guanxi_network: 1,
+            guanxi_party: 0,
         }
+    }
+}
+
+/// --- NEW: Logic block for applying game changes ---
+impl LotusApp {
+    /// Takes an EventOutcome and safely applies all stat changes to the player.
+    pub fn apply_outcome(&mut self, outcome: &EventOutcome) {
+        // Apply simple i32 deltas
+        self.social_credit_score += outcome.scs_change;
+        self.finances += outcome.finance_change;
+
+        // Apply deltas to u32 stats, ensuring they don't go below 0
+        self.career_level = (self.career_level as i32 + outcome.career_level_change).max(0) as u32;
+        self.guanxi_family =
+            (self.guanxi_family as i32 + outcome.guanxi_family_change).max(0) as u32;
+        self.guanxi_network =
+            (self.guanxi_network as i32 + outcome.guanxi_network_change).max(0) as u32;
+        self.guanxi_party =
+            (self.guanxi_party as i32 + outcome.guanxi_party_change).max(0) as u32;
+
+        // --- TODO: Add logic to check if SCS score has changed tier ---
+        // (e.g., if self.social_credit_score < 400 { self.player_tier = 1; })
     }
 }
 
@@ -62,6 +92,25 @@ impl App for LotusApp {
             });
             // --- END Top Controls ---
 
+            // --- NEW: Player Stats Panel ---
+            ui.add_enabled_ui(!event_is_open, |ui| {
+                egui::Frame::group(ui.style()).show(ui, |ui| {
+                    ui.label(egui::RichText::new("Player Stats").strong());
+                    ui.horizontal(|ui| {
+                        ui.label(format!("SCS: {}", self.social_credit_score));
+                        ui.label(format!("Finances (¥): {}", self.finances));
+                        ui.label(format!("Career: Lvl {}", self.career_level));
+                    });
+                    ui.horizontal(|ui| {
+                        ui.label(format!("Guanxi (Family): {}", self.guanxi_family));
+                        ui.label(format!("Guanxi (Network): {}", self.guanxi_network));
+                        ui.label(format!("Guanxi (Party): {}", self.guanxi_party));
+                    });
+                });
+            });
+            ui.add_space(5.0);
+            // --- END Stats Panel ---
+
             // --- Status/Review UI ---
             // This entire section is hidden if an event is open
             if !event_is_open {
@@ -97,7 +146,6 @@ impl App for LotusApp {
             }
 
             // --- Game Board Widget ---
-            // We draw the board *before* the modal, so it's in the background.
             let draw_lotus_widget = |ui: &mut egui::Ui| {
                 let player_total_index =
                     self.player_tier * self.num_petals_per_tier + self.player_petal;
@@ -110,12 +158,9 @@ impl App for LotusApp {
             };
 
             // If an event is open, draw the widget disabled (dimmed).
-            // Otherwise, draw it enabled.
             ui.add_enabled(!event_is_open, draw_lotus_widget);
 
             // --- Event Window (Modal) ---
-            // Drawn last, so it's on top of everything else.
-            // We clone the event to avoid borrow checker issues.
             if let Some(event) = self.current_event.clone() {
                 Window::new(egui::RichText::new(&event.title).strong())
                     .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0)) // Center the window
@@ -123,27 +168,25 @@ impl App for LotusApp {
                     .resizable(false)
                     .show(ctx, |ui| {
                         ui.set_max_width(300.0); // Constrain window width
-
                         ui.add(egui::Label::new(&event.description).wrap());
-
                         ui.separator();
 
-                        // Show the four options
+                        // --- MODIFIED: Buttons now apply outcomes ---
                         ui.vertical_centered_justified(|ui| {
-                            if ui.button(&event.options[0]).clicked() {
-                                println!("Player chose Option 1");
+                            if ui.button(&event.options[0].text).clicked() {
+                                self.apply_outcome(&event.options[0].outcome);
                                 self.current_event = None; // Close window
                             }
-                            if ui.button(&event.options[1]).clicked() {
-                                println!("Player chose Option 2");
+                            if ui.button(&event.options[1].text).clicked() {
+                                self.apply_outcome(&event.options[1].outcome);
                                 self.current_event = None; // Close window
                             }
-                            if ui.button(&event.options[2]).clicked() {
-                                println!("Player chose Option 3");
+                            if ui.button(&event.options[2].text).clicked() {
+                                self.apply_outcome(&event.options[2].outcome);
                                 self.current_event = None; // Close window
                             }
-                            if ui.button(&event.options[3]).clicked() {
-                                println!("Player chose Option 4");
+                            if ui.button(&event.options[3].text).clicked() {
+                                self.apply_outcome(&event.options[3].outcome);
                                 self.current_event = None; // Close window
                             }
                         });

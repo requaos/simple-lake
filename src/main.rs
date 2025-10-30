@@ -2,24 +2,33 @@ use eframe::NativeOptions;
 use egui::vec2;
 
 // Declare our new modules
-mod app;
-mod game_data;
-mod lotus_widget;
+pub mod app;
+pub mod game_data;
+pub mod lotus_widget;
 
 // Use the public structs from our modules
-// --- MODIFIED: Removed `use app::LotusApp;` as it's defined in this file ---
 use game_data::EventData;
 
 /// Main application state
 /// This struct definition stays in main.rs,
-/// but its implementation is in app.rs.
-/// We add `pub` so app.rs can see the fields.
+/// as it's the central state for the whole application.
 pub struct LotusApp {
-    pub player_tier: usize,
-    pub player_petal: usize,
-    pub num_petals_per_tier: usize,
-    pub num_tiers: usize,
-    pub current_event: Option<EventData>, // Holds the active event
+    // Game Board State
+    player_tier: usize,
+    player_petal: usize,
+    num_petals_per_tier: usize,
+    num_tiers: usize,
+
+    // Modal Event State
+    current_event: Option<EventData>,
+
+    // --- NEW: Player Stats ---
+    social_credit_score: i32,
+    finances: i32,
+    career_level: u32,
+    guanxi_family: u32,
+    guanxi_network: u32,
+    guanxi_party: u32,
 }
 
 /// Main function to run the app

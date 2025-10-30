@@ -1,4 +1,5 @@
-use eframe::egui;
+// --- MODIFIED: Added necessary `use` statements ---
+use eframe::{egui, epaint::CubicBezierShape};
 use egui::{
     vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
@@ -6,7 +7,6 @@ use std::f32::consts::TAU; // TAU is 2 * PI
 
 /// Our custom widget.
 /// This widget is "dumb" - it just receives a total_index and renders it.
-/// We make it `pub` so main.rs and app.rs can see it.
 pub struct LotusWidget {
     num_tiers: usize,
     num_petals_per_tier: usize,
@@ -70,7 +70,7 @@ impl LotusWidget {
         let p1 = center + rotate_vec(cp1_base, angle);
         let p2 = center + rotate_vec(cp2_base, angle);
 
-        Shape::CubicBezier(egui::epaint::CubicBezierShape {
+        Shape::CubicBezier(CubicBezierShape {
             points: [p0, p1, p2, p3],
             closed: true,
             fill,
@@ -101,7 +101,8 @@ impl LotusWidget {
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         // 1. Allocate available space for the widget
-        let mut response = ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
+        let mut response =
+            ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
         let rect = response.rect; // Get the Rect *from* the Response
 
         // 2. Calculate dynamic radius based on the allocated space
