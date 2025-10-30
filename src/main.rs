@@ -69,7 +69,7 @@ impl App for LotusApp {
 
             // --- Top Controls ---
             // --- MODIFIED: Wrap the horizontal layout in add_enabled ---
-            ui.add_enabled(!event_is_open, |ui| {
+            ui.add_enabled(!event_is_open, |ui: &mut egui::Ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
@@ -92,7 +92,7 @@ impl App for LotusApp {
                             self.current_event = Some(self.generate_event());
                         }
                     }
-                });
+                }) // --- MODIFICATION: Semicolon removed here ---
             });
             // --- END MODIFICATION ---
 
@@ -132,7 +132,6 @@ impl App for LotusApp {
 
             // --- Game Board Widget ---
             // We draw the board *before* the modal, so it's in the background.
-            // --- MODIFIED: The closure must return the Response ---
             let draw_lotus_widget = |ui: &mut egui::Ui| {
                 let player_total_index =
                     self.player_tier * self.num_petals_per_tier + self.player_petal;
@@ -143,7 +142,6 @@ impl App for LotusApp {
                     player_total_index, // Pass the calculated total index
                 )) // Removed semicolon to return the Response
             };
-            // --- END MODIFICATION ---
 
             // If an event is open, draw the widget disabled (dimmed).
             // Otherwise, draw it enabled.
@@ -160,8 +158,8 @@ impl App for LotusApp {
                     .show(ctx, |ui| {
                         ui.set_max_width(300.0); // Constrain window width
 
-                        // --- MODIFIED: Use egui::Label::new(...).wrap(true) ---
-                        ui.add(egui::Label::new(&event.description).wrap(true));
+                        // --- MODIFIED: Use egui::Label::new(...).wrap() ---
+                        ui.add(egui::Label::new(&event.description).wrap());
                         // --- END MODIFICATION ---
 
                         ui.separator();
@@ -356,7 +354,10 @@ impl Widget for LotusWidget {
                 // --- Color Logic ---
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
-                let final_.into();
+                
+                // --- MODIFIED: Fixed typo ---
+                let final_color: Color32 = color_rgba.into();
+                // --- END MODIFICATION ---
 
                 // --- Drawing: ---
                 let petal_shape = self.create_petal_shape(
