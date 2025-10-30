@@ -194,10 +194,10 @@ impl Widget for LotusWidget {
         let target_pos = self.get_petal_resting_pos(self.player_index, center);
         let player_anim_id = response.id.with("player_token_pos");
 
-        // FIX: Use animate_value_with_time instead of animate_value
-        let animated_pos = ctx.animate_value_with_time(player_anim_id, target_pos, 0.3);
+        // FIX: Use animate_value for non-f32 types like Pos2
+        let animated_pos = ctx.animate_value(player_anim_id, target_pos, 0.3);
 
-        // Draw the player token
+        // Draw the player token (animated_pos is now Pos2)
         painter.circle_filled(
             animated_pos,
             10.0,
@@ -206,8 +206,8 @@ impl Widget for LotusWidget {
         painter.circle_stroke(
             animated_pos,
             10.0,
-            // Use from_black_alpha instead of with_alpha
-            Stroke::new(2.0, Color3.from_black_alpha(150)),
+            // FIX: Corrected typo Color3 -> Color32
+            Stroke::new(2.0, Color32::from_black_alpha(150)),
         );
 
         response
