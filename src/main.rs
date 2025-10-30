@@ -1,6 +1,6 @@
 use eframe::{egui, App, NativeOptions};
 use egui::{
-    pos2, vec2, Color32, Painter, Pos2, Rect, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    vec2, Color32, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
 use std::f32::consts::TAU; // TAU is 2 * PI
 
@@ -108,7 +108,8 @@ impl LotusWidget {
             points: [p0, p1, p2, p3],
             closed: true,
             fill,
-            stroke,
+            // FIX: Use .into() to convert Stroke to PathStroke
+            stroke: stroke.into(),
         })
     }
 }
@@ -143,8 +144,9 @@ impl Widget for LotusWidget {
             // Now, interact with that area
             let petal_response = ui.interact(hover_rect, petal_id, Sense::click_and_drag());
             let is_hovered = petal_response.hovered();
-            // Use .down() to check if the primary button is being held
-            let is_clicked = petal_response.down();
+            
+            // FIX: Use .is_pointer_button_down_on() instead of .down()
+            let is_clicked = petal_response.is_pointer_button_down_on();
 
             // --- Animation: ---
             let scale_anim = ctx.animate_value_with_time(
@@ -192,8 +194,8 @@ impl Widget for LotusWidget {
         let target_pos = self.get_petal_resting_pos(self.player_index, center);
         let player_anim_id = response.id.with("player_token_pos");
 
-        // Use animate_value instead of animate_pos
-        let animated_pos = ctx.animate_value(player_anim_id, target_pos, 0.3);
+        // FIX: Use animate_value_with_time instead of animate_value
+        let animated_pos = ctx.animate_value_with_time(player_anim_id, target_pos, 0.3);
 
         // Draw the player token
         painter.circle_filled(
@@ -205,7 +207,7 @@ impl Widget for LotusWidget {
             animated_pos,
             10.0,
             // Use from_black_alpha instead of with_alpha
-            Stroke::new(2.0, Color32::from_black_alpha(150)),
+            Stroke::new(2.0, Color3.from_black_alpha(150)),
         );
 
         response
