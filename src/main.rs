@@ -92,7 +92,8 @@ impl App for LotusApp {
                             self.current_event = Some(self.generate_event());
                         }
                     }
-                }) // --- MODIFICATION: Semicolon removed here ---
+                })
+                .response // --- MODIFIED: Return the Response from the InnerResponse ---
             });
             // --- END MODIFICATION ---
 
@@ -132,6 +133,7 @@ impl App for LotusApp {
 
             // --- Game Board Widget ---
             // We draw the board *before* the modal, so it's in the background.
+            // The closure must return the Response
             let draw_lotus_widget = |ui: &mut egui::Ui| {
                 let player_total_index =
                     self.player_tier * self.num_petals_per_tier + self.player_petal;
@@ -158,9 +160,8 @@ impl App for LotusApp {
                     .show(ctx, |ui| {
                         ui.set_max_width(300.0); // Constrain window width
 
-                        // --- MODIFIED: Use egui::Label::new(...).wrap() ---
+                        // Use egui::Label::new(...).wrap()
                         ui.add(egui::Label::new(&event.description).wrap());
-                        // --- END MODIFICATION ---
 
                         ui.separator();
 
@@ -354,10 +355,7 @@ impl Widget for LotusWidget {
                 // --- Color Logic ---
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
-                
-                // --- MODIFIED: Fixed typo ---
                 let final_color: Color32 = color_rgba.into();
-                // --- END MODIFICATION ---
 
                 // --- Drawing: ---
                 let petal_shape = self.create_petal_shape(
