@@ -7,7 +7,7 @@ mod game_data;
 mod lotus_widget;
 
 // Use the public structs from our modules
-use app::LotusApp;
+// --- MODIFIED: Removed `use app::LotusApp;` as it's defined in this file ---
 use game_data::EventData;
 
 /// Main application state
@@ -36,3 +36,4 @@ fn main() -> eframe::Result<()> {
         Box::new(|_cc| Ok(Box::<LotusApp>::default())),
     )
 }
+

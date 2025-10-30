@@ -1,8 +1,8 @@
 use eframe::{egui, App};
 use egui::{vec2, Align2, Window};
 
-// Use the items we've moved to other files
-use super::game_data::{generate_event, EventData};
+// --- MODIFIED: Removed unused `EventData` import ---
+use super::game_data::generate_event;
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
 
@@ -27,6 +27,7 @@ impl App for LotusApp {
             let event_is_open = self.current_event.is_some();
 
             // --- Top Controls ---
+            // --- MODIFIED: Wrap the horizontal layout in add_enabled ---
             ui.add_enabled(!event_is_open, |ui: &mut egui::Ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
@@ -47,20 +48,9 @@ impl App for LotusApp {
                             ));
                         }
                     }
-                    if ui.button("Move Clockwise").clicked() {
-                        self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-                        // If we moved to a new petal AND it's not the review space, trigger an event
-                        if self.player_petal != 0 {
-                            // Use the generate_event function from our game_data module
-                            self.current_event = Some(generate_event(
-                                self.player_tier,
-                                self.player_petal,
-                            ));
-                        }
-                    }
-                });
+                }) // --- MODIFIED: Removed semicolon to return the Response ---
             });
-            // --- END Top Controls ---
+            // --- END MODIFICATION ---
 
             // --- Status/Review UI ---
             // This entire section is hidden if an event is open
@@ -152,3 +142,4 @@ impl App for LotusApp {
         });
     }
 }
+
