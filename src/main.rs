@@ -1,7 +1,6 @@
 use eframe::{egui, App, NativeOptions};
 use egui::{
-    vec2, Align2, Color32, FontId, Pos2, Rect, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2,
-    Widget,
+    vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
 use std::f32::consts::TAU; // TAU is 2 * PI
 
@@ -52,7 +51,6 @@ impl App for LotusApp {
             ));
             ui.add_space(10.0); // Reduced bottom space to give more room to widget
 
-            // --- MODIFIED: ---
             // The widget will now fill the remaining space.
             // We pass control to the LotusWidget, which will handle its own layout.
             ui.add(LotusWidget::new(
@@ -60,7 +58,6 @@ impl App for LotusApp {
                 self.num_petals_per_tier,
                 self.player_total_index,
             ));
-            // --- END MODIFICATION ---
 
             // Repaint continuously to see animations
             ctx.request_repaint();
@@ -69,7 +66,7 @@ impl App for LotusApp {
 }
 
 /// Our custom widget.
-/// --- MODIFIED: Removed base_radius, as it will be calculated dynamically ---
+/// Removed base_radius, as it will be calculated dynamically
 struct LotusWidget {
     num_tiers: usize,
     num_petals_per_tier: usize,
@@ -86,7 +83,7 @@ impl LotusWidget {
     }
 
     /// Helper function to get the "resting position" on a petal.
-    /// --- MODIFIED: Now takes base_radius as an argument ---
+    /// Now takes base_radius as an argument
     fn get_petal_resting_pos(
         &self,
         total_index: usize,
@@ -124,10 +121,8 @@ impl LotusWidget {
         let p3 = center;
 
         // Petal size is relative to the tier's radius
-        // --- MODIFIED: Increased width and length for more overlap ---
         let petal_width = radius * 0.9 * scale; // Increased from 0.8
         let petal_length = radius * 1.1 * scale; // Increased from 1.0
-                                                // --- END MODIFICATION ---
 
         let cp1_base = vec2(-petal_width, -petal_length);
         let cp2_base = vec2(petal_width, -petal_length);
@@ -173,8 +168,9 @@ impl Widget for LotusWidget {
         // --- MODIFIED: ---
         // 1. Allocate available space for the widget
         // We will fill the available rectangle.
-        let (rect, mut response) =
+        let mut response =
             ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
+        let rect = response.rect; // Get the Rect *from* the Response
 
         // 2. Calculate dynamic radius based on the allocated space
         // Use 45% of the smallest dimension to leave a small margin
