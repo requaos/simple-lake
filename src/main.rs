@@ -108,7 +108,6 @@ impl LotusWidget {
             points: [p0, p1, p2, p3],
             closed: true,
             fill,
-            // FIX: Use .into() to convert Stroke to PathStroke
             stroke: stroke.into(),
         })
     }
@@ -131,7 +130,6 @@ impl Widget for LotusWidget {
             let angle = (i as f32 / self.num_petals as f32) * TAU;
 
             // --- Interaction: ---
-            // First, get the *base* shape (scale 1.0) for hit-testing
             let base_shape = self.create_petal_shape(
                 center,
                 angle,
@@ -140,12 +138,8 @@ impl Widget for LotusWidget {
                 Stroke::NONE,
             );
             let hover_rect = base_shape.visual_bounding_rect();
-
-            // Now, interact with that area
             let petal_response = ui.interact(hover_rect, petal_id, Sense::click_and_drag());
             let is_hovered = petal_response.hovered();
-            
-            // FIX: Use .is_pointer_button_down_on() instead of .down()
             let is_clicked = petal_response.is_pointer_button_down_on();
 
             // --- Animation: ---
@@ -154,8 +148,6 @@ impl Widget for LotusWidget {
                 if is_hovered { 1.2 } else { 1.0 },
                 0.1,
             );
-
-            // Animate click flash: 1.0 = white, 0.0 = normal
             let click_flash = ctx.animate_value_with_time(
                 petal_id.with("click"),
                 if is_clicked { 1.0 } else { 0.0 },
@@ -166,23 +158,17 @@ impl Widget for LotusWidget {
             let base_color = Rgba::from(Color32::from_rgb(255, 105, 180)); // Pink
             let hover_color = Rgba::from(Color32::from_rgb(255, 182, 193)); // Light Pink
             let click_color = Rgba::from(Color32::WHITE);
-
-            // Interpolate between base and hover color
             let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
             let color_rgba = egui::lerp(base_color..=hover_color, hover_progress);
-
-            // Interpolate between that and the click color
             let color_rgba_with_click = egui::lerp(color_rgba..=click_color, click_flash);
             let final_color: Color32 = color_rgba_with_click.into();
 
             // --- Drawing: ---
-            // Now create the *actual* shape with the animated scale and color
             let petal_shape = self.create_petal_shape(
                 center,
                 angle,
                 scale_anim,
                 final_color,
-                // Use from_black_alpha instead of with_alpha
                 Stroke::new(1.0, Color32::from_black_alpha(60)),
             );
 
@@ -194,8 +180,14 @@ impl Widget for LotusWidget {
         let target_pos = self.get_petal_resting_pos(self.player_index, center);
         let player_anim_id = response.id.with("player_token_pos");
 
-        // FIX: Use animate_value for non-f32 types like Pos2
-        let animated_pos = ctx.animate_value(player_anim_id, target_pos, 0.3);
+        // FIX: Animate X and Y components separately using `animate_value_with_time`
+        let animated_x =
+            ctx.animate_value_with_time(player_anim_id.with("x"), target_pos.x, 0.3);
+        let animated_y =
+            ctx.animate_value_with_time(player_anim_id.with("y"), target_pos.y, 0.3);
+        
+        // Combine them back into a Pos2
+        let animated_pos = Pos2::new(animated_x, animated_y);
 
         // Draw the player token (animated_pos is now Pos2)
         painter.circle_filled(
@@ -206,7 +198,6 @@ impl Widget for LotusWidget {
         painter.circle_stroke(
             animated_pos,
             10.0,
-            // FIX: Corrected typo Color3 -> Color32
             Stroke::new(2.0, Color32::from_black_alpha(150)),
         );
 
