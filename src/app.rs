@@ -10,7 +10,7 @@ use super::LotusApp;
 impl Default for LotusApp {
     fn default() -> Self {
         Self {
-            player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
+            player_tier: 2,  // Start on Tier 2 (SCS Tier 'B')
             player_petal: 1, // Start on petal 1 (not the review space)
             num_petals_per_tier: 8,
             num_tiers: 5,
@@ -27,8 +27,8 @@ impl App for LotusApp {
             let event_is_open = self.current_event.is_some();
 
             // --- Top Controls ---
-            // --- MODIFIED: Wrap the horizontal layout in add_enabled ---
-            ui.add_enabled(!event_is_open, |ui: &mut egui::Ui| {
+            // --- MODIFIED: Use `add_enabled_ui` instead of `add_enabled` ---
+            ui.add_enabled_ui(!event_is_open, |ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
@@ -42,13 +42,11 @@ impl App for LotusApp {
                         // If we moved to a new petal AND it's not the review space, trigger an event
                         if self.player_petal != 0 {
                             // Use the generate_event function from our game_data module
-                            self.current_event = Some(generate_event(
-                                self.player_tier,
-                                self.player_petal,
-                            ));
+                            self.current_event =
+                                Some(generate_event(self.player_tier, self.player_petal));
                         }
                     }
-                }) // --- MODIFIED: Removed semicolon to return the Response ---
+                });
             });
             // --- END MODIFICATION ---
 
@@ -74,10 +72,16 @@ impl App for LotusApp {
                 }
 
                 // Helper to map tier index to SCS name
-                let tier_name = ["D (Blacklisted)", "C (Warning)", "B (Standard)", "A (Trusted)", "A+ (Exemplary)"]
-                    .get(self.player_tier)
-                    .cloned()
-                    .unwrap_or("?");
+                let tier_name = [
+                    "D (Blacklisted)",
+                    "C (Warning)",
+                    "B (Standard)",
+                    "A (Trusted)",
+                    "A+ (Exemplary)",
+                ]
+                .get(self.player_tier)
+                .cloned()
+                .unwrap_or("?");
 
                 ui.label(format!(
                     "Player is on Tier {} (SCS: {}), Petal {}",
@@ -142,4 +146,3 @@ impl App for LotusApp {
         });
     }
 }
-
