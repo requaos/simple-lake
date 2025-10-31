@@ -78,7 +78,7 @@ impl LotusWidget {
     }
 
     /// Helper function to get the text for a specific petal
-    fn get_petal_text(&self, tier: usize, petal: usize, total_index: usize) -> String {
+    fn get_petal_text(&self, tier: usize, petal: usize, _total_index: usize) -> String {
         // --- MODIFIED: Check for multiple review petals ---
         let is_review_petal = petal == 0 || petal == 4 || petal == 8;
         if is_review_petal {

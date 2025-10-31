@@ -1,7 +1,7 @@
 use super::LotusApp;
-use rand::seq::SliceRandom; // Used for randomly picking an event
-use serde::Deserialize; // --- NEW: To read from JSON
-use std::collections::HashMap; // --- NEW: For requirements
+use rand::prelude::*; // --- MODIFIED: Use the prelude to import Rng and SliceRandom
+use serde::Deserialize;
+use std::collections::HashMap;
 
 // --- Core Data Structures ---
 
@@ -65,7 +65,7 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
 /// This function is called by app.rs to get a new event.
 /// It selects an event from the in-memory database.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::thread_rng(); // This is correct, the prelude brings in the Rng trait
 
     // 1. Try to find a TIER-SPECIFIC event first
     let tier_specific_events: Vec<&EventData> = player_state
