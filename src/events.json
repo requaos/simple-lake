@@ -82,6 +82,30 @@
     ]
   },
   {
+    "title": "An Elderly Parent's Health",
+    "description": "Your elderly mother needs to see a specialist, but the waitlist at the public hospital is six months long.",
+    "min_tier": 1,
+    "max_tier": 3,
+    "is_generic": true,
+    "options": [
+      {
+        "text": "A: Wait your turn in the public system.",
+        "outcome": { "scs_change": 5 },
+        "requirements": {}
+      },
+      {
+        "text": "B: Pay for an expensive private hospital.",
+        "outcome": { "finance_change": -15000, "scs_change": -10 },
+        "requirements": {}
+      },
+      {
+        "text": "C: (Use Guanxi) Ask your cousin (a hospital administrator) to move her up the list.",
+        "outcome": { "guanxi_family_change": -1 },
+        "requirements": { "guanxi_family": 1 }
+      }
+    ]
+  },
+  {
     "title": "A Warning at Work",
     "description": "Your manager pulls you aside. 'Your recent productivity is fine, but your low Social Credit Score is reflecting poorly on the team. You need to show you are correcting your attitude.'",
     "min_tier": 1,
@@ -109,5 +133,54 @@
         "requirements": { "guanxi_network": 1 }
       }
     ]
+  },
+  {
+    "title": "Forced 'Volunteer' Work",
+    "description": "You are Blacklisted (Tier D). A neighborhood official 'assigns' you to 20 hours of street cleaning this week to 'rebuild your social harmony.'",
+    "min_tier": 0,
+    "max_tier": 0,
+    "is_generic": false,
+    "options": [
+      {
+        "text": "A: Accept and do the work diligently.",
+        "outcome": { "scs_change": 15 },
+        "requirements": {}
+      },
+      {
+        "text": "B: Refuse.",
+        "outcome": { "scs_change": -50, "finance_change": -500 },
+        "requirements": {}
+      },
+      {
+        "text": "C: (Use Guanxi) Beg your last remaining family member to do the work for you.",
+        "outcome": { "guanxi_family_change": -1, "scs_change": -10 },
+        "requirements": { "guanxi_family": 1 }
+      }
+    ]
+  },
+  {
+    "title": "The Party Banquet",
+    "description": "As a 'Trusted' citizen (Tier A), you are invited to a banquet with local Party officials. It's an opportunity to network.",
+    "min_tier": 3,
+    "max_tier": 3,
+    "is_generic": false,
+    "options": [
+      {
+        "text": "A: Attend and give a glowing speech about the local leadership.",
+        "outcome": { "scs_change": 20, "guanxi_party_change": 1 },
+        "requirements": {}
+      },
+      {
+        "text": "B: Attend, but stay quiet and just network.",
+        "outcome": { "guanxi_network_change": 1 },
+        "requirements": {}
+      },
+      {
+        "text": "C: Make an excuse and skip it to spend time with family.",
+        "outcome": { "guanxi_party_change": -1, "guanxi_family_change": 1 },
+        "requirements": {}
+      }
+    ]
   }
 ]
+
