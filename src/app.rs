@@ -12,22 +12,22 @@ impl Default for LotusApp {
         Self {
             player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
             player_petal: 1, // Start on petal 1 (not the review space)
-            num_petals_per_tier: 13,
+            num_petals_per_tier: 13, // MODIFIED: Was 24, now 13
             num_tiers: 5,
             current_event: None, // No event window is open at the start
 
-            // --- NEW: Initialize Player Stats ---
+            // --- Initialize Player Stats ---
             social_credit_score: 500, // Tier B
             finances: 1000,
             career_level: 1,
             guanxi_family: 2,
             guanxi_network: 1,
-            guanxi_party: 0,
+            guanxi_party: 1, // Start with one party token for testing
         }
     }
 }
 
-/// --- NEW: Logic block for applying game changes ---
+/// --- Logic block for applying game changes ---
 impl LotusApp {
     /// Takes an EventOutcome and safely applies all stat changes to the player.
     pub fn apply_outcome(&mut self, outcome: &EventOutcome) {
@@ -70,29 +70,23 @@ impl App for LotusApp {
                             % self.num_petals_per_tier;
                         // If we moved to a new petal AND it's not the review space, trigger an event
                         if self.player_petal != 0 {
-                            // Use the generate_event function from our game_data module
-                            self.current_event = Some(generate_event(
-                                self.player_tier,
-                                self.player_petal,
-                            ));
+                            // --- MODIFIED: Pass `self` to generate_event ---
+                            self.current_event = Some(generate_event(self));
                         }
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                         // If we moved to a new petal AND it's not the review space, trigger an event
                         if self.player_petal != 0 {
-                            // Use the generate_event function from our game_data module
-                            self.current_event = Some(generate_event(
-                                self.player_tier,
-                                self.player_petal,
-                            ));
+                            // --- MODIFIED: Pass `self` to generate_event ---
+                            self.current_event = Some(generate_event(self));
                         }
                     }
                 });
             });
             // --- END Top Controls ---
 
-            // --- NEW: Player Stats Panel ---
+            // --- Player Stats Panel ---
             ui.add_enabled_ui(!event_is_open, |ui| {
                 egui::Frame::group(ui.style()).show(ui, |ui| {
                     ui.label(egui::RichText::new("Player Stats").strong());
@@ -171,23 +165,14 @@ impl App for LotusApp {
                         ui.add(egui::Label::new(&event.description).wrap());
                         ui.separator();
 
-                        // --- MODIFIED: Buttons now apply outcomes ---
+                        // --- MODIFIED: Iterate over the Vec of options ---
                         ui.vertical_centered_justified(|ui| {
-                            if ui.button(&event.options[0].text).clicked() {
-                                self.apply_outcome(&event.options[0].outcome);
-                                self.current_event = None; // Close window
-                            }
-                            if ui.button(&event.options[1].text).clicked() {
-                                self.apply_outcome(&event.options[1].outcome);
-                                self.current_event = None; // Close window
-                            }
-                            if ui.button(&event.options[2].text).clicked() {
-                                self.apply_outcome(&event.options[2].outcome);
-                                self.current_event = None; // Close window
-                            }
-                            if ui.button(&event.options[3].text).clicked() {
-                                self.apply_outcome(&event.options[3].outcome);
-                                self.current_event = None; // Close window
+                            for (index, option) in event.options.iter().enumerate() {
+                                if ui.button(&option.text).clicked() {
+                                    println!("Player chose Option {}", index + 1);
+                                    self.apply_outcome(&option.outcome);
+                                    self.current_event = None; // Close window
+                                }
                             }
                         });
                     });
