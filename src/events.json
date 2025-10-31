@@ -1,186 +1,763 @@
 [
   {
-    "title": "Incident on the Street",
-    "description": "You are walking to work and see an elderly person fall. A 'Citizen Watch' surveillance camera is clearly visible on the corner.",
-    "min_tier": 2,
-    "max_tier": 3,
-    "is_generic": true,
+    "title": "An Elderly Parent's Health",
+    "description": "Your elderly mother needs to see a specialist, but the waitlist at the public hospital is six months long.",
     "options": [
       {
-        "text": "A: Help the person up.",
-        "outcome": { "scs_change": 15, "finance_change": -10 },
-        "requirements": {}
+        "text": "A: Wait your turn in the public system.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 5,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are a patient citizen. +5 SCS."
       },
       {
-        "text": "B: Ignore them and walk past.",
-        "outcome": { "scs_change": -30 },
-        "requirements": {}
+        "text": "B: Pay for an expensive private hospital.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -10,
+          "finance_change": -15000,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your parent is healthy, but your wallet is light. -10 SCS, -15000 Finances."
       },
       {
-        "text": "C: Scold a youth for not helping, then help.",
-        "outcome": { "scs_change": 30, "guanxi_network_change": -1 },
-        "requirements": {}
-      },
-      {
-        "text": "D: (Use Guanxi) Call your Party contact to send a 'Citizen's Watch' car.",
-        "outcome": { "scs_change": 50, "guanxi_party_change": -1 },
-        "requirements": { "guanxi_party": 1 }
+        "text": "C: (Use Guanxi) Ask your cousin to move her up. (RISK: 20%)",
+        "requirements": {
+          "guanxi_family": 1
+        },
+        "risk_chance": 20,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": -1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your cousin helped. Your parent is treated. -1 Guanxi (Family).",
+        "failure_outcome": {
+          "scs_change": -50,
+          "finance_change": -1000,
+          "career_level_change": 0,
+          "guanxi_family_change": -1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "Your cousin was caught. You are both fined. -50 SCS, -1000 Finances."
       }
-    ]
+    ],
+    "min_tier": 1,
+    "max_tier": 3,
+    "is_generic": true
   },
   {
     "title": "A Friend's Mistake",
     "description": "Your childhood friend posts a vaguely critical comment online about the local government's handling of air pollution.",
-    "min_tier": 2,
-    "max_tier": 4,
-    "is_generic": true,
     "options": [
       {
         "text": "A: 'Like' their post to show support.",
-        "outcome": { "scs_change": -150, "guanxi_family_change": 1 },
-        "requirements": {}
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -150,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You supported your friend. -150 SCS, +1 Guanxi (Family)."
       },
       {
         "text": "B: Report the post to the authorities.",
-        "outcome": { "scs_change": 75, "guanxi_party_change": 1, "guanxi_family_change": -2 },
-        "requirements": {}
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 75,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": -2,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 1
+        },
+        "success_result": "You reported a subversive. +75 SCS, +1 Guanxi (Party), -2 Guanxi (Family)."
       },
       {
         "text": "C: Privately message them to delete it.",
-        "outcome": {},
-        "requirements": {}
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You handled the situation privately."
       },
       {
-        "text": "D: (Use Guanxi) Ask your Network contact at the web company to shadow-ban the post.",
-        "outcome": { "guanxi_network_change": -1, "guanxi_family_change": 1 },
-        "requirements": { "guanxi_network": 1 }
+        "text": "D: (Use Guanxi) Ask Network contact to shadow-ban. (RISK: 30%)",
+        "requirements": {
+          "guanxi_network": 1
+        },
+        "risk_chance": 30,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 1,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your contact 'resolved' the post. +1 Guanxi (Family), -1 Guanxi (Network).",
+        "failure_outcome": {
+          "scs_change": -200,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "The request was flagged! You are now associated with the post. -200 SCS!"
       }
-    ]
-  },
-  {
-    "title": "Patriotic Consumption",
-    "description": "A new government directive encourages 'Patriotic Consumption.' You are 'encouraged' by your manager to buy a new, expensive, domestically-made 'Red Flag' brand appliance you don't need.",
+    ],
     "min_tier": 2,
     "max_tier": 4,
-    "is_generic": true,
-    "options": [
-      {
-        "text": "A: Buy the appliance on credit.",
-        "outcome": { "scs_change": 40, "finance_change": -20000 },
-        "requirements": {}
-      },
-      {
-        "text": "B: Refuse, stating you are saving money.",
-        "outcome": { "scs_change": -15, "guanxi_party_change": -1 },
-        "requirements": {}
-      },
-      {
-        "text": "C: Buy it, then secretly sell it online.",
-        "outcome": { "scs_change": 40, "finance_change": -2000 },
-        "requirements": {}
-      }
-    ]
-  },
-  {
-    "title": "An Elderly Parent's Health",
-    "description": "Your elderly mother needs to see a specialist, but the waitlist at the public hospital is six months long.",
-    "min_tier": 1,
-    "max_tier": 3,
-    "is_generic": true,
-    "options": [
-      {
-        "text": "A: Wait your turn in the public system.",
-        "outcome": { "scs_change": 5 },
-        "requirements": {}
-      },
-      {
-        "text": "B: Pay for an expensive private hospital.",
-        "outcome": { "finance_change": -15000, "scs_change": -10 },
-        "requirements": {}
-      },
-      {
-        "text": "C: (Use Guanxi) Ask your cousin (a hospital administrator) to move her up the list.",
-        "outcome": { "guanxi_family_change": -1 },
-        "requirements": { "guanxi_family": 1 }
-      }
-    ]
-  },
-  {
-    "title": "A Warning at Work",
-    "description": "Your manager pulls you aside. 'Your recent productivity is fine, but your low Social Credit Score is reflecting poorly on the team. You need to show you are correcting your attitude.'",
-    "min_tier": 1,
-    "max_tier": 1,
-    "is_generic": false,
-    "options": [
-      {
-        "text": "A: 'Volunteer' to work overtime for free.",
-        "outcome": { "scs_change": 25, "career_level_change": 1, "guanxi_family_change": -1 },
-        "requirements": {}
-      },
-      {
-        "text": "B: Perform a public 'self-criticism' at the next team meeting.",
-        "outcome": { "scs_change": 40, "guanxi_network_change": -1 },
-        "requirements": {}
-      },
-      {
-        "text": "C: Do nothing and hope it blows over.",
-        "outcome": { "scs_change": -50, "career_level_change": -1 },
-        "requirements": {}
-      },
-      {
-        "text": "D: (Use Guanxi) Ask your colleague to vouch for your 'recent positive attitude'.",
-        "outcome": { "scs_change": 10, "guanxi_network_change": -1 },
-        "requirements": { "guanxi_network": 1 }
-      }
-    ]
+    "is_generic": true
   },
   {
     "title": "Forced 'Volunteer' Work",
     "description": "You are Blacklisted (Tier D). A neighborhood official 'assigns' you to 20 hours of street cleaning this week to 'rebuild your social harmony.'",
-    "min_tier": 0,
-    "max_tier": 0,
-    "is_generic": false,
     "options": [
       {
         "text": "A: Accept and do the work diligently.",
-        "outcome": { "scs_change": 15 },
-        "requirements": {}
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 15,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are publicly repentant. +15 SCS."
       },
       {
         "text": "B: Refuse.",
-        "outcome": { "scs_change": -50, "finance_change": -500 },
-        "requirements": {}
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -50,
+          "finance_change": -500,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are fined for non-compliance. -50 SCS, -500 Finances."
       },
       {
-        "text": "C: (Use Guanxi) Beg your last remaining family member to do the work for you.",
-        "outcome": { "guanxi_family_change": -1, "scs_change": -10 },
-        "requirements": { "guanxi_family": 1 }
+        "text": "C: (Use Guanxi) Beg your family to do it. (RISK: 50%)",
+        "requirements": {
+          "guanxi_family": 1
+        },
+        "risk_chance": 50,
+        "success_outcome": {
+          "scs_change": -10,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": -1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your family covered for you. -10 SCS, -1 Guanxi (Family).",
+        "failure_outcome": {
+          "scs_change": -100,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": -1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "Your family was caught. They are also now 'Warned'. -100 SCS, -1 Guanxi (Family)."
       }
-    ]
+    ],
+    "min_tier": 0,
+    "max_tier": 0,
+    "is_generic": false
   },
   {
     "title": "The Party Banquet",
     "description": "As a 'Trusted' citizen (Tier A), you are invited to a banquet with local Party officials. It's an opportunity to network.",
-    "min_tier": 3,
-    "max_tier": 3,
-    "is_generic": false,
     "options": [
       {
-        "text": "A: Attend and give a glowing speech about the local leadership.",
-        "outcome": { "scs_change": 20, "guanxi_party_change": 1 },
-        "requirements": {}
+        "text": "A: Give a glowing speech.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 20,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 1
+        },
+        "success_result": "Your speech was well-received. +20 SCS, +1 Guanxi (Party)."
       },
       {
-        "text": "B: Attend, but stay quiet and just network.",
-        "outcome": { "guanxi_network_change": 1 },
-        "requirements": {}
+        "text": "B: Attend, but stay quiet and network.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You made some new contacts. +1 Guanxi (Network)."
       },
       {
-        "text": "C: Make an excuse and skip it to spend time with family.",
-        "outcome": { "guanxi_party_change": -1, "guanxi_family_change": 1 },
-        "requirements": {}
+        "text": "C: Make an excuse and skip it.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "success_result": "You skipped the banquet. +1 Guanxi (Family), -1 Guanxi (Party)."
       }
-    ]
+    ],
+    "min_tier": 3,
+    "max_tier": 3,
+    "is_generic": false
+  },
+  {
+    "title": "A Warning at Work",
+    "description": "Your manager pulls you aside. 'Your recent productivity is fine, but your low Social Credit Score is reflecting poorly on the team. You need to show you are correcting your attitude.'",
+    "options": [
+      {
+        "text": "A: 'Volunteer' to work overtime for free.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 25,
+          "finance_change": 0,
+          "career_level_change": 1,
+          "guanxi_family_change": -1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your boss is pleased. +25 SCS, +1 Career, -1 Guanxi (Family)."
+      },
+      {
+        "text": "B: Perform a public 'self-criticism'.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 40,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your team is embarrassed. +40 SCS, -1 Guanxi (Network)."
+      },
+      {
+        "text": "C: Do nothing and hope it blows over.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -50,
+          "finance_change": 0,
+          "career_level_change": -1,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "A bad move. You are demoted. -50 SCS, -1 Career."
+      },
+      {
+        "text": "D: (Use Guanxi) Ask colleague to vouch for you.",
+        "requirements": {
+          "guanxi_network": 1
+        },
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 10,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your colleague helped. +10 SCS, -1 Guanxi (Network)."
+      }
+    ],
+    "min_tier": 1,
+    "max_tier": 1,
+    "is_generic": false
+  },
+  {
+    "title": "Minor Infraction",
+    "description": "You're in a hurry and jaywalk across an empty street. A facial-recognition camera flashes, and you are identified. A 50 SCS fine is issued.",
+    "options": [
+      {
+        "text": "A: Pay the fine immediately.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -50,
+          "finance_change": -100,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You have paid your debt to society. -50 SCS, -100 Finances."
+      },
+      {
+        "text": "B: Contest the fine publicly.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -150,
+          "finance_change": -100,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your complaint was deemed frivolous. -150 SCS, -100 Finances, -1 Guanxi (Network)."
+      },
+      {
+        "text": "C: (Use Guanxi) Ask Party contact to fix. (RISK: 10%)",
+        "requirements": {
+          "guanxi_party": 1
+        },
+        "risk_chance": 10,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "success_result": "The ticket disappeared. -1 Guanxi (Party).",
+        "failure_outcome": {
+          "scs_change": -300,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "failure_result": "Your contact is under investigation! You are implicated. -300 SCS, -1 Guanxi (Party)."
+      },
+      {
+        "text": "D: (Use Guanxi) Ask Network cop to fix. (RISK: 40%)",
+        "requirements": {
+          "guanxi_network": 1
+        },
+        "risk_chance": 40,
+        "success_outcome": {
+          "scs_change": 0,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your friend made it go away. -1 Guanxi (Network).",
+        "failure_outcome": {
+          "scs_change": -100,
+          "finance_change": -2000,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "Your friend was caught. You are both fined heavily. -100 SCS, -2000 Finances."
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 3,
+    "is_generic": true
+  },
+  {
+    "title": "Noisy Neighbors",
+    "description": "Your neighbors are having a loud party late on a work night. You have to be up at 6 AM.",
+    "options": [
+      {
+        "text": "A: Suffer in silence.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -5,
+          "finance_change": 0,
+          "career_level_change": -1,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You were tired at work. -5 SCS, -1 Career Level."
+      },
+      {
+        "text": "B: Knock on their door.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 10,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You asked politely. They turned it down. +10 SCS, -1 Guanxi (Network)."
+      }
+    ],
+    "min_tier": 1,
+    "max_tier": 3,
+    "is_generic": true
+  },
+  {
+    "title": "Incident on the Street",
+    "description": "You are walking to work and see an elderly person fall. A 'Citizen Watch' surveillance camera is clearly visible on the corner.",
+    "options": [
+      {
+        "text": "A: Help the person up.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 15,
+          "finance_change": -10,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You helped the elder. +15 SCS, -10 Finances."
+      },
+      {
+        "text": "B: Ignore them and walk past.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -30,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You were seen ignoring the elder. -30 SCS."
+      },
+      {
+        "text": "C: Scold a youth, then help.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 30,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You upheld social standards. +30 SCS, -1 Guanxi (Network)."
+      },
+      {
+        "text": "D: (Use Guanxi) Call Party contact. (RISK: 50%)",
+        "requirements": {
+          "guanxi_party": 1
+        },
+        "risk_chance": 50,
+        "success_outcome": {
+          "scs_change": 50,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "success_result": "Your contact sent a car. The elder is safe. +50 SCS, -1 Guanxi (Party).",
+        "failure_outcome": {
+          "scs_change": -100,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "Your contact was busy and annoyed. Your interference was logged. -100 SCS!"
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 3,
+    "is_generic": true
+  },
+  {
+    "title": "Patriotic Consumption",
+    "description": "A new government directive encourages 'Patriotic Consumption.' You are 'encouraged' by your manager to buy a new, expensive, domestically-made 'Red Flag' brand appliance you don't need.",
+    "options": [
+      {
+        "text": "A: Buy the appliance on credit.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 40,
+          "finance_change": -20000,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are a patriotic consumer. +40 SCS, -20000 Finances."
+      },
+      {
+        "text": "B: Refuse, stating you are saving money.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -15,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "success_result": "Your manager is disappointed. -15 SCS, -1 Guanxi (Party)."
+      },
+      {
+        "text": "C: Buy it, then secretly sell it online.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 40,
+          "finance_change": -2000,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You got away with it. +40 SCS, -2000 Finances."
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 4,
+    "is_generic": true
+  },
+  {
+    "title": "Neighborhood Watch Duty",
+    "description": "You receive a text 'requesting' you to volunteer for the local neighborhood watch this weekend.",
+    "options": [
+      {
+        "text": "A: Enthusiastically agree and sign up.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 20,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 1
+        },
+        "success_result": "You are a model citizen. +20 SCS, +1 Guanxi (Party)."
+      },
+      {
+        "text": "B: Politely decline, citing family obligations.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -15,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": -1
+        },
+        "success_result": "Your excuse is noted. -15 SCS, +1 Guanxi (Family), -1 Guanxi (Party)."
+      },
+      {
+        "text": "C: Ignore the text.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -30,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your non-response is recorded. -30 SCS."
+      },
+      {
+        "text": "D: (Use Guanxi) Ask Network contact to cover. (RISK: 25%)",
+        "requirements": {
+          "guanxi_network": 1
+        },
+        "risk_chance": 25,
+        "success_outcome": {
+          "scs_change": -10,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your friend covers for you. -10 SCS, -1 Guanxi (Network).",
+        "failure_outcome": {
+          "scs_change": -75,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "failure_result": "You were caught. You and your friend are both punished. -75 SCS, -1 Guanxi (Network)."
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 3,
+    "is_generic": true
+  },
+  {
+    "title": "The 'Correct' Opinion",
+    "description": "A new patriotic film is a huge hit. Your colleagues are all praising it online. You thought it was mediocre.",
+    "options": [
+      {
+        "text": "A: Write a glowing 5-star review.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 25,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are in harmony with your peers. +25 SCS, +1 Guanxi (Network)."
+      },
+      {
+        "text": "B: Post a mild, 2-star review.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -40,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your 'negative' opinion is recorded. -40 SCS, -1 Guanxi (Network)."
+      },
+      {
+        "text": "C: Say nothing.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -5,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your lack of enthusiasm is noted. -5 SCS."
+      },
+      {
+        "text": "D: Praise it publicly, complain privately.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 10,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 1,
+          "guanxi_network_change": 0,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You played the game. +10 SCS, +1 Guanxi (Family)."
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 3,
+    "is_generic": true
+  },
+  {
+    "title": "A Colleague's Wedding",
+    "description": "A colleague you barely know is getting married and invites you. A large 'red envelope' (gift of money) is expected.",
+    "options": [
+      {
+        "text": "A: Give a very generous envelope.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": 10,
+          "finance_change": -5000,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": 1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "You are known as generous. +10 SCS, -5000 Finances, +1 Guanxi (Network)."
+      },
+      {
+        "text": "B: Give the bare minimum envelope.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -10,
+          "finance_change": -500,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your cheapness was noted. -10 SCS, -500 Finances, -1 Guanxi (Network)."
+      },
+      {
+        "text": "C: Claim you are sick and don't go.",
+        "requirements": {},
+        "risk_chance": 0,
+        "success_outcome": {
+          "scs_change": -20,
+          "finance_change": 0,
+          "career_level_change": 0,
+          "guanxi_family_change": 0,
+          "guanxi_network_change": -1,
+          "guanxi_party_change": 0
+        },
+        "success_result": "Your absence was noted. -20 SCS, -1 Guanxi (Network)."
+      }
+    ],
+    "min_tier": 2,
+    "max_tier": 3,
+    "is_generic": true
   }
 ]
-

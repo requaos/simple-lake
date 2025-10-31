@@ -5,7 +5,7 @@ mod game_data;
 mod lotus_widget;
 
 use crate::game_data::EventData;
-use std::collections::HashMap;
+// Removed unused HashMap import
 use std::fs;
 
 // Define the main application state
@@ -29,6 +29,7 @@ pub struct LotusApp {
 
     // UI State
     current_event: Option<EventData>,
+    last_event_result: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -53,7 +54,7 @@ fn main() -> anyhow::Result<()> {
         // Load the event database from the JSON file
         let event_json = fs::read_to_string("src/events.json")
             .expect("Failed to read events.json. Did you run `cargo run -- --convert` first?");
-        
+
         let event_database: Vec<EventData> = serde_json::from_str(&event_json)
             .expect("Failed to parse events.json. Check file format.");
 
@@ -76,6 +77,7 @@ fn main() -> anyhow::Result<()> {
                     guanxi_network: 1,
                     guanxi_party: 0,
                     current_event: None,
+                    last_event_result: None,
                 }))
             }),
         )

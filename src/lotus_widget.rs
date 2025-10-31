@@ -1,8 +1,5 @@
-use eframe::egui;
-use egui::{
-    vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
-};
-use std::f32::consts::TAU; // TAU is 2 * PI
+use eframe::egui::{self, vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget};
+use std::f32::consts::TAU;
 
 /// Our custom widget.
 /// This widget is "dumb" - it just receives a total_index and renders it.
@@ -79,20 +76,18 @@ impl LotusWidget {
 
     /// Helper function to get the text for a specific petal
     fn get_petal_text(&self, tier: usize, petal: usize, _total_index: usize) -> String {
-        // --- MODIFIED: Check for multiple review petals ---
-        let is_review_petal = petal == 0 || petal == 4 || petal == 8;
-        if is_review_petal {
+        // Special "SCS Review" spaces
+        if petal == 0 || petal == 4 || petal == 8 {
             return "SCS\nReview".to_string();
         }
-        // --- END MODIFICATION ---
 
         // --- Example Game Logic ---
         match tier {
-            0 => format!("Re-education {}", petal), // Tier D (Blacklisted)
-            1 => format!("Job Warning {}", petal),  // Tier C (Warning)
-            2 => format!("Event {}", petal), // Tier B (Standard)
-            3 => format!("Party Banquet {}", petal), // Tier A (Trusted)
-            4 => format!("Honored! {}", petal),     // Tier A+ (Exemplary)
+            0 => "Re-education".to_string(), // Tier D (Blacklisted)
+            1 => "Job Warning".to_string(),  // Tier C (Warning)
+            2 => "Event".to_string(), // Tier B (Standard)
+            3 => "Party Banquet".to_string(), // Tier A (Trusted)
+            4 => "Honored!".to_string(),     // Tier A+ (Exemplary)
             _ => "??".to_string(),
         }
     }
@@ -102,7 +97,8 @@ impl LotusWidget {
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         // 1. Allocate available space for the widget
-        let mut response = ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
+        let mut response =
+            ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
         let rect = response.rect; // Get the Rect *from* the Response
 
         // 2. Calculate dynamic radius based on the allocated space
@@ -166,7 +162,7 @@ impl Widget for LotusWidget {
                     if is_hovered { 1.2 } else { 1.0 },
                     0.1,
                 );
-
+                
                 // --- Color Logic ---
                 let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);

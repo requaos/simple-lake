@@ -1,12 +1,12 @@
 use super::LotusApp;
-use rand::prelude::*;
-use serde::{Deserialize, Serialize}; // --- MODIFIED: Added Serialize
+use rand::prelude::IndexedRandom; // MODIFIED: Use trait suggested by compiler
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // --- Core Data Structures ---
 
 /// Defines the stat changes for making a choice.
-#[derive(Debug, Clone, Default, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct EventOutcome {
     pub scs_change: i32,
@@ -18,16 +18,29 @@ pub struct EventOutcome {
 }
 
 /// A single choice in an event, pairing text with its outcome.
-#[derive(Debug, Clone, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EventOption {
     pub text: String,
-    pub outcome: EventOutcome,
     #[serde(default)]
     pub requirements: HashMap<String, u32>,
+    
+    // NEW: Risk and multiple outcomes
+    #[serde(default)]
+    pub risk_chance: u8, // Chance of failure (0-100)
+    
+    pub success_outcome: EventOutcome,
+    pub success_result: String, // Text to show on success
+
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure_outcome: Option<EventOutcome>,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub failure_result: String, // Text to show on failure
 }
 
 /// The main event struct, holding all data for a modal window.
-#[derive(Debug, Clone, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EventData {
     pub title: String,
     pub description: String,
@@ -60,7 +73,8 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
 /// This function is called by app.rs to get a new event.
 /// It selects an event from the in-memory database.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
-    let mut rng = rand::thread_rng();
+    // MODIFIED: Use new rand API
+    let mut rng = rand::rng();
 
     // 1. Try to find a TIER-SPECIFIC event first
     let tier_specific_events: Vec<&EventData> = player_state
@@ -99,8 +113,12 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
                 ),
                 options: vec![EventOption {
                     text: "Continue".to_string(),
-                    outcome: Default::default(),
                     requirements: Default::default(),
+                    risk_chance: 0,
+                    success_outcome: Default::default(),
+                    success_result: "".to_string(),
+                    failure_outcome: None,
+                    failure_result: "".to_string(),
                 }],
                 min_tier: 0,
                 max_tier: 99,

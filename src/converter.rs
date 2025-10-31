@@ -26,6 +26,8 @@ struct EventCsvRow {
 struct OptionCsvRow {
     event_id: String,
     text: String,
+    
+    // Success Outcome
     #[serde(default)]
     scs_change: i32,
     #[serde(default)]
@@ -38,12 +40,34 @@ struct OptionCsvRow {
     guanxi_network_change: i32,
     #[serde(default)]
     guanxi_party_change: i32,
+    
+    // Requirements
     #[serde(default)]
     req_guanxi_family: u32,
     #[serde(default)]
     req_guanxi_network: u32,
     #[serde(default)]
     req_guanxi_party: u32,
+    
+    // Risk & Failure Outcome
+    #[serde(default)]
+    risk_chance: u8,
+    #[serde(default)]
+    success_result_text: String,
+    #[serde(default)]
+    failure_result_text: String,
+    #[serde(default)]
+    fail_scs_change: i32,
+    #[serde(default)]
+    fail_finance_change: i32,
+    #[serde(default)]
+    fail_career_level_change: i32,
+    #[serde(default)]
+    fail_guanxi_family_change: i32,
+    #[serde(default)]
+    fail_guanxi_network_change: i32,
+    #[serde(default)]
+    fail_guanxi_party_change: i32,
 }
 
 /// Helper to build an EventData from a CSV row.
@@ -60,7 +84,7 @@ fn create_event_from_row(row: EventCsvRow) -> EventData {
 
 /// Helper to build an EventOption from a CSV row.
 fn create_option_from_row(row: OptionCsvRow) -> EventOption {
-    let outcome = EventOutcome {
+    let success_outcome = EventOutcome {
         scs_change: row.scs_change,
         finance_change: row.finance_change,
         career_level_change: row.career_level_change,
@@ -80,10 +104,30 @@ fn create_option_from_row(row: OptionCsvRow) -> EventOption {
         requirements.insert("guanxi_party".to_string(), row.req_guanxi_party);
     }
 
+    let mut failure_outcome = None;
+    if row.risk_chance > 0 {
+        let outcome = EventOutcome {
+            scs_change: row.fail_scs_change,
+            finance_change: row.fail_finance_change,
+            career_level_change: row.fail_career_level_change,
+            guanxi_family_change: row.fail_guanxi_family_change,
+            guanxi_network_change: row.fail_guanxi_network_change,
+            guanxi_party_change: row.fail_guanxi_party_change,
+        };
+        // Only set the failure outcome if it's actually different from success
+        if outcome != success_outcome || !row.failure_result_text.is_empty() {
+             failure_outcome = Some(outcome);
+        }
+    }
+
     EventOption {
         text: row.text,
-        outcome,
         requirements,
+        risk_chance: row.risk_chance,
+        success_outcome,
+        success_result: row.success_result_text,
+        failure_outcome,
+        failure_result: row.failure_result_text,
     }
 }
 

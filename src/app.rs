@@ -1,60 +1,60 @@
-use eframe::{egui, App};
-use egui::{vec2, Align2, Window};
-
-// Use the items we've moved to other files
-use super::game_data::{generate_event, EventOutcome};
+use super::game_data::{generate_event, EventOutcome}; // Removed unused EventData
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
+use eframe::egui::{self, vec2, Align2, Color32, RichText, Window}; // Added vec2, removed Vec2
+use rand::Rng;
 
-// --- Logic block for applying game changes ---
+// --- Helper: Define SCS Tiers ---
+const TIER_D_MIN: i32 = 199;
+const TIER_C_MIN: i32 = 400;
+const TIER_B_MIN: i32 = 750;
+const TIER_A_MIN: i32 = 1000;
+// Tier A+ is anything >= TIER_A_MIN
+
 impl LotusApp {
-    /// Takes an EventOutcome and safely applies all stat changes to the player.
-    pub fn apply_outcome(&mut self, outcome: &EventOutcome) {
-        // Apply simple i32 deltas
-        self.social_credit_score += outcome.scs_change;
-        self.finances += outcome.finance_change;
-
-        // Apply deltas to u32 stats, ensuring they don't go below 0
-        self.career_level = (self.career_level as i32 + outcome.career_level_change).max(0) as u32;
-        self.guanxi_family =
-            (self.guanxi_family as i32 + outcome.guanxi_family_change).max(0) as u32;
-        self.guanxi_network =
-            (self.guanxi_network as i32 + outcome.guanxi_network_change).max(0) as u32;
-        self.guanxi_party =
-            (self.guanxi_party as i32 + outcome.guanxi_party_change).max(0) as u32;
-
-        // Tier check is purposefully NOT here.
-        // It will only be checked on the "SCS Review" petal for tension.
-    }
-
-    /// --- NEW: Helper to check if a petal is a review space ---
+    /// Returns true if the petal is one of the SCS review spaces
     fn is_review_petal(&self, petal_index: usize) -> bool {
-        // With 13 petals, let's use 0, 4, and 8 as review spaces
         petal_index == 0 || petal_index == 4 || petal_index == 8
     }
 
-    /// --- Logic to automatically adjust player tier based on SCS ---
-    pub fn update_player_tier_from_scs(&mut self) {
-        let new_tier = match self.social_credit_score {
-            1000.. => 4,    // Tier A+ (Exemplary)
-            750..=999 => 3, // Tier A (Trusted)
-            400..=749 => 2, // Tier B (Standard)
-            200..=399 => 1, // Tier C (Warning)
-            _ => 0,         // Tier D (Blacklisted) (anything below 200)
+    /// Safely applies all stat changes from an EventOutcome
+    fn apply_outcome(&mut self, outcome: &EventOutcome) {
+        self.social_credit_score += outcome.scs_change;
+        self.finances += outcome.finance_change;
+
+        // Use saturating_add for u32 values to prevent overflow/underflow
+        self.career_level = self.career_level.saturating_add_signed(outcome.career_level_change);
+        self.guanxi_family = self.guanxi_family.saturating_add_signed(outcome.guanxi_family_change);
+        self.guanxi_network = self.guanxi_network.saturating_add_signed(outcome.guanxi_network_change);
+        self.guanxi_party = self.guanxi_party.saturating_add_signed(outcome.guanxi_party_change);
+    }
+
+    /// Checks the player's SCS and updates their tier if needed.
+    /// Returns true if the tier changed.
+    fn update_player_tier_from_scs(&mut self) -> bool {
+        let new_tier = if self.social_credit_score <= TIER_D_MIN {
+            0 // Tier D
+        } else if self.social_credit_score < TIER_B_MIN {
+            1 // Tier C
+        } else if self.social_credit_score < TIER_A_MIN {
+            2 // Tier B
+        } else if self.social_credit_score < TIER_A_MIN + 250 {
+            // Placeholder for A+
+            3 // Tier A
+        } else {
+            4 // Tier A+
         };
 
         if new_tier != self.player_tier {
-            println!(
-                "SCS Review: Player tier changed from {} to {}",
-                self.player_tier, new_tier
-            );
             self.player_tier = new_tier;
+            true // Tier changed
+        } else {
+            false // Tier did not change
         }
     }
 }
 
-/// Implementation of the main application loop (UI)
-impl App for LotusApp {
+impl eframe::App for LotusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             // Check if a modal window is open.
@@ -66,59 +66,70 @@ impl App for LotusApp {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
-
                     ui.label("Click the buttons to move the player token.");
 
                     if ui.button("Move Counter-Clockwise").clicked() {
                         self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
                             % self.num_petals_per_tier;
-                        // If we moved to a new petal AND it's not the review space, trigger an event
+                        
+                        // If we moved to a new petal AND it's not a review space, trigger an event
                         if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
                         }
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-                        // If we moved to a new petal AND it's not the review space, trigger an event
+
+                        // If we moved to a new petal AND it's not a review space, trigger an event
                         if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
                         }
                     }
                 });
             });
-            // --- END Top Controls ---
+
+            // --- NEW: Last Event Result ---
+            if let Some(result_text) = &self.last_event_result {
+                if !result_text.is_empty() {
+                    ui.add_space(5.0);
+                    // Show event result in a distinct color
+                    ui.label(RichText::new(result_text).color(Color32::from_rgb(200, 200, 100)).strong());
+                    ui.add_space(5.0);
+                }
+            }
+
 
             // --- Player Stats Panel ---
-            ui.add_enabled_ui(!event_is_open, |ui| {
+            ui.add_enabled_ui(!event_is_open, |ui: &mut egui::Ui| {
                 egui::Frame::group(ui.style()).show(ui, |ui| {
-                    ui.label(egui::RichText::new("Player Stats").strong());
-                    ui.horizontal(|ui| {
+                    ui.label(RichText::new("Player Stats").strong());
+                    ui.horizontal_wrapped(|ui| {
                         ui.label(format!("SCS: {}", self.social_credit_score));
                         ui.label(format!("Finances (¥): {}", self.finances));
                         ui.label(format!("Career: Lvl {}", self.career_level));
                     });
-                    ui.horizontal(|ui| {
+                    ui.horizontal_wrapped(|ui| {
                         ui.label(format!("Guanxi (Family): {}", self.guanxi_family));
                         ui.label(format!("Guanxi (Network): {}", self.guanxi_network));
                         ui.label(format!("Guanxi (Party): {}", self.guanxi_party));
                     });
                 });
             });
-            ui.add_space(5.0);
-            // --- END Stats Panel ---
+
 
             // --- Status/Review UI ---
-            // This entire section is hidden if an event is open
             if !event_is_open {
-                // If the player is on an "SCS Review" space
+                // If the player is on an "SCS Review" space, check for tier change
                 if self.is_review_petal(self.player_petal) {
                     ui.add_space(5.0);
-                    ui.label(egui::RichText::new("You are on an 'SCS Review' space!").strong());
+                    ui.label(RichText::new("You are on an 'SCS Review' space!").strong());
                     ui.label("Your SCS is re-evaluated...");
 
-                    // Automatically update tier
-                    self.update_player_tier_from_scs();
-
+                    if self.update_player_tier_from_scs() {
+                        ui.label(RichText::new(format!("Your Tier has changed to {}!", self.player_tier)).color(Color32::RED).strong());
+                    } else {
+                        ui.label("Your Tier remains unchanged.");
+                    }
                     ui.add_space(5.0);
                 }
 
@@ -143,34 +154,47 @@ impl App for LotusApp {
                 ui.add(LotusWidget::new(
                     self.num_tiers,
                     self.num_petals_per_tier,
-                    player_total_index, // Pass the calculated total index
-                )) // Removed semicolon to return the Response
+                    player_total_index,
+                ))
             };
-
-            // If an event is open, draw the widget disabled (dimmed).
             ui.add_enabled(!event_is_open, draw_lotus_widget);
 
             // --- Event Window (Modal) ---
             if let Some(event) = self.current_event.clone() {
-                Window::new(egui::RichText::new(&event.title).strong())
-                    .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0)) // Center the window
+                Window::new(RichText::new(&event.title).strong())
+                    .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0)) // vec2 function now in scope
                     .collapsible(false)
                     .resizable(false)
                     .show(ctx, |ui| {
-                        ui.set_max_width(300.0); // Constrain window width
+                        ui.set_max_width(300.0);
                         ui.add(egui::Label::new(&event.description).wrap());
                         ui.separator();
 
-                        // Iterate over the Vec of options
+                        // --- MODIFIED: Dynamic buttons with risk logic ---
                         ui.vertical_centered_justified(|ui| {
-                            for (index, option) in event.options.iter().enumerate() {
+                            for option in event.options.iter() {
                                 if ui.button(&option.text).clicked() {
-                                    println!("Player chose Option {}", index + 1);
-                                    self.apply_outcome(&option.outcome);
+                                    // MODIFIED: Use new rand API
+                                    let mut rng = rand::rng(); 
+                                    
+                                    // MODIFIED: Use new rand API
+                                    if option.risk_chance > 0 && rng.random_range(1..=100) <= option.risk_chance {
+                                        // --- FAILURE ---
+                                        if let Some(outcome) = &option.failure_outcome {
+                                            self.apply_outcome(outcome);
+                                        }
+                                        self.last_event_result = Some(option.failure_result.clone());
+                                    } else {
+                                        // --- SUCCESS ---
+                                        self.apply_outcome(&option.success_outcome);
+                                        self.last_event_result = Some(option.success_result.clone());
+                                    }
+                                    
                                     self.current_event = None; // Close window
                                 }
                             }
                         });
+                        // --- END MODIFICATION ---
                     });
             }
         });
