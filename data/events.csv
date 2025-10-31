@@ -1,0 +1,13 @@
+event_id,title,description,min_tier,max_tier,is_generic
+1,"Incident on the Street","You are walking to work and see an elderly person fall. A 'Citizen Watch' surveillance camera is clearly visible on the corner.",2,3,true
+2,"A Friend's Mistake","Your childhood friend posts a vaguely critical comment online about the local government's handling of air pollution.",2,4,true
+3,"Patriotic Consumption","A new government directive encourages 'Patriotic Consumption.' You are 'encouraged' by your manager to buy a new, expensive, domestically-made 'Red Flag' brand appliance you don't need.",2,4,true
+4,"An Elderly Parent's Health","Your elderly mother needs to see a specialist, but the waitlist at the public hospital is six months long.",1,3,true
+5,"A Warning at Work","Your manager pulls you aside. 'Your recent productivity is fine, but your low Social Credit Score is reflecting poorly on the team. You need to show you are correcting your attitude.'",1,1,false
+6,"Forced 'Volunteer' Work","You are Blacklisted (Tier D). A neighborhood official 'assigns' you to 20 hours of street cleaning this week to 'rebuild your social harmony.'",0,0,false
+7,"The Party Banquet","As a 'Trusted' citizen (Tier A), you are invited to a banquet with local Party officials. It's an opportunity to network.",3,3,false
+8,"Neighborhood Watch Duty","You receive a text 'requesting' you to volunteer for the local neighborhood watch this weekend.",2,3,true
+9,"The 'Correct' Opinion","A new patriotic film is a huge hit. Your colleagues are all praising it online. You thought it was mediocre.",2,3,true
+10,"A Colleague's Wedding","A colleague you barely know is getting married and invites you. A large 'red envelope' (gift of money) is expected.",2,3,true
+11,"Minor Infraction","You're in a hurry and jaywalk across an empty street. A facial-recognition camera flashes, and you are identified. A 50 SCS fine is issued.",2,3,true
+12,"Noisy Neighbors","Your neighbors are having a loud party late on a work night. You have to be up at 6 AM.",1,3,true

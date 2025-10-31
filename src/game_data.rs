@@ -1,13 +1,13 @@
 use super::LotusApp;
-use rand::prelude::*; // --- MODIFIED: Use the prelude to import Rng and SliceRandom
-use serde::Deserialize;
+use rand::prelude::*;
+use serde::{Deserialize, Serialize}; // --- MODIFIED: Added Serialize
 use std::collections::HashMap;
 
 // --- Core Data Structures ---
 
 /// Defines the stat changes for making a choice.
-#[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)] // Makes serde use Default::default() for missing fields
+#[derive(Debug, Clone, Default, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
+#[serde(default)]
 pub struct EventOutcome {
     pub scs_change: i32,
     pub finance_change: i32,
@@ -18,27 +18,23 @@ pub struct EventOutcome {
 }
 
 /// A single choice in an event, pairing text with its outcome.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
 pub struct EventOption {
     pub text: String,
     pub outcome: EventOutcome,
-    /// This field holds the *requirements* to see this option.
-    /// Example: `{"guanxi_party": 1, "career_level": 3}`
-    #[serde(default)] // Will be an empty map if `requirements` is missing in JSON
+    #[serde(default)]
     pub requirements: HashMap<String, u32>,
 }
 
 /// The main event struct, holding all data for a modal window.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)] // --- MODIFIED: Added Serialize
 pub struct EventData {
     pub title: String,
     pub description: String,
     pub options: Vec<EventOption>, // A list of all possible options
-    // --- NEW: Fields for filtering ---
     pub min_tier: usize,
     pub max_tier: usize,
     pub is_generic: bool,
-    // We can add `life_stage` here later
 }
 
 // --- Main Event Generation Function ---
@@ -51,21 +47,20 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
             "guanxi_network" => player_state.guanxi_network,
             "guanxi_party" => player_state.guanxi_party,
             "career_level" => player_state.career_level,
-            // We can add "finances" or "scs" here later
-            _ => 0, // Unknown requirement, fail safe
+            _ => 0,
         };
 
         if player_value < required_value {
-            return false; // Player does not meet this requirement
+            return false;
         }
     }
-    true // Player meets all requirements
+    true
 }
 
 /// This function is called by app.rs to get a new event.
 /// It selects an event from the in-memory database.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
-    let mut rng = rand::thread_rng(); // This is correct, the prelude brings in the Rng trait
+    let mut rng = rand::thread_rng();
 
     // 1. Try to find a TIER-SPECIFIC event first
     let tier_specific_events: Vec<&EventData> = player_state
@@ -75,12 +70,10 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
             !event.is_generic
                 && event.min_tier <= player_state.player_tier
                 && event.max_tier >= player_state.player_tier
-            // We could also filter by `life_stage` here
         })
         .collect();
 
     let chosen_event_template = if let Some(event) = tier_specific_events.choose(&mut rng) {
-        // Found a specific event for this tier
         *event
     } else {
         // 2. If no specific event, find a GENERIC event
@@ -95,7 +88,6 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
             .collect();
 
         if let Some(event) = generic_events.choose(&mut rng) {
-            // Found a generic event
             *event
         } else {
             // 3. Fallback: If no events are found for this tier, create a default panic event
@@ -121,12 +113,11 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
     let available_options: Vec<EventOption> = chosen_event_template
         .options
         .iter()
-        // `filter_map` is like `filter` + `map`. We check requirements and clone if met.
         .filter_map(|option| {
             if player_meets_requirements(player_state, &option.requirements) {
-                Some(option.clone()) // Clone the option so we can return it
+                Some(option.clone())
             } else {
-                None // This option is not available to the player
+                None
             }
         })
         .collect();
@@ -136,7 +127,6 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
         title: chosen_event_template.title.clone(),
         description: chosen_event_template.description.clone(),
         options: available_options,
-        // The rest of the fields don't matter for the modal
         min_tier: 0,
         max_tier: 0,
         is_generic: false,
