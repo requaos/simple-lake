@@ -1,8 +1,13 @@
-use super::LotusApp; // NEW: Import the main app state
+use super::LotusApp;
+use rand::seq::SliceRandom; // Used for randomly picking an event
+use serde::Deserialize; // --- NEW: To read from JSON
+use std::collections::HashMap; // --- NEW: For requirements
 
-/// The stat changes that result from choosing an event option.
-/// All fields are deltas (changes), not absolute values.
-#[derive(Debug, Clone, Default)]
+// --- Core Data Structures ---
+
+/// Defines the stat changes for making a choice.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)] // Makes serde use Default::default() for missing fields
 pub struct EventOutcome {
     pub scs_change: i32,
     pub finance_change: i32,
@@ -10,106 +15,131 @@ pub struct EventOutcome {
     pub guanxi_family_change: i32,
     pub guanxi_network_change: i32,
     pub guanxi_party_change: i32,
-    // We could also add a `next_event_id: Option<String>` for branching narratives
 }
 
-/// A single choice a player can make in an event.
-/// It pairs the descriptive text with its game outcome.
-#[derive(Debug, Clone)]
+/// A single choice in an event, pairing text with its outcome.
+#[derive(Debug, Clone, Deserialize)]
 pub struct EventOption {
     pub text: String,
     pub outcome: EventOutcome,
+    /// This field holds the *requirements* to see this option.
+    /// Example: `{"guanxi_party": 1, "career_level": 3}`
+    #[serde(default)] // Will be an empty map if `requirements` is missing in JSON
+    pub requirements: HashMap<String, u32>,
 }
 
-/// The main event struct, holding the scenario and its options.
-/// --- MODIFIED: Now holds a Vec instead of a fixed array ---
-#[derive(Debug, Clone)]
+/// The main event struct, holding all data for a modal window.
+#[derive(Debug, Clone, Deserialize)]
 pub struct EventData {
     pub title: String,
     pub description: String,
-    pub options: Vec<EventOption>,
+    pub options: Vec<EventOption>, // A list of all possible options
+    // --- NEW: Fields for filtering ---
+    pub min_tier: usize,
+    pub max_tier: usize,
+    pub is_generic: bool,
+    // We can add `life_stage` here later
 }
 
-/// This function will be called to generate a new event
-/// based on the player's state.
-/// --- MODIFIED: Now takes `&LotusApp` to check player stats ---
-pub fn generate_event(app: &LotusApp) -> EventData {
-    // --- This is your Event Card Matrix lookup ---
-    // You can use a `match` statement on `app.player_tier` or `app.player_petal`
-    // to return different events.
-    // For now, we'll return a rich example.
+// --- Main Event Generation Function ---
 
-    let tier_name = ["D", "C", "B", "A", "A+"]
-        .get(app.player_tier)
-        .cloned()
-        .unwrap_or("?");
+/// Checks if the player meets the requirements for a specific option.
+fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<String, u32>) -> bool {
+    for (key, &required_value) in requirements {
+        let player_value = match key.as_str() {
+            "guanxi_family" => player_state.guanxi_family,
+            "guanxi_network" => player_state.guanxi_network,
+            "guanxi_party" => player_state.guanxi_party,
+            "career_level" => player_state.career_level,
+            // We can add "finances" or "scs" here later
+            _ => 0, // Unknown requirement, fail safe
+        };
 
-    let title = format!(
-        "Event on Tier {} (Petal {})",
-        tier_name, app.player_petal
-    );
-    let description = "A rival colleague is publicly praised for an idea that was *yours*. \
-        Your boss, a Party member, is beaming. This could affect your promotion."
-        .to_string();
-
-    // 1. Start with the standard options
-    let mut options = vec![
-        EventOption {
-            text: "A: Say nothing. (Maintain Harmony)".to_string(),
-            outcome: EventOutcome {
-                scs_change: 5,
-                guanxi_party_change: -1, // You look weak to your boss
-                ..Default::default()
-            },
-        },
-        EventOption {
-            text: "B: Publicly confront your colleague.".to_string(),
-            outcome: EventOutcome {
-                scs_change: -50, // Causing a scene
-                guanxi_network_change: -1,
-                guanxi_party_change: -1,
-                ..Default::default()
-            },
-        },
-        EventOption {
-            text: "C: Privately report them to HR.".to_string(),
-            outcome: EventOutcome {
-                career_level_change: 0, // Nothing happens
-                ..Default::default()
-            },
-        },
-    ];
-
-    // 2. Conditionally add Guanxi-based options
-    if app.guanxi_network > 0 {
-        options.push(EventOption {
-            text: "D: (Use 1 Network) Get friends to 'jokingly' back you up."
-                .to_string(),
-            outcome: EventOutcome {
-                guanxi_network_change: -1, // Spend the token
-                career_level_change: 1,    // It works!
-                scs_change: -5,            // A bit disruptive
-                ..Default::default()
-            },
-        });
+        if player_value < required_value {
+            return false; // Player does not meet this requirement
+        }
     }
+    true // Player meets all requirements
+}
 
-    if app.guanxi_party > 0 {
-        options.push(EventOption {
-            text: "E: (Use 1 Party) Mention it to your boss later.".to_string(),
-            outcome: EventOutcome {
-                guanxi_party_change: -1, // Spend the token
-                career_level_change: 1,  // He "corrects" the record
-                ..Default::default()
-            },
-        });
-    }
+/// This function is called by app.rs to get a new event.
+/// It selects an event from the in-memory database.
+pub fn generate_event(player_state: &LotusApp) -> EventData {
+    let mut rng = rand::thread_rng();
 
-    // 3. Return the complete event
+    // 1. Try to find a TIER-SPECIFIC event first
+    let tier_specific_events: Vec<&EventData> = player_state
+        .event_database
+        .iter()
+        .filter(|event| {
+            !event.is_generic
+                && event.min_tier <= player_state.player_tier
+                && event.max_tier >= player_state.player_tier
+            // We could also filter by `life_stage` here
+        })
+        .collect();
+
+    let chosen_event_template = if let Some(event) = tier_specific_events.choose(&mut rng) {
+        // Found a specific event for this tier
+        *event
+    } else {
+        // 2. If no specific event, find a GENERIC event
+        let generic_events: Vec<&EventData> = player_state
+            .event_database
+            .iter()
+            .filter(|event| {
+                event.is_generic
+                    && event.min_tier <= player_state.player_tier
+                    && event.max_tier >= player_state.player_tier
+            })
+            .collect();
+
+        if let Some(event) = generic_events.choose(&mut rng) {
+            // Found a generic event
+            *event
+        } else {
+            // 3. Fallback: If no events are found for this tier, create a default panic event
+            return EventData {
+                title: "No Event Found!".to_string(),
+                description: format!(
+                    "Error: No events found for player tier {}. Please check events.json.",
+                    player_state.player_tier
+                ),
+                options: vec![EventOption {
+                    text: "Continue".to_string(),
+                    outcome: Default::default(),
+                    requirements: Default::default(),
+                }],
+                min_tier: 0,
+                max_tier: 99,
+                is_generic: true,
+            };
+        }
+    };
+
+    // 4. We have an event template. Now, filter its options based on player state.
+    let available_options: Vec<EventOption> = chosen_event_template
+        .options
+        .iter()
+        // `filter_map` is like `filter` + `map`. We check requirements and clone if met.
+        .filter_map(|option| {
+            if player_meets_requirements(player_state, &option.requirements) {
+                Some(option.clone()) // Clone the option so we can return it
+            } else {
+                None // This option is not available to the player
+            }
+        })
+        .collect();
+
+    // 5. Return the final event with only the available options
     EventData {
-        title,
-        description,
-        options,
+        title: chosen_event_template.title.clone(),
+        description: chosen_event_template.description.clone(),
+        options: available_options,
+        // The rest of the fields don't matter for the modal
+        min_tier: 0,
+        max_tier: 0,
+        is_generic: false,
     }
 }
 

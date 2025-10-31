@@ -6,28 +6,7 @@ use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
 
-/// Implementation of the application's default state
-impl Default for LotusApp {
-    fn default() -> Self {
-        Self {
-            player_tier: 2, // Start on Tier 2 (SCS Tier 'B')
-            player_petal: 1, // Start on petal 1 (not the review space)
-            num_petals_per_tier: 13, // MODIFIED: Was 24, now 13
-            num_tiers: 5,
-            current_event: None, // No event window is open at the start
-
-            // --- Initialize Player Stats ---
-            social_credit_score: 500, // Tier B
-            finances: 1000,
-            career_level: 1,
-            guanxi_family: 2,
-            guanxi_network: 1,
-            guanxi_party: 1, // Start with one party token for testing
-        }
-    }
-}
-
-/// --- Logic block for applying game changes ---
+// --- Logic block for applying game changes ---
 impl LotusApp {
     /// Takes an EventOutcome and safely applies all stat changes to the player.
     pub fn apply_outcome(&mut self, outcome: &EventOutcome) {
@@ -44,8 +23,33 @@ impl LotusApp {
         self.guanxi_party =
             (self.guanxi_party as i32 + outcome.guanxi_party_change).max(0) as u32;
 
-        // --- TODO: Add logic to check if SCS score has changed tier ---
-        // (e.g., if self.social_credit_score < 400 { self.player_tier = 1; })
+        // Tier check is purposefully NOT here.
+        // It will only be checked on the "SCS Review" petal for tension.
+    }
+
+    /// --- NEW: Helper to check if a petal is a review space ---
+    fn is_review_petal(&self, petal_index: usize) -> bool {
+        // With 13 petals, let's use 0, 4, and 8 as review spaces
+        petal_index == 0 || petal_index == 4 || petal_index == 8
+    }
+
+    /// --- Logic to automatically adjust player tier based on SCS ---
+    pub fn update_player_tier_from_scs(&mut self) {
+        let new_tier = match self.social_credit_score {
+            1000.. => 4,    // Tier A+ (Exemplary)
+            750..=999 => 3, // Tier A (Trusted)
+            400..=749 => 2, // Tier B (Standard)
+            200..=399 => 1, // Tier C (Warning)
+            _ => 0,         // Tier D (Blacklisted) (anything below 200)
+        };
+
+        if new_tier != self.player_tier {
+            println!(
+                "SCS Review: Player tier changed from {} to {}",
+                self.player_tier, new_tier
+            );
+            self.player_tier = new_tier;
+        }
     }
 }
 
@@ -57,7 +61,7 @@ impl App for LotusApp {
             let event_is_open = self.current_event.is_some();
 
             // --- Top Controls ---
-            ui.add_enabled_ui(!event_is_open, |ui| {
+            ui.add_enabled_ui(!event_is_open, |ui: &mut egui::Ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
@@ -69,16 +73,14 @@ impl App for LotusApp {
                         self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
                             % self.num_petals_per_tier;
                         // If we moved to a new petal AND it's not the review space, trigger an event
-                        if self.player_petal != 0 {
-                            // --- MODIFIED: Pass `self` to generate_event ---
+                        if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
                         }
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                         // If we moved to a new petal AND it's not the review space, trigger an event
-                        if self.player_petal != 0 {
-                            // --- MODIFIED: Pass `self` to generate_event ---
+                        if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
                         }
                     }
@@ -108,21 +110,15 @@ impl App for LotusApp {
             // --- Status/Review UI ---
             // This entire section is hidden if an event is open
             if !event_is_open {
-                // If the player is on the "SCS Review" space (petal 0), show tier change buttons
-                if self.player_petal == 0 {
+                // If the player is on an "SCS Review" space
+                if self.is_review_petal(self.player_petal) {
                     ui.add_space(5.0);
                     ui.label(egui::RichText::new("You are on an 'SCS Review' space!").strong());
                     ui.label("Your SCS is re-evaluated...");
-                    ui.horizontal(|ui| {
-                        if ui.button("SCS: Go Up a Tier").clicked() {
-                            // Use .min() to clamp at the max tier
-                            self.player_tier = (self.player_tier + 1).min(self.num_tiers - 1);
-                        }
-                        if ui.button("SCS: Go Down a Tier").clicked() {
-                            // .saturating_sub() prevents underflow (going below 0)
-                            self.player_tier = self.player_tier.saturating_sub(1);
-                        }
-                    });
+
+                    // Automatically update tier
+                    self.update_player_tier_from_scs();
+
                     ui.add_space(5.0);
                 }
 
@@ -165,7 +161,7 @@ impl App for LotusApp {
                         ui.add(egui::Label::new(&event.description).wrap());
                         ui.separator();
 
-                        // --- MODIFIED: Iterate over the Vec of options ---
+                        // Iterate over the Vec of options
                         ui.vertical_centered_justified(|ui| {
                             for (index, option) in event.options.iter().enumerate() {
                                 if ui.button(&option.text).clicked() {

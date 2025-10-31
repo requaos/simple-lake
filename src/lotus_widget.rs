@@ -1,5 +1,4 @@
-// --- MODIFIED: Added necessary `use` statements ---
-use eframe::{egui, epaint::CubicBezierShape};
+use eframe::egui;
 use egui::{
     vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
@@ -70,7 +69,7 @@ impl LotusWidget {
         let p1 = center + rotate_vec(cp1_base, angle);
         let p2 = center + rotate_vec(cp2_base, angle);
 
-        Shape::CubicBezier(CubicBezierShape {
+        Shape::CubicBezier(egui::epaint::CubicBezierShape {
             points: [p0, p1, p2, p3],
             closed: true,
             fill,
@@ -80,10 +79,12 @@ impl LotusWidget {
 
     /// Helper function to get the text for a specific petal
     fn get_petal_text(&self, tier: usize, petal: usize, total_index: usize) -> String {
-        // Special "SCS Review" space on the first petal of each tier
-        if petal == 0 {
+        // --- MODIFIED: Check for multiple review petals ---
+        let is_review_petal = petal == 0 || petal == 4 || petal == 8;
+        if is_review_petal {
             return "SCS\nReview".to_string();
         }
+        // --- END MODIFICATION ---
 
         // --- Example Game Logic ---
         match tier {
@@ -101,8 +102,7 @@ impl LotusWidget {
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         // 1. Allocate available space for the widget
-        let mut response =
-            ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
+        let mut response = ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
         let rect = response.rect; // Get the Rect *from* the Response
 
         // 2. Calculate dynamic radius based on the allocated space
@@ -240,3 +240,4 @@ fn rotate_vec(v: Vec2, angle: f32) -> Vec2 {
     let (sin, cos) = angle.sin_cos();
     vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos)
 }
+
