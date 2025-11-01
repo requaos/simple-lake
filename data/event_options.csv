@@ -40,3 +40,76 @@ event_id,text,scs_change,finance_change,career_level_change,guanxi_family_change
 11,"D: (Use Guanxi) Ask Network cop to fix. (RISK: 40%)",0,0,0,0,-1,0,0,1,0,40,"Your friend made it go away. -1 Guanxi (Network).","Your friend was caught. You are both fined heavily. -100 SCS, -2000 Finances.",-100,-2000,0,0,-1,0
 12,"A: Suffer in silence.",-5,0,-1,0,0,0,0,0,0,0,"You were tired at work. -5 SCS, -1 Career Level.","",0,0,0,0,0,0
 12,"B: Knock on their door.",10,0,0,0,-1,0,0,0,0,0,"You asked politely. They turned it down. +10 SCS, -1 Guanxi (Network).","",0,0,0,0,0,0
+13,"A: Do the job. (RISK: 30%)",0,5000,0,0,1,0,0,0,0,30,"You got paid. +5000 Finances, +1 Guanxi (Network).","You were caught evading taxes! -150 SCS, -1 Guanxi (Network).",-150,0,0,0,-1,0
+13,"B: Decline the job.",0,0,0,0,-1,0,0,0,0,0,"You declined. Your friend is disappointed. -1 Guanxi (Network).","",0,0,0,0,0,0
+13,"C: Report your friend.",75,0,0,-2,-1,1,0,0,0,0,"You reported an illegal operation. +75 SCS, +1 Guanxi (Party), -2 Guanxi (Family), -1 Guanxi (Network).","",0,0,0,0,0,0
+13,"D: (Use Guanxi) Ask Party contact to 'ensure' you're not watched. (RISK: 10%)",0,5000,0,0,1,-1,0,0,1,10,"Your contact kept you safe. +5000 Finances, +1 Guanxi (Network), -1 Guanxi (Party).","Your 'protection' failed! You were caught. -200 SCS, -1 Guanxi (Party).",-200,0,0,0,1,-1
+14,"A: Buy one ticket. (RISK: 90%)",10,20000,0,0,0,0,0,0,0,90,"You won a minor prize! +10 SCS, +20000 Finances.","You lost, but you contributed to the nation. +5 SCS, -500 Finances.",5,-500,0,0,0,0
+14,"B: Buy ten tickets. (RISK: 50%)",20,100000,0,0,0,0,0,0,0,50,"You won the grand prize! +20 SCS, +100000 Finances.","You lost, but your large contribution was noted. +10 SCS, -5000 Finances.",10,-5000,0,0,0,0
+14,"C: Don't buy any.",-10,0,0,0,0,0,0,0,0,0,"Your lack of patriotism is noted. -10 SCS.","",0,0,0,0,0,0
+15,"A: Invest a large sum. (RISK: 40%)",0,30000,0,0,1,0,0,0,0,40,"It paid off! +30000 Finances, +1 Guanxi (Network).","It was a scam! You lost your money. -50 SCS, -10000 Finances, -1 Guanxi (Network).",-50,-10000,0,0,-1,0
+15,"B: Invest a small sum. (RISK: 20%)",0,2000,0,0,1,0,0,0,0,20,"It paid off! +2000 Finances, +1 Guanxi (Network).","It was a scam! You lost your money. -10 SCS, -1000 Finances, -1 Guanxi (Network).",-10,-1000,0,0,-1,0
+15,"C: Decline to invest.",0,0,0,0,-1,0,0,0,0,0,"You declined. Your colleague is offended. -1 Guanxi (Network).","",0,0,0,0,0,0
+15,"D: Report the 'scam' to the authorities. (RISK: 25%)",100,0,0,0,0,1,0,0,0,25,"It *was* a scam! You are a hero. +100 SCS, +1 Guanxi (Party).","It was a legitimate (but risky) state-backed venture. You are in trouble. -75 SCS, -2 Guanxi (Network), -1 Guanxi (Party).",-75,0,0,0,-2,-1
+16,"A: Take the cash, leave the wallet. (RISK: 50%)",0,3000,0,0,0,0,0,0,0,50,"You got away with it. +3000 Finances.","A camera saw you! You are a registered thief. -200 SCS.",-200,0,0,0,0,0
+16,"B: Turn in the wallet (and cash) to the police.",75,0,0,0,0,0,0,0,0,0,"You are an honest citizen. +75 SCS.","",0,0,0,0,0,0
+16,"C: Contact the Party member directly.",10,0,0,0,0,2,0,0,0,0,"The official is very grateful for your discretion. +10 SCS, +2 Guanxi (Party).","",0,0,0,0,0,0
+17,"A: 'Donate' half, as suggested.",20,-2500,0,0,1,1,0,0,0,0,"You are a team player. +20 SCS, -2500 Finances, +1 Guanxi (Network), +1 Guanxi (Party).","",0,0,0,0,0,0
+17,"B: Keep the whole bonus.",-30,5000,-1,0,-1,-1,0,0,0,0,"You kept your money, but you are not a team player. -30 SCS, +5000 Finances, -1 Career, -1 Guanxi (Network), -1 Guanxi (Party).","",0,0,0,0,0,0
+17,"C: (Use Guanxi) Ask Family (a lawyer) to complain. (RISK: 50%)",0,5000,0,-1,0,0,1,0,0,50,"Your family's complaint worked! You (and everyone) keep the bonus. +5000 Finances, -1 Guanxi (Family).","Your complaint failed and was traced to you. You are a troublemaker. -100 SCS, -1 Career, -1 Guanxi (Family), -2 Guanxi (Party).",-100,0,-1,-1,0,-2
+18,"A: Pay for the 'Patriotic Package'.",5,-1000,0,0,0,0,0,0,0,0,"You have fast internet... for now. +5 SCS, -1000 Finances.","",0,0,0,0,0,0
+18,"B: Suffer with the slow internet.",-5,0,-1,0,0,0,0,0,0,0,"Your work suffers. -5 SCS, -1 Career Level.","",0,0,0,0,0,0
+18,"C: (Use Guanxi) Ask your Network tech-friend to bypass it. (RISK: 50%)",0,0,0,0,-1,0,0,1,0,50,"Your friend's script works! -1 Guanxi (Network).","The bypass failed and was logged. You are labeled a 'hacker'. -150 SCS, -1 Guanxi (Network).",-150,0,0,0,-1,0
+19,"A: Publicly congratulate your colleague.",10,0,0,0,1,0,0,0,0,0,"Your subservience is noted. +10 SCS, +1 Guanxi (Network).","",0,0,0,0,0,0
+19,"B: Complain to HR about the injustice.",-50,0,-1,0,-1,0,0,0,0,0,"Your complaint is filed as 'frivolous'. -50 SCS, -1 Career Level, -1 Guanxi (Network).","",0,0,0,0,0,0
+19,"C: (Use Guanxi) Beg your Party contact to reconsider. (RISK: 70%)",0,0,0,0,0,-1,0,0,1,70,"Your contact pulled strings! You got the promotion. +1 Career, -1 Guanxi (Party).","Your contact is angry you asked. You are now on a 'watch list'. -100 SCS, -1 Guanxi (Party).",-100,0,0,0,0,-1
+20,"A: Do it diligently and post a 'reflective' selfie.",35,0,0,0,0,0,0,0,0,0,"You have shown true repentance. +35 SCS.","",0,0,0,0,0,0
+20,"B: Refuse to go.",-50,-500,0,0,0,0,0,0,0,0,"You are fined for non-compliance. -50 SCS, -500 Finances.","",0,0,0,0,0,0
+20,"C: (Use Guanxi) Bribe the supervisor to sign you off. (RISK: 30%)",10,-500,0,0,0,0,0,0,0,30,"The supervisor signs your sheet. +10 SCS (for 'volunteering'), -500 Finances.","You were caught! Bribing an official is a serious crime. -200 SCS, -500 Finances.",-200,-500,0,0,0,0
+21,"A: Confront them loudly.",-25,0,0,0,-1,0,0,0,0,0,"You caused a public disturbance. -25 SCS, -1 Guanxi (Network).","",0,0,0,0,0,0
+21,"B: Walk away and say nothing.",-5,0,0,-1,0,0,0,0,0,0,"You feel the shame. -5 SCS, -1 Guanxi (Family).","",0,0,0,0,0,0
+21,"C: (Use Guanxi) Text them asking why.",0,0,0,0,-1,0,0,1,0,0,"They apologize and say they were 'pressured'. -1 Guanxi (Network).","",0,0,0,0,0,0
+22,"A: Accept their fate at a low-tier school.",5,0,0,-2,0,0,0,0,0,0,"You accept the state's decision. +5 SCS, -2 Guanxi (Family).","",0,0,0,0,0,0
+22,"B: (Use Guanxi) Beg your Family contact for help. (RISK: 50%)",0,0,0,-1,0,0,2,0,0,50,"Your family pulled a string! Your child is accepted. -1 Guanxi (Family).","Your family's 'meddling' was discovered. Your child is barred. -50 SCS, -1 Guanxi (Family).",-50,0,0,-1,0,0
+22,"C: (Use Guanxi) Beg your Party contact for help. (RISK: 30%)",0,0,0,0,0,-1,0,0,1,30,"Your Party contact 'found a spot'. Your child is accepted. -1 Guanxi (Party).","Your 'inappropriate request' was logged. -100 SCS, -1 Guanxi (Party).",-100,0,0,0,0,-1
+22,"D: Publicly 'self-criticize' and beg the school board.",25,0,0,-1,0,0,0,0,0,0,"Your public humiliation moved them. Your child is accepted. +25 SCS, -1 Guanxi (Family).","",0,0,0,0,0,0
+23,"A: Don't go to see your relative.",-10,0,0,-1,0,0,0,0,0,0,"Your family is heartbroken. -10 SCS, -1 Guanxi (Family).","",0,0,0,0,0,0
+23,"B: Take the 20-hour 'slow bus'.",5,-200,-1,0,0,0,0,0,0,0,"You missed two days of work but made it. +5 SCS, -200 Finances, -1 Career Level.","",0,0,0,0,0,0
+23,"C: (Use Guanxi) Ask Family to buy the ticket for you. (RISK: 25%)",-5,0,0,-1,0,0,1,0,0,25,"You got the ticket. -5 SCS (for travel), -1 Guanxi (Family).","The ticket ID mismatch was flagged at the gate. You are detained. -100 SCS, -1 Guanxi (Family).",-100,0,0,-1,0,0
+24,"A: Stay home for a week to avoid the shame.",-15,0,-1,0,0,0,0,0,0,0,"You missed work. -15 SCS, -1 Career Level.","",0,0,0,0,0,0
+24,"B: Go about your business and ignore it.",-5,0,0,0,0,0,0,0,0,0,"You endured the shame. -5 SCS.","",0,0,0,0,0,0
+24,"C: Write a public apology and post it on the billboard.",30,0,0,0,0,0,0,0,0,0,"Your repentance is noted. +30 SCS.","",0,0,0,0,0,0
+25,"A: Do nothing and let the roof leak.",-5,0,0,-1,0,0,0,0,0,0,"Your home is damaged. -5 SCS, -1 Guanxi (Family).","",0,0,0,0,0,0
+25,"B: (Use Guanxi) Ask your Family for the money.",0,1000,0,-1,0,0,1,0,0,0,"Your family helps, but is strained. +1000 Finances, -1 Guanxi (Family).","",0,0,0,0,0,0
+25,"C: (Use Guanxi) Ask your Network for the money.",0,1000,0,0,-1,0,0,1,0,0,"Your friend lends you the cash. +1000 Finances, -1 Guanxi (Network).","",0,0,0,0,0,0
+26,"A: Give a passionate, tearful 'confession' of your 'failings'.",40,0,0,0,-1,0,0,0,0,0,"Your performance was convincing. +40 SCS, -1 Guanxi (Network).","",0,0,0,0,0,0
+26,"B: Give a bland, robotic statement.",10,0,0,0,0,0,0,0,0,0,"You did the minimum. +10 SCS.","",0,0,0,0,0,0
+26,"C: Refuse to attend, claiming to be sick.",-100,0,-1,0,0,0,0,0,0,0,"Your 'illness' was not believed. -100 SCS, -1 Career Level.","",0,0,0,0,0,0
+27,"A: Accept the new role without complaint.",5,0,-1,0,0,0,0,0,0,0,"You are compliant. +5 SCS, -1 Career Level.","",0,0,0,0,0,0
+27,"B: Quit the job to find something better.",-20,-5000,-1,0,0,0,0,0,0,0,"You are now unemployed. -20 SCS, -5000 Finances, -1 Career Level.","",0,0,0,0,0,0
+27,"C: (Use Guanxi) Beg Party contact to intervene. (RISK: 60%)",0,0,0,0,0,-1,0,0,1,60,"It worked! Your role was 're-evaluated'. -1 Guanxi (Party).","Your meddling was discovered. You are fired. -100 SCS, -1 Career Level, -1 Guanxi (Party).",-100,0,-1,0,0,-1
+28,"A: Let them stay. (RISK: 50%)",15,0,0,1,0,0,0,0,0,50,"You helped a friend. +15 SCS, +1 Guanxi (Family).","You were caught 'harboring a Blacklisted individual'. You are now Tier D. -200 SCS, -1 Guanxi (Family).",-200,0,0,-1,0,0
+28,"B: Refuse, but send them some money.",-10,-200,0,-1,0,0,0,0,0,0,"You feel guilty. -10 SCS, -200 Finances, -1 Guanxi (Family).","",0,0,0,0,0,0
+28,"C: Report them to the authorities.",150,0,0,-2,0,1,0,0,0,0,"A model citizen! +150 SCS, -2 Guanxi (Family), +1 Guanxi (Party).","",0,0,0,0,0,0
+29,"A: Leave quietly.",-5,0,0,0,0,0,0,0,0,0,"You know your place. -5 SCS.","",0,0,0,0,0,0
+29,"B: Make a scene and demand entry.",-75,0,0,0,0,0,0,0,0,0,"You caused a public disturbance. -75 SCS.","",0,0,0,0,0,0
+29,"C: (Guanxi) Call your Tier B friend to sign you in. (RISK: 30%)",-5,0,0,0,-1,0,0,1,0,30,"Your friend vouched for you. -5 SCS (for being low-tier), -1 Guanxi (Network).","Your friend is 'embarrassed' and refuses. -20 SCS, -1 Guanxi (Network).",-20,0,0,0,-1,0
+30,"A: Agree to become an informant.",50,0,0,0,-2,1,0,0,0,0,"You are now a 'useful' citizen. +50 SCS, -2 Guanxi (Network), +1 Guanxi (Party).","",0,0,0,0,0,0
+30,"B: Firmly refuse.",-20,0,0,0,0,-1,0,0,0,0,"Your lack of cooperation is noted. -20 SCS, -1 Guanxi (Party).","",0,0,0,0,0,0
+30,"C: Laugh it off, pretending it was a joke.",-5,0,0,0,0,0,0,0,0,0,"The officer stares blankly. -5 SCS.","",0,0,0,0,0,0
+31,"A: Promise them you will 'do better'.",10,0,0,1,0,0,0,0,0,0,"Your family is placated. +10 SCS, +1 Guanxi (Family).","",0,0,0,0,0,0
+31,"B: Argue that the system is unfair.",-40,0,0,-1,0,0,0,0,0,0,"Your 'subversive' talk worries them. -40 SCS, -1 Guanxi (Family).","",0,0,0,0,0,0
+31,"C: (Guanxi) Ask them to use THEIR Guanxi to help you. (RISK: 20%)",20,0,0,-1,0,0,1,0,0,20,"They pull a string. +20 SCS, -1 Guanxi (Family).","Their attempt failed and embarrassed them. -20 SCS, -1 Guanxi (Family).",-20,0,0,-1,0,0
+32,"A: Take the loan. (RISK: 40%)",-10,3000,0,0,0,0,0,0,0,40,"You got the cash, but feel uneasy. -10 SCS, +3000 Finances.","It was a scam! Your bank account is emptied. -100 SCS, -1000 Finances.",-100,-1000,0,0,0,0
+32,"B: Ignore the offer.",0,0,0,0,0,0,0,0,0,0,"You resisted the temptation and deleted the message.","",0,0,0,0,0,0
+32,"C: Report the predatory lender.",30,0,0,0,0,1,0,0,0,0,"You reported an illegal operation. +30 SCS, +1 Guanxi (Party).","",0,0,0,0,0,0
+33,"A: Choose a partner with a High SCS.",100,0,0,-1,0,1,0,0,0,0,"A strategic match. +100 SCS, -1 Guanxi (Family), +1 Guanxi (Party).","",0,0,0,0,0,0
+33,"B: Choose a partner with a Low SCS.",-150,0,0,2,0,0,0,0,0,0,"You followed your heart. -150 SCS, +2 Guanxi (Family).","",0,0,0,0,0,0
+33,"C: Focus on your career instead.",-5,0,1,0,0,0,0,0,0,0,"A practical choice. -5 SCS (for being 'individualist'), +1 Career.","",0,0,0,0,0,0
+34,"A: Add your name (and money) to the 'gift'.",-5,-1000,0,0,1,1,0,0,0,0,"You are part of the 'in-group'. -5 SCS (corruption), -1000 Finances, +1 Guanxi (Network), +1 Guanxi (Party).","",0,0,0,0,0,0
+34,"B: Politely decline.",-15,0,0,0,-1,-1,0,0,0,0,"Your neighbor and the inspector are offended. -15 SCS, -1 Guanxi (Network), -1 Guanxi (Party).","",0,0,0,0,0,0
+34,"C: Report your neighbor for bribery. (RISK: 30%)",100,0,0,0,-2,-1,0,0,0,30,"It worked! The inspector and neighbor are purged. +100 SCS, -2 Guanxi (Network), -1 Guanxi (Party).","The inspector was too powerful. Your report was 'lost' and traced to you. -150 SCS, -2 Guanxi (Network), -1 Guanxi (Party).",-150,0,0,0,-2,-1
+35,"A: Give them honest, negative answers. (RISK: 50%)",-10,0,0,0,0,0,0,0,0,50,"The officer didn't see. The journalist thanks you. -10 SCS (for negativity).","The officer saw you. You are detained for 'spreading rumors'. -200 SCS, -1 Career.",-200,0,-1,0,0,0
+35,"B: Recite the official, positive talking points.",25,0,0,0,0,0,0,0,0,0,"The officer nods in approval. +25 SCS.","",0,0,0,0,0,0
+35,"C: (Use Guanxi) Signal your Party contact about the journalist. (RISK: 10%)",50,0,0,0,0,0,0,0,1,10,"You helped 'manage' the situation. +50 SCS, -1 Guanxi (Party).","Your contact is annoyed you involved them in a minor issue. -10 SCS, -1 Guanxi (Party).",-10,0,0,0,0,-1
+35,"D: Pretend you don't speak English and walk away.",-5,0,0,0,0,0,0,0,0,0,"A neutral, safe move. -5 SCS.","",0,0,0,0,0,0
