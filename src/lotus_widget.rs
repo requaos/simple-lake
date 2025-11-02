@@ -76,10 +76,15 @@ impl LotusWidget {
 
     /// Helper function to get the text for a specific petal
     fn get_petal_text(&self, tier: usize, petal: usize, _total_index: usize) -> String {
-        // Special "SCS Review" spaces
-        if petal == 0 || petal == 4 || petal == 8 {
+        // --- MODIFIED: Petal 0 is now the "New Year" petal ---
+        if petal == 0 {
+            return "New Year\nSCS Review".to_string();
+        }
+        // Other SCS Review spaces
+        if petal == 4 || petal == 8 {
             return "SCS\nReview".to_string();
         }
+        // --- END MODIFICATION ---
 
         // --- Example Game Logic ---
         match tier {
@@ -236,4 +241,3 @@ fn rotate_vec(v: Vec2, angle: f32) -> Vec2 {
     let (sin, cos) = angle.sin_cos();
     vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos)
 }
-

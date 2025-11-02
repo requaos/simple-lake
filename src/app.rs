@@ -4,12 +4,17 @@ use super::LotusApp;
 use eframe::egui::{self, vec2, Align2, Color32, RichText, Window};
 use rand::Rng;
 
-// --- MODIFIED: Renamed constants to reflect their purpose ---
+// --- Tier Definitions ---
 const TIER_D_MAX: i32 = 199; // Tier D is <= 199
 const TIER_C_MAX: i32 = 399; // Tier C is 200 - 399
 const TIER_B_MAX: i32 = 749; // Tier B is 400 - 749
 const TIER_A_MAX: i32 = 999; // Tier A is 750 - 999
                              // Tier A+ is anything > 999
+
+// --- NEW: Life Stage Definitions ---
+const AGE_STAGE_2: u32 = 26; // Early Career (26-40)
+const AGE_STAGE_3: u32 = 41; // Mid-Career (41-55)
+const AGE_STAGE_4: u32 = 56; // Seniority (56+)
 
 impl LotusApp {
     /// Returns true if the petal is one of the SCS review spaces
@@ -40,7 +45,6 @@ impl LotusApp {
     /// Checks the player's SCS and updates their tier if needed.
     /// Returns true if the tier changed.
     fn update_player_tier_from_scs(&mut self) -> bool {
-        // --- MODIFIED: Corrected tier logic ---
         let new_tier = if self.social_credit_score <= TIER_D_MAX {
             0 // Tier D
         } else if self.social_credit_score <= TIER_C_MAX {
@@ -52,13 +56,42 @@ impl LotusApp {
         } else {
             4 // Tier A+
         };
-        // --- END MODIFICATION ---
 
         if new_tier != self.player_tier {
             self.player_tier = new_tier;
             true // Tier changed
         } else {
             false // Tier did not change
+        }
+    }
+
+    // --- NEW: Age Progression ---
+    /// Increments player age and checks for life stage changes.
+    fn age_up(&mut self) {
+        self.player_age += 1;
+        self.last_event_result = Some(format!("Happy Birthday! You are now {}.", self.player_age));
+        self.update_life_stage(); // Check if this new age triggers a new life stage
+    }
+
+    /// Updates the player's life stage based on their new age.
+    fn update_life_stage(&mut self) {
+        let new_stage = if self.player_age >= AGE_STAGE_4 {
+            4
+        } else if self.player_age >= AGE_STAGE_3 {
+            3
+        } else if self.player_age >= AGE_STAGE_2 {
+            2
+        } else {
+            1
+        };
+
+        if new_stage != self.life_stage {
+            self.life_stage = new_stage;
+            // Overwrite the birthday message with a more important one
+            self.last_event_result = Some(format!(
+                "You are {}. You've entered a new Life Stage: {}!",
+                self.player_age, self.life_stage
+            ));
         }
     }
 }
@@ -77,26 +110,43 @@ impl eframe::App for LotusApp {
                     }
                     ui.label("Click the buttons to move the player token.");
 
+                    // --- MODIFIED: Reworked movement logic for aging ---
+                    let old_petal = self.player_petal;
+                    let mut moved = false;
+
                     if ui.button("Move Counter-Clockwise").clicked() {
                         self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
                             % self.num_petals_per_tier;
-
-                        // If we moved to a new petal AND it's not a review space, trigger an event
-                        if !self.is_review_petal(self.player_petal) {
-                            self.current_event = Some(generate_event(self));
+                        moved = true;
+                        // Check for age-up (passing 0 counter-clockwise)
+                        if self.player_petal > old_petal {
+                            self.age_up();
                         }
-                        // Clear last event result on move
-                        self.last_event_result = None;
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+                        moved = true;
+                        // Check for age-up (passing 0 clockwise)
+                        if self.player_petal < old_petal {
+                            self.age_up();
+                        }
+                    }
 
+                    if moved {
                         // If we moved to a new petal AND it's not a review space, trigger an event
                         if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
+                            // Clear any "Happy Birthday" message if an event pops up
+                            self.last_event_result = None; 
+                        } else {
+                            // Landed on a review petal (which is also petal 0)
+                            // Clear any active event
+                            self.current_event = None; 
+                            // If we didn't *just* age up, clear the result message
+                            if self.player_petal != 0 {
+                                self.last_event_result = None;
+                            }
                         }
-                        // Clear last event result on move
-                        self.last_event_result = None;
                     }
                 });
             });
@@ -120,6 +170,9 @@ impl eframe::App for LotusApp {
                 egui::Frame::group(ui.style()).show(ui, |ui| {
                     ui.label(RichText::new("Player Stats").strong());
                     ui.horizontal_wrapped(|ui| {
+                        // --- MODIFIED: Added Age and Life Stage ---
+                        ui.label(format!("Age: {}", self.player_age));
+                        ui.label(format!("Life Stage: {}", self.life_stage));
                         ui.label(format!("SCS: {}", self.social_credit_score));
                         ui.label(format!("Finances (¥): {}", self.finances));
                         ui.label(format!("Career: Lvl {}", self.career_level));
@@ -202,7 +255,6 @@ impl eframe::App for LotusApp {
                         ui.vertical_centered_justified(|ui| {
                             for option in event.options.iter() {
                                 if ui.button(&option.text).clicked() {
-                                    // --- MODIFIED: Use thread_rng() to get a valid Rng implementation ---
                                     let mut rng = rand::thread_rng();
                                     
                                     if option.risk_chance > 0
@@ -231,4 +283,3 @@ impl eframe::App for LotusApp {
         });
     }
 }
-

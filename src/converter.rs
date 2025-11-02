@@ -19,6 +19,7 @@ struct EventCsvRow {
     min_tier: usize,
     max_tier: usize,
     is_generic: bool,
+    life_stage: usize, // NEW: Added life_stage
 }
 
 /// Represents a row in the `event_options.csv` file.
@@ -78,6 +79,7 @@ fn create_event_from_row(row: EventCsvRow) -> EventData {
         min_tier: row.min_tier,
         max_tier: row.max_tier,
         is_generic: row.is_generic,
+        life_stage: row.life_stage, // NEW: Pass life_stage
         options: Vec::new(), // Will be populated from the other file
     }
 }
@@ -165,4 +167,3 @@ pub fn run_converter() -> Result<()> {
 
     Ok(())
 }
-

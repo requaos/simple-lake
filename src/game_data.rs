@@ -1,5 +1,5 @@
 use super::LotusApp;
-use rand::prelude::IndexedRandom; // MODIFIED: Use trait suggested by compiler
+use rand::prelude::IndexedRandom;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -23,11 +23,11 @@ pub struct EventOption {
     pub text: String,
     #[serde(default)]
     pub requirements: HashMap<String, u32>,
-    
-    // NEW: Risk and multiple outcomes
+
+    // Risk and multiple outcomes
     #[serde(default)]
     pub risk_chance: u8, // Chance of failure (0-100)
-    
+
     pub success_outcome: EventOutcome,
     pub success_result: String, // Text to show on success
 
@@ -48,6 +48,7 @@ pub struct EventData {
     pub min_tier: usize,
     pub max_tier: usize,
     pub is_generic: bool,
+    pub life_stage: usize, // NEW: Which life stage this event belongs to
 }
 
 // --- Main Event Generation Function ---
@@ -73,57 +74,75 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
 /// This function is called by app.rs to get a new event.
 /// It selects an event from the in-memory database.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
-    // MODIFIED: Use new rand API
-    let mut rng = rand::rng();
+    let mut rng = rand::thread_rng();
+    let current_tier = player_state.player_tier;
+    let current_stage = player_state.life_stage;
 
-    // 1. Try to find a TIER-SPECIFIC event first
+    // --- MODIFIED: Filter by Life Stage ---
+    // 1. Try to find a non-generic (tier-specific) event for the current stage
     let tier_specific_events: Vec<&EventData> = player_state
         .event_database
         .iter()
         .filter(|event| {
             !event.is_generic
-                && event.min_tier <= player_state.player_tier
-                && event.max_tier >= player_state.player_tier
+                && event.life_stage == current_stage
+                && event.min_tier <= current_tier
+                && event.max_tier >= current_tier
         })
         .collect();
 
     let chosen_event_template = if let Some(event) = tier_specific_events.choose(&mut rng) {
+        // Found a tier-specific event
         *event
     } else {
-        // 2. If no specific event, find a GENERIC event
+        // 2. If none, find a generic event for the current stage
         let generic_events: Vec<&EventData> = player_state
             .event_database
             .iter()
             .filter(|event| {
                 event.is_generic
-                    && event.min_tier <= player_state.player_tier
-                    && event.max_tier >= player_state.player_tier
+                    && event.life_stage == current_stage
+                    && event.min_tier <= current_tier
+                    && event.max_tier >= current_tier
             })
             .collect();
 
         if let Some(event) = generic_events.choose(&mut rng) {
+            // Found a generic event
             *event
         } else {
-            // 3. Fallback: If no events are found for this tier, create a default panic event
-            return EventData {
-                title: "No Event Found!".to_string(),
-                description: format!(
-                    "Error: No events found for player tier {}. Please check events.json.",
-                    player_state.player_tier
-                ),
-                options: vec![EventOption {
-                    text: "Continue".to_string(),
-                    requirements: Default::default(),
-                    risk_chance: 0,
-                    success_outcome: Default::default(),
-                    success_result: "".to_string(),
-                    failure_outcome: None,
-                    failure_result: "".to_string(),
-                }],
-                min_tier: 0,
-                max_tier: 99,
-                is_generic: true,
-            };
+            // 3. Fallback: find *any* generic event from a past life stage
+            let fallback_events: Vec<&EventData> = player_state
+                .event_database
+                .iter()
+                .filter(|e| e.is_generic && e.life_stage < current_stage)
+                .collect();
+            
+            if let Some(event) = fallback_events.choose(&mut rng) {
+                *event
+            } else {
+                // 4. Absolute fallback
+                return EventData {
+                    title: "No Event Found!".to_string(),
+                    description: format!(
+                        "Error: No events found for player tier {} and life stage {}. Please check events.json.",
+                        player_state.player_tier, player_state.life_stage
+                    ),
+                    options: vec![EventOption {
+                        text: "Continue".to_string(),
+                        requirements: Default::default(),
+                        risk_chance: 0,
+                        success_outcome: Default::default(),
+                        success_result: "".to_string(),
+                        failure_outcome: None,
+                        failure_result: "".to_string(),
+                    }],
+                    min_tier: 0,
+                    max_tier: 99,
+                    is_generic: true,
+                    life_stage: 0,
+                };
+            }
         }
     };
 
@@ -148,6 +167,6 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
         min_tier: 0,
         max_tier: 0,
         is_generic: false,
+        life_stage: chosen_event_template.life_stage,
     }
 }
-

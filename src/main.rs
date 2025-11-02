@@ -5,7 +5,6 @@ mod game_data;
 mod lotus_widget;
 
 use crate::game_data::EventData;
-// Removed unused HashMap import
 use std::fs;
 
 // Define the main application state
@@ -22,6 +21,8 @@ pub struct LotusApp {
     guanxi_family: u32,
     guanxi_network: u32,
     guanxi_party: u32,
+    player_age: u32,   // NEW: Player's age
+    life_stage: usize, // NEW: Current life stage (1-4)
 
     // Game Board config
     num_petals_per_tier: usize,
@@ -78,10 +79,11 @@ fn main() -> anyhow::Result<()> {
                     guanxi_party: 0,
                     current_event: None,
                     last_event_result: None,
+                    player_age: 18,  // NEW: Initialize age
+                    life_stage: 1,   // NEW: Initialize life stage
                 }))
             }),
         )
         .map_err(|e| anyhow::anyhow!("eframe error: {}", e))
     }
 }
-
