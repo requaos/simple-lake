@@ -1,8 +1,20 @@
 use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
-use super::LotusApp;
-use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Frame, Id};
+use super::{FloatingText, LotusApp};
+use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Id, Pos2, Rect};
 use rand::Rng;
+
+impl LotusApp {
+    // Add a queue for floating text animations
+    fn add_floating_text(&mut self, text: String, pos: Pos2, color: Color32) {
+        self.floating_texts.push_back(FloatingText {
+            text,
+            pos,
+            color,
+            age: 0.0,
+        });
+    }
+}
 
 // --- Tier Definitions ---
 const TIER_D_MAX: i32 = 199; // Tier D is <= 199
@@ -23,7 +35,21 @@ impl LotusApp {
     }
 
     /// Safely applies all stat changes from an EventOutcome
-    fn apply_outcome(&mut self, outcome: &EventOutcome) {
+    fn apply_outcome(&mut self, outcome: &EventOutcome, ui_rect: Rect) {
+        // --- Floating Text ---
+        let base_pos = ui_rect.center_top();
+        if outcome.scs_change != 0 {
+            let text = format!("{} SCS", outcome.scs_change);
+            let color = if outcome.scs_change > 0 { Color32::GREEN } else { Color32::RED };
+            self.add_floating_text(text, base_pos, color);
+        }
+        if outcome.finance_change != 0 {
+            let text = format!("{} ¥", outcome.finance_change);
+            let color = if outcome.finance_change > 0 { Color32::GOLD } else { Color32::RED };
+            self.add_floating_text(text, Pos2::new(base_pos.x + 20.0, base_pos.y), color);
+        }
+        // ... add more for other stats if desired
+
         self.social_credit_score += outcome.scs_change;
         self.finances += outcome.finance_change;
 
@@ -101,7 +127,7 @@ impl eframe::App for LotusApp {
         let event_is_open = self.current_event.is_some();
 
         // --- Left Stats Panel ---
-        egui::SidePanel::left("left_panel")
+        let left_panel_response = egui::SidePanel::left("left_panel")
             .resizable(false)
             .default_width(180.0)
             .show(ctx, |ui| {
@@ -116,6 +142,7 @@ impl eframe::App for LotusApp {
                     ui.label(format!("Finances (¥): {}", self.finances));
                     ui.label(format!("Career: Lvl {}", self.career_level));
                 });
+                ui.output_mut(|o| o.cursor_icon = egui::CursorIcon::Default); // Ensure default cursor
             });
 
         // --- Right Guanxi Panel ---
@@ -211,13 +238,25 @@ impl eframe::App for LotusApp {
                     ui.separator();
                     ui.vertical_centered_justified(|ui| {
                         for option in event.options.iter() {
-                            if ui.button(&option.text).clicked() {
+                            let button_response = ui.button(&option.text);
+
+                            // --- Predictive Tooltip ---
+                            button_response.clone().on_hover_ui(|ui| {
+                                let risk_text = if option.risk_chance > 75 { "Very High" }
+                                                else if option.risk_chance > 50 { "High" }
+                                                else if option.risk_chance > 25 { "Medium" }
+                                                else if option.risk_chance > 0 { "Low" }
+                                                else { "None" };
+                                ui.label(format!("Risk: {} ({}%)", risk_text, option.risk_chance));
+                            });
+
+                            if button_response.clicked() {
                                 let mut rng = rand::thread_rng();
                                 if option.risk_chance > 0 && rng.gen_range(1..=100) <= option.risk_chance {
-                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome); }
+                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome, left_panel_response.response.rect); }
                                     self.last_event_result = Some(option.failure_result.clone());
                                 } else {
-                                    self.apply_outcome(&option.success_outcome);
+                                    self.apply_outcome(&option.success_outcome, left_panel_response.response.rect);
                                     self.last_event_result = Some(option.success_result.clone());
                                 }
                                 self.current_event = None;
@@ -226,5 +265,24 @@ impl eframe::App for LotusApp {
                     });
                 });
         }
+
+        // --- Floating Text System ---
+        let delta_time = ctx.input(|i| i.stable_dt);
+        self.floating_texts.retain_mut(|ft| {
+            ft.age += delta_time;
+            ft.pos.y -= delta_time * 30.0; // Move up
+            ft.age < 2.0 // Keep for 2 seconds
+        });
+
+        Area::new(Id::new("floating_text_area"))
+            .fixed_pos(Pos2::ZERO)
+            .order(Order::Tooltip)
+            .show(ctx, |ui| {
+                for ft in &self.floating_texts {
+                    let alpha = ((2.0 - ft.age) / 2.0).max(0.0); // Fade out
+                    let color = ft.color.linear_multiply(alpha);
+                    ui.painter().text(ft.pos, Align2::CENTER_CENTER, &ft.text, egui::FontId::proportional(16.0), color);
+                }
+            });
     }
 }

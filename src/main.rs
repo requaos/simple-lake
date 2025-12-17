@@ -7,6 +7,15 @@ mod lotus_widget;
 use crate::game_data::EventData;
 use eframe::egui;
 use std::fs;
+use std::collections::VecDeque;
+
+// --- Floating Text Animation ---
+pub struct FloatingText {
+    pub text: String,
+    pub pos: egui::Pos2,
+    pub color: egui::Color32,
+    pub age: f32, // In seconds
+}
 
 // Define the main application state
 pub struct LotusApp {
@@ -32,6 +41,7 @@ pub struct LotusApp {
     // UI State
     current_event: Option<EventData>,
     last_event_result: Option<String>,
+    floating_texts: VecDeque<FloatingText>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -89,6 +99,7 @@ fn main() -> anyhow::Result<()> {
                     last_event_result: None,
                     player_age: 18,  // NEW: Initialize age
                     life_stage: 1,   // NEW: Initialize life stage
+                    floating_texts: VecDeque::new(),
                 }))
             }),
         )
