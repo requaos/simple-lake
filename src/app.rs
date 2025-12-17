@@ -1,7 +1,7 @@
 use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
 use super::{FloatingText, LotusApp};
-use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Id, Pos2, Rect};
+use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Id, Pos2, Rect, ScrollArea};
 use rand::Rng;
 
 impl LotusApp {
@@ -35,7 +35,13 @@ impl LotusApp {
     }
 
     /// Safely applies all stat changes from an EventOutcome
-    fn apply_outcome(&mut self, outcome: &EventOutcome, ui_rect: Rect) {
+    fn apply_outcome(&mut self, outcome: &EventOutcome, ui_rect: Rect, result_text: &str) {
+        // --- Log to History ---
+        self.history.push(format!("[Age {}] {}", self.player_age, result_text));
+        if self.history.len() > 100 { // Keep history from getting too long
+            self.history.remove(0);
+        }
+
         // --- Floating Text ---
         let base_pos = ui_rect.center_top();
         if outcome.scs_change != 0 {
@@ -95,7 +101,9 @@ impl LotusApp {
     /// Increments player age and checks for life stage changes.
     fn age_up(&mut self) {
         self.player_age += 1;
-        self.last_event_result = Some(format!("Happy Birthday! You are now {}.", self.player_age));
+        let age_up_msg = format!("Happy Birthday! You are now {}.", self.player_age);
+        self.history.push(age_up_msg.clone());
+        self.last_event_result = Some(age_up_msg);
         self.update_life_stage(); // Check if this new age triggers a new life stage
     }
 
@@ -113,11 +121,12 @@ impl LotusApp {
 
         if new_stage != self.life_stage {
             self.life_stage = new_stage;
-            // Overwrite the birthday message with a more important one
-            self.last_event_result = Some(format!(
+            let stage_msg = format!(
                 "You are {}. You've entered a new Life Stage: {}!",
                 self.player_age, self.life_stage
-            ));
+            );
+            self.history.push(stage_msg.clone());
+            self.last_event_result = Some(stage_msg);
         }
     }
 }
@@ -158,6 +167,19 @@ impl eframe::App for LotusApp {
                     ui.label(format!("Family: {}", self.guanxi_family));
                     ui.label(format!("Network: {}", self.guanxi_network));
                     ui.label(format!("Party: {}", self.guanxi_party));
+                });
+            });
+
+        // --- Bottom History Panel ---
+        egui::TopBottomPanel::bottom("bottom_panel")
+            .resizable(true)
+            .default_height(150.0)
+            .show(ctx, |ui| {
+                ui.heading("History Log");
+                ScrollArea::vertical().stick_to_bottom(true).show(ui, |ui| {
+                    for entry in &self.history {
+                        ui.label(entry);
+                    }
                 });
             });
 
@@ -203,7 +225,9 @@ impl eframe::App for LotusApp {
                 if self.is_review_petal(self.player_petal) {
                     ui.label(RichText::new("SCS Review...").strong());
                     if self.update_player_tier_from_scs() {
-                        ui.label(RichText::new(format!("Tier changed to {}!", self.player_tier)).color(Color32::RED).strong());
+                        let tier_msg = format!("Tier changed to {}!", self.player_tier);
+                        self.history.push(tier_msg.clone());
+                        ui.label(RichText::new(tier_msg).color(Color32::RED).strong());
                     } else {
                         ui.label("Tier remains unchanged.");
                     }
@@ -253,10 +277,10 @@ impl eframe::App for LotusApp {
                             if button_response.clicked() {
                                 let mut rng = rand::thread_rng();
                                 if option.risk_chance > 0 && rng.gen_range(1..=100) <= option.risk_chance {
-                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome, left_panel_response.response.rect); }
+                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome, left_panel_response.response.rect, &option.failure_result); }
                                     self.last_event_result = Some(option.failure_result.clone());
                                 } else {
-                                    self.apply_outcome(&option.success_outcome, left_panel_response.response.rect);
+                                    self.apply_outcome(&option.success_outcome, left_panel_response.response.rect, &option.success_result);
                                     self.last_event_result = Some(option.success_result.clone());
                                 }
                                 self.current_event = None;

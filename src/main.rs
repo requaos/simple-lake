@@ -42,6 +42,7 @@ pub struct LotusApp {
     current_event: Option<EventData>,
     last_event_result: Option<String>,
     floating_texts: VecDeque<FloatingText>,
+    history: Vec<String>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -100,6 +101,7 @@ fn main() -> anyhow::Result<()> {
                     player_age: 18,  // NEW: Initialize age
                     life_stage: 1,   // NEW: Initialize life stage
                     floating_texts: VecDeque::new(),
+                    history: Vec::new(),
                 }))
             }),
         )
