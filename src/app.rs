@@ -241,27 +241,30 @@ impl eframe::App for LotusApp {
             });
         });
 
-        // --- Event Modal (as an Area) ---
-        if let Some(event) = self.current_event.clone() {
+        // --- Event Modal Logic ---
+        let mut outcome_to_apply = None;
+        let mut close_event = false;
+        if let Some(event) = self.current_event.as_ref() {
             // Darkened overlay
             Area::new(Id::new("event_overlay"))
-                .fixed_pos(ctx.screen_rect().min)
+                .fixed_pos(ctx.content_rect().min)
                 .order(Order::Middle)
                 .show(ctx, |ui| {
-                    ui.painter().rect_filled(ctx.screen_rect(), 0.0, Color32::from_black_alpha(180));
+                    ui.painter().rect_filled(ctx.content_rect(), 0.0, Color32::from_black_alpha(180));
                 });
 
             // Event Window
             Window::new(RichText::new(&event.title).strong())
                 .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0))
                 .collapsible(false)
+                .order(Order::Foreground)
                 .resizable(false)
                 .show(ctx, |ui| {
                     ui.set_max_width(350.0);
                     ui.add(egui::Label::new(&event.description).wrap());
                     ui.separator();
                     ui.vertical_centered_justified(|ui| {
-                        for option in event.options.iter() {
+                        for option in &event.options {
                             let button_response = ui.button(&option.text);
 
                             // --- Predictive Tooltip ---
@@ -275,19 +278,28 @@ impl eframe::App for LotusApp {
                             });
 
                             if button_response.clicked() {
-                                let mut rng = rand::thread_rng();
-                                if option.risk_chance > 0 && rng.gen_range(1..=100) <= option.risk_chance {
-                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome, left_panel_response.response.rect, &option.failure_result); }
-                                    self.last_event_result = Some(option.failure_result.clone());
+                                let mut rng = rand::rng();
+                                if option.risk_chance > 0 && rng.random_range(1..=100) <= option.risk_chance {
+                                    if let Some(outcome) = &option.failure_outcome {
+                                        outcome_to_apply = Some((outcome.clone(), option.failure_result.clone()));
+                                    }
                                 } else {
-                                    self.apply_outcome(&option.success_outcome, left_panel_response.response.rect, &option.success_result);
-                                    self.last_event_result = Some(option.success_result.clone());
+                                    outcome_to_apply = Some((option.success_outcome.clone(), option.success_result.clone()));
                                 }
-                                self.current_event = None;
+                                close_event = true;
                             }
                         }
                     });
                 });
+        }
+
+        if close_event {
+            self.current_event = None;
+        }
+
+        if let Some((outcome, result)) = outcome_to_apply {
+            self.apply_outcome(&outcome, left_panel_response.response.rect, &result);
+            self.last_event_result = Some(result);
         }
 
         // --- Floating Text System ---

@@ -7,7 +7,7 @@ mod lotus_widget;
 use crate::game_data::EventData;
 use eframe::egui;
 use std::fs;
-use std::collections::VecDeque;
+use std::collections::{VecDeque, HashMap};
 
 // --- Floating Text Animation ---
 pub struct FloatingText {
@@ -21,6 +21,8 @@ pub struct FloatingText {
 pub struct LotusApp {
     // The in-memory database of all possible events
     event_database: Vec<EventData>,
+    // Pre-computed index for fast event lookups
+    event_index: HashMap<(usize, usize), (Vec<usize>, Vec<usize>)>,
 
     // Player State
     player_tier: usize,
@@ -72,6 +74,19 @@ fn main() -> anyhow::Result<()> {
         let event_database: Vec<EventData> = serde_json::from_str(&event_json)
             .expect("Failed to parse events.json. Check file format.");
 
+        // --- Pre-compute the event index ---
+        let mut event_index = HashMap::new();
+        for (i, event) in event_database.iter().enumerate() {
+            for tier in event.min_tier..=event.max_tier {
+                let (tier_specific, generic) = event_index.entry((event.life_stage, tier)).or_insert_with(|| (Vec::new(), Vec::new()));
+                if event.is_generic {
+                    generic.push(i);
+                } else {
+                    tier_specific.push(i);
+                }
+            }
+        }
+
         // eframe::run_native returns an eframe::Result, so we map the error
         // to anyhow::Error to match our main function's return type.
         eframe::run_native(
@@ -85,7 +100,8 @@ fn main() -> anyhow::Result<()> {
                 cc.egui_ctx.set_visuals(visuals);
 
                 Ok(Box::new(LotusApp {
-                    event_database, // Pass the loaded data
+                    event_database,
+                    event_index,
                     player_tier: 2,
                     player_petal: 1,
                     num_petals_per_tier: 13,

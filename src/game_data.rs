@@ -1,5 +1,4 @@
 use super::LotusApp;
-use rand::prelude::IndexedRandom;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -72,54 +71,38 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
 }
 
 /// This function is called by app.rs to get a new event.
-/// It selects an event from the in-memory database.
+/// It selects an event from the in-memory database using the pre-computed index.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
-    let mut rng = rand::thread_rng();
+    use rand::prelude::IndexedRandom;
+    let mut rng = rand::rng();
     let current_tier = player_state.player_tier;
     let current_stage = player_state.life_stage;
 
-    // --- MODIFIED: Filter by Life Stage ---
-    // 1. Try to find a non-generic (tier-specific) event for the current stage
-    let tier_specific_events: Vec<&EventData> = player_state
-        .event_database
-        .iter()
-        .filter(|event| {
-            !event.is_generic
-                && event.life_stage == current_stage
-                && event.min_tier <= current_tier
-                && event.max_tier >= current_tier
-        })
-        .collect();
+    let mut potential_events: Vec<usize> = Vec::new();
 
-    let chosen_event_template = if let Some(event) = tier_specific_events.choose(&mut rng) {
-        // Found a tier-specific event
-        *event
+    // 1. Try to find a non-generic (tier-specific) event for the current stage
+    if let Some((tier_specific, _)) = player_state.event_index.get(&(current_stage, current_tier)) {
+        potential_events.extend(tier_specific);
+    }
+
+    let chosen_event_template: &EventData = if let Some(&event_index) = potential_events.choose(&mut rng) {
+        &player_state.event_database[event_index]
     } else {
         // 2. If none, find a generic event for the current stage
-        let generic_events: Vec<&EventData> = player_state
-            .event_database
-            .iter()
-            .filter(|event| {
-                event.is_generic
-                    && event.life_stage == current_stage
-                    && event.min_tier <= current_tier
-                    && event.max_tier >= current_tier
-            })
-            .collect();
-
-        if let Some(event) = generic_events.choose(&mut rng) {
-            // Found a generic event
-            *event
+        if let Some((_, generic)) = player_state.event_index.get(&(current_stage, current_tier)) {
+            potential_events.extend(generic);
+        }
+        if let Some(&event_index) = potential_events.choose(&mut rng) {
+            &player_state.event_database[event_index]
         } else {
             // 3. Fallback: find *any* generic event from a past life stage
-            let fallback_events: Vec<&EventData> = player_state
-                .event_database
-                .iter()
-                .filter(|e| e.is_generic && e.life_stage < current_stage)
-                .collect();
-            
-            if let Some(event) = fallback_events.choose(&mut rng) {
-                *event
+            for stage in (1..current_stage).rev() {
+                if let Some((_, generic)) = player_state.event_index.get(&(stage, current_tier)) {
+                    potential_events.extend(generic);
+                }
+            }
+            if let Some(&event_index) = potential_events.choose(&mut rng) {
+                &player_state.event_database[event_index]
             } else {
                 // 4. Absolute fallback
                 return EventData {
