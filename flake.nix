@@ -46,7 +46,12 @@
         };
 
         devShell = with pkgs; mkShell {
-          buildInputs = [
+          packages = [
+            pkg-config
+            rustc
+            rustPlatform.rustLibSrc
+          ];
+          nativeBuildInputs = [
             cargo
             cargo-insta
             pre-commit
@@ -55,9 +60,19 @@
             rustc
             rustfmt
             tokei
-
             xorg.libxcb
           ];
+          shellHook = ''
+            [ -d ".devenv/profile" ] && exit 0
+            mkdir -p .devenv/profile/{bin,lib/rustlib/src}
+            ln -sfn ${rustc}/bin/* .devenv/profile/bin/
+            ln -sfn ${rustPlatform.rustLibSrc} .devenv/profile/lib/rustlib/src/rust
+            echo ""
+            echo "Development environment initialized with local toolchain paths"
+            echo "Toolchain: $PWD/.devenv/profile/bin"
+            echo "Standard library: $PWD/.devenv/profile/lib/rustlib/src/rust"
+            echo ""
+          '';
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
           LD_LIBRARY_PATH = libPath;
           GIT_EXTERNAL_DIFF = "${difftastic}/bin/difft";

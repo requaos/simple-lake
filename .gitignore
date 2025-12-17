@@ -2,4 +2,5 @@
 /.cargo
 
 /.direnv
+/.devenv
 /result
