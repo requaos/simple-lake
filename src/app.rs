@@ -1,7 +1,7 @@
 use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
 use super::LotusApp;
-use eframe::egui::{self, vec2, Align2, Color32, RichText, Window};
+use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Frame, Id};
 use rand::Rng;
 
 // --- Tier Definitions ---
@@ -98,188 +98,133 @@ impl LotusApp {
 
 impl eframe::App for LotusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            // Check if a modal window is open.
-            let event_is_open = self.current_event.is_some();
+        let event_is_open = self.current_event.is_some();
 
+        // --- Left Stats Panel ---
+        egui::SidePanel::left("left_panel")
+            .resizable(false)
+            .default_width(180.0)
+            .show(ctx, |ui| {
+                ui.add_enabled_ui(!event_is_open, |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.heading("Player Status");
+                    });
+                    ui.separator();
+                    ui.label(format!("Age: {}", self.player_age));
+                    ui.label(format!("Life Stage: {}", self.life_stage));
+                    ui.label(RichText::new(format!("Social Credit: {}", self.social_credit_score)).strong());
+                    ui.label(format!("Finances (¥): {}", self.finances));
+                    ui.label(format!("Career: Lvl {}", self.career_level));
+                });
+            });
+
+        // --- Right Guanxi Panel ---
+        egui::SidePanel::right("right_panel")
+            .resizable(false)
+            .default_width(180.0)
+            .show(ctx, |ui| {
+                ui.add_enabled_ui(!event_is_open, |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.heading("Guanxi Network");
+                    });
+                    ui.separator();
+                    ui.label(format!("Family: {}", self.guanxi_family));
+                    ui.label(format!("Network: {}", self.guanxi_network));
+                    ui.label(format!("Party: {}", self.guanxi_party));
+                });
+            });
+
+        // --- Main Central Panel ---
+        egui::CentralPanel::default().show(ctx, |ui| {
             // --- Top Controls ---
-            ui.add_enabled_ui(!event_is_open, |ui: &mut egui::Ui| {
+            ui.add_enabled_ui(!event_is_open, |ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
-                    ui.label("Click the buttons to move the player token.");
-
-                    // --- MODIFIED: Reworked movement logic for aging ---
                     let old_petal = self.player_petal;
                     let mut moved = false;
-
                     if ui.button("Move Counter-Clockwise").clicked() {
-                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
-                            % self.num_petals_per_tier;
+                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
                         moved = true;
-                        // Check for age-up (passing 0 counter-clockwise)
-                        if self.player_petal > old_petal {
-                            self.age_up();
-                        }
+                        if self.player_petal > old_petal { self.age_up(); }
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                         moved = true;
-                        // Check for age-up (passing 0 clockwise)
-                        if self.player_petal < old_petal {
-                            self.age_up();
-                        }
+                        if self.player_petal < old_petal { self.age_up(); }
                     }
-
                     if moved {
-                        // If we moved to a new petal AND it's not a review space, trigger an event
                         if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
-                            // Clear any "Happy Birthday" message if an event pops up
-                            self.last_event_result = None; 
+                            self.last_event_result = None;
                         } else {
-                            // Landed on a review petal (which is also petal 0)
-                            // Clear any active event
-                            self.current_event = None; 
-                            // If we didn't *just* age up, clear the result message
-                            if self.player_petal != 0 {
-                                self.last_event_result = None;
-                            }
+                            self.current_event = None;
+                            if self.player_petal != 0 { self.last_event_result = None; }
                         }
                     }
                 });
             });
 
-            // --- Last Event Result ---
-            if let Some(result_text) = &self.last_event_result {
-                if !result_text.is_empty() {
-                    ui.add_space(5.0);
-                    // Show event result in a distinct color
-                    ui.label(
-                        RichText::new(result_text)
-                            .color(Color32::from_rgb(200, 200, 100))
-                            .strong(),
-                    );
-                    ui.add_space(5.0);
-                }
-            }
-
-            // --- Player Stats Panel ---
-            ui.add_enabled_ui(!event_is_open, |ui: &mut egui::Ui| {
-                egui::Frame::group(ui.style()).show(ui, |ui| {
-                    ui.label(RichText::new("Player Stats").strong());
-                    ui.horizontal_wrapped(|ui| {
-                        // --- MODIFIED: Added Age and Life Stage ---
-                        ui.label(format!("Age: {}", self.player_age));
-                        ui.label(format!("Life Stage: {}", self.life_stage));
-                        ui.label(format!("SCS: {}", self.social_credit_score));
-                        ui.label(format!("Finances (¥): {}", self.finances));
-                        ui.label(format!("Career: Lvl {}", self.career_level));
-                    });
-                    ui.horizontal_wrapped(|ui| {
-                        ui.label(format!("Guanxi (Family): {}", self.guanxi_family));
-                        ui.label(format!("Guanxi (Network): {}", self.guanxi_network));
-                        ui.label(format!("Guanxi (Party): {}", self.guanxi_party));
-                    });
-                });
-            });
-
-            // --- Status/Review UI ---
+            // --- Last Event Result & Status ---
             if !event_is_open {
-                // If the player is on an "SCS Review" space, check for tier change
-                if self.is_review_petal(self.player_petal) {
-                    ui.add_space(5.0);
-                    ui.label(RichText::new("You are on an 'SCS Review' space!").strong());
-                    ui.label("Your SCS is re-evaluated...");
-
-                    if self.update_player_tier_from_scs() {
-                        ui.label(
-                            RichText::new(format!(
-                                "Your Tier has changed to {}!",
-                                self.player_tier
-                            ))
-                            .color(Color32::RED)
-                            .strong(),
-                        );
-                    } else {
-                        ui.label("Your Tier remains unchanged.");
+                if let Some(result_text) = &self.last_event_result {
+                    if !result_text.is_empty() {
+                        ui.label(RichText::new(result_text).color(Color32::from_rgb(200, 200, 100)).strong());
                     }
-                    ui.add_space(5.0);
                 }
-
-                // Helper to map tier index to SCS name
-                let tier_name = [
-                    "D (Blacklisted)",
-                    "C (Warning)",
-                    "B (Standard)",
-                    "A (Trusted)",
-                    "A+ (Exemplary)",
-                ]
-                .get(self.player_tier)
-                .cloned()
-                .unwrap_or("?");
-
-                ui.label(format!(
-                    "Player is on Tier {} (SCS: {}), Petal {}",
-                    self.player_tier, tier_name, self.player_petal
-                ));
-                ui.add_space(10.0);
+                if self.is_review_petal(self.player_petal) {
+                    ui.label(RichText::new("SCS Review...").strong());
+                    if self.update_player_tier_from_scs() {
+                        ui.label(RichText::new(format!("Tier changed to {}!", self.player_tier)).color(Color32::RED).strong());
+                    } else {
+                        ui.label("Tier remains unchanged.");
+                    }
+                }
             }
 
             // --- Game Board Widget ---
-            let draw_lotus_widget = |ui: &mut egui::Ui| {
-                let player_total_index =
-                    self.player_tier * self.num_petals_per_tier + self.player_petal;
-
-                ui.add(LotusWidget::new(
-                    self.num_tiers,
-                    self.num_petals_per_tier,
-                    player_total_index,
-                ))
-            };
-            ui.add_enabled(!event_is_open, draw_lotus_widget);
-
-            // --- Event Window (Modal) ---
-            if let Some(event) = self.current_event.clone() {
-                Window::new(RichText::new(&event.title).strong())
-                    .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0))
-                    .collapsible(false)
-                    .resizable(false)
-                    .show(ctx, |ui| {
-                        ui.set_max_width(300.0);
-                        ui.add(egui::Label::new(&event.description).wrap());
-                        ui.separator();
-
-                        // --- Dynamic buttons with risk logic ---
-                        ui.vertical_centered_justified(|ui| {
-                            for option in event.options.iter() {
-                                if ui.button(&option.text).clicked() {
-                                    let mut rng = rand::thread_rng();
-                                    
-                                    if option.risk_chance > 0
-                                        && rng.gen_range(1..=100) <= option.risk_chance
-                                    {
-                                        // --- FAILURE ---
-                                        if let Some(outcome) = &option.failure_outcome {
-                                            self.apply_outcome(outcome);
-                                        }
-                                        self.last_event_result =
-                                            Some(option.failure_result.clone());
-                                    } else {
-                                        // --- SUCCESS ---
-                                        self.apply_outcome(&option.success_outcome);
-                                        self.last_event_result =
-                                            Some(option.success_result.clone());
-                                    }
-
-                                    self.current_event = None; // Close window
-                                }
-                            }
-                        });
-                        // --- END MODIFICATION ---
-                    });
-            }
+            ui.centered_and_justified(|ui| {
+                let player_total_index = self.player_tier * self.num_petals_per_tier + self.player_petal;
+                ui.add(LotusWidget::new(self.num_tiers, self.num_petals_per_tier, player_total_index));
+            });
         });
+
+        // --- Event Modal (as an Area) ---
+        if let Some(event) = self.current_event.clone() {
+            // Darkened overlay
+            Area::new(Id::new("event_overlay"))
+                .fixed_pos(ctx.screen_rect().min)
+                .order(Order::Middle)
+                .show(ctx, |ui| {
+                    ui.painter().rect_filled(ctx.screen_rect(), 0.0, Color32::from_black_alpha(180));
+                });
+
+            // Event Window
+            Window::new(RichText::new(&event.title).strong())
+                .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0))
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.set_max_width(350.0);
+                    ui.add(egui::Label::new(&event.description).wrap());
+                    ui.separator();
+                    ui.vertical_centered_justified(|ui| {
+                        for option in event.options.iter() {
+                            if ui.button(&option.text).clicked() {
+                                let mut rng = rand::thread_rng();
+                                if option.risk_chance > 0 && rng.gen_range(1..=100) <= option.risk_chance {
+                                    if let Some(outcome) = &option.failure_outcome { self.apply_outcome(outcome); }
+                                    self.last_event_result = Some(option.failure_result.clone());
+                                } else {
+                                    self.apply_outcome(&option.success_outcome);
+                                    self.last_event_result = Some(option.success_result.clone());
+                                }
+                                self.current_event = None;
+                            }
+                        }
+                    });
+                });
+        }
     }
 }

@@ -5,6 +5,7 @@ mod game_data;
 mod lotus_widget;
 
 use crate::game_data::EventData;
+use eframe::egui;
 use std::fs;
 
 // Define the main application state
@@ -47,8 +48,9 @@ fn main() -> anyhow::Result<()> {
         // 3. Otherwise, run the game
         println!("Starting game...");
         let options = eframe::NativeOptions {
-            viewport: eframe::egui::ViewportBuilder::default()
-                .with_inner_size(eframe::egui::vec2(800.0, 800.0)),
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size(egui::vec2(800.0, 800.0))
+                .with_app_id("lotus_game"),
             ..Default::default()
         };
 
@@ -64,7 +66,13 @@ fn main() -> anyhow::Result<()> {
         eframe::run_native(
             "Lotus Game Board",
             options,
-            Box::new(move |_cc| {
+            Box::new(move |cc| {
+                let mut visuals = egui::Visuals::dark();
+                visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgb(20, 20, 25); // Deep dark background
+                visuals.widgets.active.bg_fill = egui::Color32::from_rgb(200, 50, 50); // Red accents
+                visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(218, 165, 32); // Gold for hovered
+                cc.egui_ctx.set_visuals(visuals);
+
                 Ok(Box::new(LotusApp {
                     event_database, // Pass the loaded data
                     player_tier: 2,

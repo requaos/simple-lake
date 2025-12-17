@@ -1,4 +1,5 @@
-use eframe::egui::{self, vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget};
+use eframe::egui::{self, vec2, Align2, Color32, FontId, Pos2, Response, Rgba, Sense, Shape, Stroke, Ui, Vec2, Widget, Mesh};
+use eframe::epaint::PathStroke;
 use std::f32::consts::TAU;
 
 /// Our custom widget.
@@ -43,15 +44,15 @@ impl LotusWidget {
     }
 
     /// Helper to create a petal shape for drawing or hit-testing
-    fn create_petal_shape(
+    fn create_petal_mesh(
         &self,
         center: Pos2,
         radius: f32, // This is now the radius for the *current tier*
         angle: f32,
         scale: f32,
-        fill: Color32,
+        fill_color: Color32,
         stroke: Stroke,
-    ) -> Shape {
+    ) -> (Mesh, Shape) {
         let p0 = center;
         let p3 = center;
 
@@ -66,33 +67,57 @@ impl LotusWidget {
         let p1 = center + rotate_vec(cp1_base, angle);
         let p2 = center + rotate_vec(cp2_base, angle);
 
-        Shape::CubicBezier(egui::epaint::CubicBezierShape {
+        let bezier = egui::epaint::CubicBezierShape {
             points: [p0, p1, p2, p3],
             closed: true,
-            fill,
+            fill: Color32::TRANSPARENT, // We use the mesh for fill
             stroke: stroke.into(),
-        })
+        };
+
+        // --- Create Gradient Mesh ---
+        let mut mesh = Mesh::default();
+        let center_color = fill_color;
+        let edge_color = Color32::from_rgba_premultiplied(
+            (fill_color.r() as f32 * 0.4) as u8,
+            (fill_color.g() as f32 * 0.4) as u8,
+            (fill_color.b() as f32 * 0.4) as u8,
+            (fill_color.a() as f32 * 0.8) as u8,
+        );
+
+        // Approximate the bezier with a fan of triangles from the center
+        const N_POINTS: usize = 20;
+        mesh.colored_vertex(p0, center_color); // Center vertex
+
+        for i in 0..=N_POINTS {
+            let t = i as f32 / N_POINTS as f32;
+            let pos = bezier.sample(t);
+            mesh.colored_vertex(pos, edge_color);
+        }
+
+        // Create the triangles
+        for i in 1..=N_POINTS {
+            mesh.add_triangle(0, i as u32, (i + 1) as u32);
+        }
+        mesh.add_triangle(0, N_POINTS as u32, 1); // close the loop
+
+        (mesh, Shape::CubicBezier(bezier))
     }
 
     /// Helper function to get the text for a specific petal
     fn get_petal_text(&self, tier: usize, petal: usize, _total_index: usize) -> String {
-        // --- MODIFIED: Petal 0 is now the "New Year" petal ---
         if petal == 0 {
-            return "New Year\nSCS Review".to_string();
+            return "🎉".to_string(); // New Year
         }
-        // Other SCS Review spaces
         if petal == 4 || petal == 8 {
-            return "SCS\nReview".to_string();
+            return "⚖️".to_string(); // SCS Review
         }
-        // --- END MODIFICATION ---
 
-        // --- Example Game Logic ---
         match tier {
-            0 => "Re-education".to_string(), // Tier D (Blacklisted)
-            1 => "Job Warning".to_string(),  // Tier C (Warning)
-            2 => "Event".to_string(), // Tier B (Standard)
-            3 => "Party Banquet".to_string(), // Tier A (Trusted)
-            4 => "Honored!".to_string(),     // Tier A+ (Exemplary)
+            0 => "💀".to_string(), // Tier D (Blacklisted)
+            1 => "⚠️".to_string(), // Tier C (Warning)
+            2 => "💼".to_string(), // Tier B (Standard Event)
+            3 => "🍲".to_string(), // Tier A (Party Banquet)
+            4 => "🏆".to_string(), // Tier A+ (Honored)
             _ => "??".to_string(),
         }
     }
@@ -107,7 +132,6 @@ impl Widget for LotusWidget {
         let rect = response.rect; // Get the Rect *from* the Response
 
         // 2. Calculate dynamic radius based on the allocated space
-        // Use 45% of the smallest dimension to leave a small margin
         let base_radius = rect.width().min(rect.height()) * 0.45;
         let center = rect.center();
 
@@ -123,24 +147,15 @@ impl Widget for LotusWidget {
             Rgba::from(Color32::from_rgb(255, 220, 100)), // Tier 4 (A+ - Exemplary) - Gold
         ];
 
-        // Set a constant, readable font size
-        let text_font = FontId::proportional(12.0);
+        let text_font = FontId::proportional(16.0); // Increased for icons
 
         // 3. Iterate and draw each petal for each tier
-        // (Reversed loop, draws from back (largest) to front (smallest))
         for tier in (0..self.num_tiers).rev() {
-            // Calculate this tier's radius (from 1/N to N/N)
             let tier_radius_factor = (tier as f32 + 1.0) / self.num_tiers as f32;
             let tier_radius = base_radius * tier_radius_factor;
-
-            // Offset each tier's rotation by half a petal
             let tier_rotation = (tier as f32 * (TAU / self.num_petals_per_tier as f32)) / 2.0;
 
-            // Get tier color
-            let base_color_rgba = tier_colors
-                .get(tier)
-                .cloned()
-                .unwrap_or(Rgba::from(Color32::GRAY));
+            let base_color_rgba = tier_colors.get(tier).cloned().unwrap_or(Rgba::from(Color32::GRAY));
             let hover_color_rgba = egui::lerp(base_color_rgba..=Rgba::WHITE, 0.4);
 
             for petal in 0..self.num_petals_per_tier {
@@ -148,89 +163,68 @@ impl Widget for LotusWidget {
                 let petal_id = response.id.with(petal_total_index);
                 let angle = (petal as f32 / self.num_petals_per_tier as f32) * TAU + tier_rotation;
 
-                // --- Interaction: ---
-                let base_shape = self.create_petal_shape(
-                    center,
-                    tier_radius, // Use this tier's radius
-                    angle,
-                    1.0,
-                    Color32::TRANSPARENT,
-                    Stroke::NONE,
-                );
-                let hover_rect = base_shape.visual_bounding_rect();
+                // --- Interaction & Animation ---
+                let (_, boundary_shape) = self.create_petal_mesh(center, tier_radius, angle, 1.0, Color32::TRANSPARENT, Stroke::NONE);
+                let hover_rect = boundary_shape.visual_bounding_rect();
                 let petal_response = ui.interact(hover_rect, petal_id, Sense::hover());
                 let is_hovered = petal_response.hovered();
 
-                // --- Animation: ---
-                let scale_anim = ctx.animate_value_with_time(
-                    petal_id.with("scale"),
-                    if is_hovered { 1.2 } else { 1.0 },
-                    0.1,
-                );
-                
-                // --- Color Logic ---
-                let hover_progress = (scale_anim - 1.0) / 0.2; // 0.0 to 1.0
+                let scale_anim = ctx.animate_value_with_time(petal_id.with("scale"), if is_hovered { 1.2 } else { 1.0 }, 0.1);
+                let hover_progress = (scale_anim - 1.0) / 0.2;
                 let color_rgba = egui::lerp(base_color_rgba..=hover_color_rgba, hover_progress);
                 let final_color: Color32 = color_rgba.into();
 
-                // --- Drawing: ---
-                let petal_shape = self.create_petal_shape(
+                // --- Drawing ---
+                let (petal_mesh, petal_stroke_shape) = self.create_petal_mesh(
                     center,
-                    tier_radius, // Use this tier's radius
+                    tier_radius,
                     angle,
                     scale_anim,
                     final_color,
                     Stroke::new(1.0, Color32::from_black_alpha(60)),
                 );
 
-                painter.add(petal_shape);
+                painter.add(petal_mesh);
+                painter.add(petal_stroke_shape);
 
-                // --- DRAW PETAL TEXT ---
-                let petal_text_pos =
-                    self.get_petal_resting_pos(petal_total_index, center, base_radius);
+                // --- DRAW PETAL TEXT (ICONS) ---
+                let petal_text_pos = self.get_petal_resting_pos(petal_total_index, center, base_radius);
                 let text = self.get_petal_text(tier, petal, petal_total_index);
 
                 painter.text(
                     petal_text_pos,
                     Align2::CENTER_CENTER,
                     text,
-                    text_font.clone(), // Use fixed font
+                    text_font.clone(),
                     Color32::BLACK,
                 );
-                // --- END TEXT ---
 
                 response |= petal_response;
             }
         }
 
-        // --- 4. Draw the Animated Player Token ---
+        // --- 4. Draw the Animated Player Token with Glow ---
         let target_pos = self.get_petal_resting_pos(self.player_total_index, center, base_radius);
         let player_anim_id = response.id.with("player_token_pos");
 
-        // Animate X and Y components separately
-        let animated_x =
-            ctx.animate_value_with_time(player_anim_id.with("x"), target_pos.x, 0.3);
-        let animated_y =
-            ctx.animate_value_with_time(player_anim_id.with("y"), target_pos.y, 0.3);
-
-        // Combine them back into a Pos2
+        let animated_x = ctx.animate_value_with_time(player_anim_id.with("x"), target_pos.x, 0.3);
+        let animated_y = ctx.animate_value_with_time(player_anim_id.with("y"), target_pos.y, 0.3);
         let animated_pos = Pos2::new(animated_x, animated_y);
 
-        // --- Calculate dynamic token size ---
         let token_radius = (base_radius * 0.05).max(6.0);
         let token_stroke = (token_radius * 0.2).max(1.5);
 
-        // Draw the player token
-        painter.circle_filled(
-            animated_pos,
-            token_radius,
-            Color32::from_rgb(255, 220, 0), // Yellow
-        );
-        painter.circle_stroke(
-            animated_pos,
-            token_radius,
-            Stroke::new(token_stroke, Color32::from_black_alpha(150)),
-        );
+        // Pulsing glow effect
+        let time = ui.input(|i| i.time);
+        let glow_anim_id = response.id.with("glow");
+        let pulse = (ctx.animate_value_with_time(glow_anim_id, time as f32, 1.0) * 2.0).sin() * 0.5 + 0.5; // Slow pulse
+        let glow_radius = token_radius * (1.5 + pulse * 0.5);
+        let glow_color = Color32::from_rgba_premultiplied(255, 220, 0, (pulse * 80.0) as u8);
+        painter.circle_filled(animated_pos, glow_radius, glow_color);
+
+        // Draw the main player token
+        painter.circle_filled(animated_pos, token_radius, Color32::from_rgb(255, 220, 0));
+        painter.circle_stroke(animated_pos, token_radius, Stroke::new(token_stroke, Color32::from_black_alpha(150)));
 
         response
     }
