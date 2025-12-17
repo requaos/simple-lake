@@ -67,9 +67,8 @@ fn main() -> anyhow::Result<()> {
             ..Default::default()
         };
 
-        // Load the event database from the JSON file
-        let event_json = fs::read_to_string("src/events.json")
-            .expect("Failed to read events.json. Did you run `cargo run -- --convert` first?");
+        // --- Asset Management ---
+        let event_json = include_str!("events.json").to_string();
 
         let event_database: Vec<EventData> = serde_json::from_str(&event_json)
             .expect("Failed to parse events.json. Check file format.");
