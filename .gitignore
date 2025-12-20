@@ -4,3 +4,6 @@
 /.direnv
 /.devenv
 /result
+
+# Git worktrees
+/.worktrees/
