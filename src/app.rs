@@ -129,6 +129,30 @@ impl LotusApp {
             self.last_event_result = Some(stage_msg);
         }
     }
+
+    /// Updates context tracking after an event is resolved
+    pub fn update_event_context(&mut self, domain: crate::procedural::EventDomain, situation_id: String) {
+        // Update domain history
+        self.recent_event_domains.push_back(domain);
+        if self.recent_event_domains.len() > 15 {
+            self.recent_event_domains.pop_front();
+        }
+
+        // Update encounter tracking
+        self.encounter_history.insert(situation_id.clone());
+        self.encounter_map.insert(situation_id, self.event_counter);
+        self.event_counter += 1;
+
+        // Clean old encounters (older than 30 events)
+        let cutoff = self.event_counter.saturating_sub(30);
+        self.encounter_map.retain(|id, &mut counter| {
+            let keep = counter >= cutoff;
+            if !keep {
+                self.encounter_history.remove(id);
+            }
+            keep
+        });
+    }
 }
 
 impl eframe::App for LotusApp {
