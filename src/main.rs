@@ -3,6 +3,7 @@ mod app;
 mod converter;
 mod game_data;
 mod lotus_widget;
+mod procedural;
 
 use crate::game_data::EventData;
 use eframe::egui;
