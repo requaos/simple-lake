@@ -15,7 +15,7 @@ pub fn calculate_stats(
         Severity::High => 2.0,
     };
 
-    let random_variance = rng.gen_range(0.8..=1.2);
+    let random_variance = rng.random_range(0.8..=1.2);
 
     let multiplier = tier_multiplier * severity_multiplier * random_variance;
 

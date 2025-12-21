@@ -1,6 +1,7 @@
 use super::game_data::{generate_event, EventOutcome};
 use super::lotus_widget::LotusWidget;
 use super::{FloatingText, LotusApp};
+use super::procedural::EventDomain;
 use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Id, Pos2, Rect, ScrollArea};
 use rand::Rng;
 
@@ -131,7 +132,7 @@ impl LotusApp {
     }
 
     /// Updates context tracking after an event is resolved
-    pub fn update_event_context(&mut self, domain: crate::procedural::EventDomain, situation_id: String) {
+    pub fn update_event_context(&mut self, domain: EventDomain, situation_id: String) {
         // Update domain history
         self.recent_event_domains.push_back(domain);
         if self.recent_event_domains.len() > 15 {
@@ -323,11 +324,11 @@ impl eframe::App for LotusApp {
                 if let (Some(proc_id), Some(proc_domain)) = (&event.procedural_id, &event.procedural_domain) {
                     // Parse the domain string back to enum
                     let domain = match proc_domain.as_str() {
-                        "Family" => crate::procedural::EventDomain::Family,
-                        "Work" => crate::procedural::EventDomain::Work,
-                        "Public" => crate::procedural::EventDomain::Public,
-                        "Party" => crate::procedural::EventDomain::Party,
-                        _ => crate::procedural::EventDomain::Public, // fallback
+                        "Family" => EventDomain::Family,
+                        "Work" => EventDomain::Work,
+                        "Public" => EventDomain::Public,
+                        "Party" => EventDomain::Party,
+                        _ => EventDomain::Public, // fallback
                     };
                     self.update_event_context(domain, proc_id.clone());
                 }

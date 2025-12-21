@@ -1,15 +1,16 @@
-use super::library::{EventDomain, SituationLibrary, SituationTemplate, ChoiceArchetype};
+use super::library::{EventDomain, SituationTemplate, ChoiceArchetype};
 use super::text_assembly::{assemble_description, assemble_choice_text};
 use super::stat_calculator::{calculate_stats, calculate_failure_stats};
 use super::risk_calculator::{calculate_risk, PlayerStats};
 use crate::game_data::{EventData, EventOption, EventOutcome};
 use crate::LotusApp;
 use rand::prelude::*;
+use rand::distr::weighted::WeightedIndex;
 use std::collections::VecDeque;
 
 /// Filter situations based on player state and context
 fn filter_situations<'a>(
-    situations: &'a [SituationTemplate],
+    situations: &'a [&'a SituationTemplate],
     player_tier: usize,
     life_stage: usize,
     recent_domains: &VecDeque<EventDomain>,
@@ -17,6 +18,7 @@ fn filter_situations<'a>(
     allow_wildcard: bool,
 ) -> Vec<&'a SituationTemplate> {
     situations.iter()
+        .copied()
         .filter(|s| {
             // Tier filter: player_tier ± 1
             let tier_ok = s.tier_min <= player_tier.saturating_add(1)
@@ -67,7 +69,7 @@ pub fn generate_procedural_event(
     let library = &player_state.situation_library;
 
     // 10% wildcard probability: ignore domain filter
-    let allow_wildcard = rng.gen_bool(0.1);
+    let allow_wildcard = rng.random_bool(0.1);
 
     // Collect all situations from all domains
     let all_situations: Vec<&SituationTemplate> = library.by_domain
@@ -107,7 +109,7 @@ pub fn generate_procedural_event(
     }).collect();
 
     // Weighted random selection
-    let dist = rand::distributions::WeightedIndex::new(&weights).ok()?;
+    let dist = WeightedIndex::new(&weights).ok()?;
     let selected_situation = candidates[dist.sample(rng)];
 
     // Generate event description
@@ -217,5 +219,7 @@ pub fn generate_procedural_event(
         max_tier: selected_situation.tier_max,
         is_generic: false,
         life_stage: player_state.life_stage,
+        procedural_id: Some(selected_situation.id.clone()),
+        procedural_domain: Some(selected_situation.domain.as_str().to_string()),
     })
 }

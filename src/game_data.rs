@@ -1,7 +1,7 @@
 use super::LotusApp;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::procedural;
+use crate::procedural::{self, PlayerStats};
 
 // --- Core Data Structures ---
 
@@ -88,20 +88,8 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
     let current_stage = player_state.life_stage;
 
     // Attempt procedural generation first
-    let player_stats = procedural::risk_calculator::PlayerStats {
-        career_level: player_state.career_level,
-        guanxi_family: player_state.guanxi_family,
-        guanxi_network: player_state.guanxi_network,
-        guanxi_party: player_state.guanxi_party,
-    };
-
     if let Some(procedural_event) = procedural::generate_procedural_event(
-        &player_state.situation_library,
-        current_tier,
-        current_stage,
-        &player_state.recent_event_domains,
-        &player_state.encounter_history,
-        &player_stats,
+        player_state,
         &mut rng,
     ) {
         return procedural_event;
