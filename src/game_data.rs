@@ -1,6 +1,7 @@
 use super::LotusApp;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::procedural;
 
 // --- Core Data Structures ---
 
@@ -48,6 +49,14 @@ pub struct EventData {
     pub max_tier: usize,
     pub is_generic: bool,
     pub life_stage: usize, // NEW: Which life stage this event belongs to
+
+    // Procedural generation metadata
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub procedural_id: Option<String>,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub procedural_domain: Option<String>,
 }
 
 // --- Main Event Generation Function ---
@@ -71,12 +80,34 @@ fn player_meets_requirements(player_state: &LotusApp, requirements: &HashMap<Str
 }
 
 /// This function is called by app.rs to get a new event.
-/// It selects an event from the in-memory database using the pre-computed index.
+/// It first attempts procedural generation, then falls back to handcrafted events.
 pub fn generate_event(player_state: &LotusApp) -> EventData {
     use rand::prelude::IndexedRandom;
     let mut rng = rand::rng();
     let current_tier = player_state.player_tier;
     let current_stage = player_state.life_stage;
+
+    // Attempt procedural generation first
+    let player_stats = procedural::risk_calculator::PlayerStats {
+        career_level: player_state.career_level,
+        guanxi_family: player_state.guanxi_family,
+        guanxi_network: player_state.guanxi_network,
+        guanxi_party: player_state.guanxi_party,
+    };
+
+    if let Some(procedural_event) = procedural::generate_procedural_event(
+        &player_state.situation_library,
+        current_tier,
+        current_stage,
+        &player_state.recent_event_domains,
+        &player_state.encounter_history,
+        &player_stats,
+        &mut rng,
+    ) {
+        return procedural_event;
+    }
+
+    // Fallback to handcrafted events
 
     let mut potential_events: Vec<usize> = Vec::new();
 
@@ -124,6 +155,8 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
                     max_tier: 99,
                     is_generic: true,
                     life_stage: 0,
+                    procedural_id: None,
+                    procedural_domain: None,
                 };
             }
         }
@@ -151,5 +184,7 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
         max_tier: 0,
         is_generic: false,
         life_stage: chosen_event_template.life_stage,
+        procedural_id: None,
+        procedural_domain: None,
     }
 }

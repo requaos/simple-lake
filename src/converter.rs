@@ -81,6 +81,8 @@ fn create_event_from_row(row: EventCsvRow) -> EventData {
         is_generic: row.is_generic,
         life_stage: row.life_stage, // NEW: Pass life_stage
         options: Vec::new(), // Will be populated from the other file
+        procedural_id: None,
+        procedural_domain: None,
     }
 }
 

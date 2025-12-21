@@ -318,6 +318,20 @@ impl eframe::App for LotusApp {
         }
 
         if close_event {
+            // Update context tracking if this was a procedural event
+            if let Some(event) = &self.current_event {
+                if let (Some(proc_id), Some(proc_domain)) = (&event.procedural_id, &event.procedural_domain) {
+                    // Parse the domain string back to enum
+                    let domain = match proc_domain.as_str() {
+                        "Family" => crate::procedural::EventDomain::Family,
+                        "Work" => crate::procedural::EventDomain::Work,
+                        "Public" => crate::procedural::EventDomain::Public,
+                        "Party" => crate::procedural::EventDomain::Party,
+                        _ => crate::procedural::EventDomain::Public, // fallback
+                    };
+                    self.update_event_context(domain, proc_id.clone());
+                }
+            }
             self.current_event = None;
         }
 
