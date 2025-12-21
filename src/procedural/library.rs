@@ -78,7 +78,7 @@ pub struct SituationTemplate {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct VariableLibraries {
-    pub colleague_descriptors: HashMap<usize, Vec<String>>,
+    pub colleague_descriptors: HashMap<String, Vec<String>>,
     pub excuse_library: Vec<String>,
     pub relationship_types: Vec<String>,
 }
