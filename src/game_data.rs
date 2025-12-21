@@ -1,7 +1,7 @@
 use super::LotusApp;
+use crate::procedural;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::procedural::{self, PlayerStats};
 
 // --- Core Data Structures ---
 
@@ -88,10 +88,7 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
     let current_stage = player_state.life_stage;
 
     // Attempt procedural generation first
-    if let Some(procedural_event) = procedural::generate_procedural_event(
-        player_state,
-        &mut rng,
-    ) {
+    if let Some(procedural_event) = procedural::generate_procedural_event(player_state, &mut rng) {
         return procedural_event;
     }
 
@@ -104,7 +101,9 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
         potential_events.extend(tier_specific);
     }
 
-    let chosen_event_template: &EventData = if let Some(&event_index) = potential_events.choose(&mut rng) {
+    let chosen_event_template: &EventData = if let Some(&event_index) =
+        potential_events.choose(&mut rng)
+    {
         &player_state.event_database[event_index]
     } else {
         // 2. If none, find a generic event for the current stage

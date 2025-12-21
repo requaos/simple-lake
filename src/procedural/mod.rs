@@ -1,9 +1,8 @@
-pub mod library;
 pub mod generator;
-pub mod text_assembly;
-pub mod stat_calculator;
+pub mod library;
 pub mod risk_calculator;
+pub mod stat_calculator;
+pub mod text_assembly;
 
-pub use library::{SituationLibrary, EventDomain};
 pub use generator::generate_procedural_event;
-pub use risk_calculator::PlayerStats;
+pub use library::{EventDomain, SituationLibrary};

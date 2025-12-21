@@ -1,4 +1,4 @@
-use super::library::{StatProfile, Severity};
+use super::library::{Severity, StatProfile};
 use rand::Rng;
 
 pub fn calculate_stats(

@@ -8,8 +8,7 @@ mod procedural;
 use crate::game_data::EventData;
 use crate::procedural::EventDomain;
 use eframe::egui;
-use std::fs;
-use std::collections::{VecDeque, HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 // --- Floating Text Animation ---
 pub struct FloatingText {
@@ -88,7 +87,9 @@ fn main() -> anyhow::Result<()> {
         let mut event_index = HashMap::new();
         for (i, event) in event_database.iter().enumerate() {
             for tier in event.min_tier..=event.max_tier {
-                let (tier_specific, generic) = event_index.entry((event.life_stage, tier)).or_insert_with(|| (Vec::new(), Vec::new()));
+                let (tier_specific, generic) = event_index
+                    .entry((event.life_stage, tier))
+                    .or_insert_with(|| (Vec::new(), Vec::new()));
                 if event.is_generic {
                     generic.push(i);
                 } else {
@@ -128,8 +129,8 @@ fn main() -> anyhow::Result<()> {
                     guanxi_party: 0,
                     current_event: None,
                     last_event_result: None,
-                    player_age: 18,  // NEW: Initialize age
-                    life_stage: 1,   // NEW: Initialize life stage
+                    player_age: 18, // NEW: Initialize age
+                    life_stage: 1,  // NEW: Initialize life stage
                     floating_texts: VecDeque::new(),
                     history: Vec::new(),
                     situation_library,

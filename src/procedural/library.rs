@@ -100,18 +100,18 @@ impl SituationLibrary {
         let variables_toml = include_str!("../../data/procedural/variables.toml");
 
         // Parse situations
-        let work_config: SituationConfig = toml::from_str(work_toml)
-            .context("Failed to parse work_events.toml")?;
-        let family_config: SituationConfig = toml::from_str(family_toml)
-            .context("Failed to parse family_events.toml")?;
-        let public_config: SituationConfig = toml::from_str(public_toml)
-            .context("Failed to parse public_events.toml")?;
-        let party_config: SituationConfig = toml::from_str(party_toml)
-            .context("Failed to parse party_events.toml")?;
+        let work_config: SituationConfig =
+            toml::from_str(work_toml).context("Failed to parse work_events.toml")?;
+        let family_config: SituationConfig =
+            toml::from_str(family_toml).context("Failed to parse family_events.toml")?;
+        let public_config: SituationConfig =
+            toml::from_str(public_toml).context("Failed to parse public_events.toml")?;
+        let party_config: SituationConfig =
+            toml::from_str(party_toml).context("Failed to parse party_events.toml")?;
 
         // Parse variables
-        let variables: VariableLibraries = toml::from_str(variables_toml)
-            .context("Failed to parse variables.toml")?;
+        let variables: VariableLibraries =
+            toml::from_str(variables_toml).context("Failed to parse variables.toml")?;
 
         // Build by_domain HashMap
         let mut by_domain = HashMap::new();

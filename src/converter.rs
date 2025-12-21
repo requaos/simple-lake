@@ -27,7 +27,7 @@ struct EventCsvRow {
 struct OptionCsvRow {
     event_id: String,
     text: String,
-    
+
     // Success Outcome
     #[serde(default)]
     scs_change: i32,
@@ -41,7 +41,7 @@ struct OptionCsvRow {
     guanxi_network_change: i32,
     #[serde(default)]
     guanxi_party_change: i32,
-    
+
     // Requirements
     #[serde(default)]
     req_guanxi_family: u32,
@@ -49,7 +49,7 @@ struct OptionCsvRow {
     req_guanxi_network: u32,
     #[serde(default)]
     req_guanxi_party: u32,
-    
+
     // Risk & Failure Outcome
     #[serde(default)]
     risk_chance: u8,
@@ -80,7 +80,7 @@ fn create_event_from_row(row: EventCsvRow) -> EventData {
         max_tier: row.max_tier,
         is_generic: row.is_generic,
         life_stage: row.life_stage, // NEW: Pass life_stage
-        options: Vec::new(), // Will be populated from the other file
+        options: Vec::new(),        // Will be populated from the other file
         procedural_id: None,
         procedural_domain: None,
     }
@@ -120,7 +120,7 @@ fn create_option_from_row(row: OptionCsvRow) -> EventOption {
         };
         // Only set the failure outcome if it's actually different from success
         if outcome != success_outcome || !row.failure_result_text.is_empty() {
-             failure_outcome = Some(outcome);
+            failure_outcome = Some(outcome);
         }
     }
 

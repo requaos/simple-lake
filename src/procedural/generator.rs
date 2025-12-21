@@ -1,11 +1,11 @@
-use super::library::{EventDomain, SituationTemplate, ChoiceArchetype};
-use super::text_assembly::{assemble_description, assemble_choice_text};
-use super::stat_calculator::{calculate_stats, calculate_failure_stats};
-use super::risk_calculator::{calculate_risk, PlayerStats};
-use crate::game_data::{EventData, EventOption, EventOutcome};
+use super::library::{ChoiceArchetype, EventDomain, SituationTemplate};
+use super::risk_calculator::{PlayerStats, calculate_risk};
+use super::stat_calculator::{calculate_failure_stats, calculate_stats};
+use super::text_assembly::{assemble_choice_text, assemble_description};
 use crate::LotusApp;
-use rand::prelude::*;
+use crate::game_data::{EventData, EventOption, EventOutcome};
 use rand::distr::weighted::WeightedIndex;
+use rand::prelude::*;
 use std::collections::VecDeque;
 
 /// Filter situations based on player state and context
@@ -17,7 +17,8 @@ fn filter_situations<'a>(
     encounter_history: &std::collections::HashSet<String>,
     allow_wildcard: bool,
 ) -> Vec<&'a SituationTemplate> {
-    situations.iter()
+    situations
+        .iter()
         .copied()
         .filter(|s| {
             // Tier filter: player_tier ± 1
@@ -62,17 +63,15 @@ fn player_meets_requirements(
 }
 
 /// Generate a procedural event based on player state
-pub fn generate_procedural_event(
-    player_state: &LotusApp,
-    rng: &mut impl Rng,
-) -> Option<EventData> {
+pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) -> Option<EventData> {
     let library = &player_state.situation_library;
 
     // 10% wildcard probability: ignore domain filter
     let allow_wildcard = rng.random_bool(0.1);
 
     // Collect all situations from all domains
-    let all_situations: Vec<&SituationTemplate> = library.by_domain
+    let all_situations: Vec<&SituationTemplate> = library
+        .by_domain
         .values()
         .flat_map(|situations| situations.iter())
         .collect();
@@ -92,21 +91,26 @@ pub fn generate_procedural_event(
     }
 
     // Weighted selection: prefer exact tier/stage matches
-    let weights: Vec<f32> = candidates.iter().map(|s| {
-        let mut weight = 1.0;
+    let weights: Vec<f32> = candidates
+        .iter()
+        .map(|s| {
+            let mut weight = 1.0;
 
-        // Bonus for exact tier match
-        if s.tier_min <= player_state.player_tier && s.tier_max >= player_state.player_tier {
-            weight *= 2.0;
-        }
+            // Bonus for exact tier match
+            if s.tier_min <= player_state.player_tier && s.tier_max >= player_state.player_tier {
+                weight *= 2.0;
+            }
 
-        // Bonus for exact stage match
-        if s.life_stage_min <= player_state.life_stage && s.life_stage_max >= player_state.life_stage {
-            weight *= 2.0;
-        }
+            // Bonus for exact stage match
+            if s.life_stage_min <= player_state.life_stage
+                && s.life_stage_max >= player_state.life_stage
+            {
+                weight *= 2.0;
+            }
 
-        weight
-    }).collect();
+            weight
+        })
+        .collect();
 
     // Weighted random selection
     let dist = WeightedIndex::new(&weights).ok()?;
@@ -132,7 +136,9 @@ pub fn generate_procedural_event(
     );
 
     // Assemble choices - filter by requirements
-    let available_choices: Vec<&ChoiceArchetype> = selected_situation.choices.iter()
+    let available_choices: Vec<&ChoiceArchetype> = selected_situation
+        .choices
+        .iter()
         .filter(|c| player_meets_requirements(player_state, &c.requirements))
         .collect();
 
@@ -142,7 +148,8 @@ pub fn generate_procedural_event(
     }
 
     // Build EventOptions from available choices
-    let options: Vec<EventOption> = available_choices.iter()
+    let options: Vec<EventOption> = available_choices
+        .iter()
         .map(|choice| {
             // Generate choice text
             let text = assemble_choice_text(&choice.text_fragments, rng);
@@ -177,7 +184,11 @@ pub fn generate_procedural_event(
             let success_result = format!(
                 "You chose to {}. {}",
                 choice.archetype.as_str(),
-                if success_stats.scs_change > 0 { "Things went well." } else { "There were consequences." }
+                if success_stats.scs_change > 0 {
+                    "Things went well."
+                } else {
+                    "There were consequences."
+                }
             );
 
             let failure_result = format!(

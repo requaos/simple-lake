@@ -1,8 +1,10 @@
-use super::game_data::{generate_event, EventOutcome};
+use super::game_data::{EventOutcome, generate_event};
 use super::lotus_widget::LotusWidget;
-use super::{FloatingText, LotusApp};
 use super::procedural::EventDomain;
-use eframe::egui::{self, vec2, Align2, Color32, RichText, Window, Area, Order, Id, Pos2, Rect, ScrollArea};
+use super::{FloatingText, LotusApp};
+use eframe::egui::{
+    self, Align2, Area, Color32, Id, Order, Pos2, Rect, RichText, ScrollArea, Window, vec2,
+};
 use rand::Rng;
 
 impl LotusApp {
@@ -22,7 +24,7 @@ const TIER_D_MAX: i32 = 199; // Tier D is <= 199
 const TIER_C_MAX: i32 = 399; // Tier C is 200 - 399
 const TIER_B_MAX: i32 = 749; // Tier B is 400 - 749
 const TIER_A_MAX: i32 = 999; // Tier A is 750 - 999
-                             // Tier A+ is anything > 999
+// Tier A+ is anything > 999
 
 // --- NEW: Life Stage Definitions ---
 const AGE_STAGE_2: u32 = 26; // Early Career (26-40)
@@ -38,8 +40,10 @@ impl LotusApp {
     /// Safely applies all stat changes from an EventOutcome
     fn apply_outcome(&mut self, outcome: &EventOutcome, ui_rect: Rect, result_text: &str) {
         // --- Log to History ---
-        self.history.push(format!("[Age {}] {}", self.player_age, result_text));
-        if self.history.len() > 100 { // Keep history from getting too long
+        self.history
+            .push(format!("[Age {}] {}", self.player_age, result_text));
+        if self.history.len() > 100 {
+            // Keep history from getting too long
             self.history.remove(0);
         }
 
@@ -47,12 +51,20 @@ impl LotusApp {
         let base_pos = ui_rect.center_top();
         if outcome.scs_change != 0 {
             let text = format!("{} SCS", outcome.scs_change);
-            let color = if outcome.scs_change > 0 { Color32::GREEN } else { Color32::RED };
+            let color = if outcome.scs_change > 0 {
+                Color32::GREEN
+            } else {
+                Color32::RED
+            };
             self.add_floating_text(text, base_pos, color);
         }
         if outcome.finance_change != 0 {
             let text = format!("{} ¥", outcome.finance_change);
-            let color = if outcome.finance_change > 0 { Color32::GOLD } else { Color32::RED };
+            let color = if outcome.finance_change > 0 {
+                Color32::GOLD
+            } else {
+                Color32::RED
+            };
             self.add_floating_text(text, Pos2::new(base_pos.x + 20.0, base_pos.y), color);
         }
         // ... add more for other stats if desired
@@ -172,7 +184,10 @@ impl eframe::App for LotusApp {
                     ui.separator();
                     ui.label(format!("Age: {}", self.player_age));
                     ui.label(format!("Life Stage: {}", self.life_stage));
-                    ui.label(RichText::new(format!("Social Credit: {}", self.social_credit_score)).strong());
+                    ui.label(
+                        RichText::new(format!("Social Credit: {}", self.social_credit_score))
+                            .strong(),
+                    );
                     ui.label(format!("Finances (¥): {}", self.finances));
                     ui.label(format!("Career: Lvl {}", self.career_level));
                 });
@@ -219,14 +234,19 @@ impl eframe::App for LotusApp {
                     let old_petal = self.player_petal;
                     let mut moved = false;
                     if ui.button("Move Counter-Clockwise").clicked() {
-                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
+                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
+                            % self.num_petals_per_tier;
                         moved = true;
-                        if self.player_petal > old_petal { self.age_up(); }
+                        if self.player_petal > old_petal {
+                            self.age_up();
+                        }
                     }
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                         moved = true;
-                        if self.player_petal < old_petal { self.age_up(); }
+                        if self.player_petal < old_petal {
+                            self.age_up();
+                        }
                     }
                     if moved {
                         if !self.is_review_petal(self.player_petal) {
@@ -234,7 +254,9 @@ impl eframe::App for LotusApp {
                             self.last_event_result = None;
                         } else {
                             self.current_event = None;
-                            if self.player_petal != 0 { self.last_event_result = None; }
+                            if self.player_petal != 0 {
+                                self.last_event_result = None;
+                            }
                         }
                     }
                 });
@@ -244,7 +266,11 @@ impl eframe::App for LotusApp {
             if !event_is_open {
                 if let Some(result_text) = &self.last_event_result {
                     if !result_text.is_empty() {
-                        ui.label(RichText::new(result_text).color(Color32::from_rgb(200, 200, 100)).strong());
+                        ui.label(
+                            RichText::new(result_text)
+                                .color(Color32::from_rgb(200, 200, 100))
+                                .strong(),
+                        );
                     }
                 }
                 if self.is_review_petal(self.player_petal) {
@@ -261,8 +287,13 @@ impl eframe::App for LotusApp {
 
             // --- Game Board Widget ---
             ui.centered_and_justified(|ui| {
-                let player_total_index = self.player_tier * self.num_petals_per_tier + self.player_petal;
-                ui.add(LotusWidget::new(self.num_tiers, self.num_petals_per_tier, player_total_index));
+                let player_total_index =
+                    self.player_tier * self.num_petals_per_tier + self.player_petal;
+                ui.add(LotusWidget::new(
+                    self.num_tiers,
+                    self.num_petals_per_tier,
+                    player_total_index,
+                ));
             });
         });
 
@@ -275,7 +306,11 @@ impl eframe::App for LotusApp {
                 .fixed_pos(ctx.content_rect().min)
                 .order(Order::Middle)
                 .show(ctx, |ui| {
-                    ui.painter().rect_filled(ctx.content_rect(), 0.0, Color32::from_black_alpha(180));
+                    ui.painter().rect_filled(
+                        ctx.content_rect(),
+                        0.0,
+                        Color32::from_black_alpha(180),
+                    );
                 });
 
             // Event Window
@@ -294,22 +329,34 @@ impl eframe::App for LotusApp {
 
                             // --- Predictive Tooltip ---
                             button_response.clone().on_hover_ui(|ui| {
-                                let risk_text = if option.risk_chance > 75 { "Very High" }
-                                                else if option.risk_chance > 50 { "High" }
-                                                else if option.risk_chance > 25 { "Medium" }
-                                                else if option.risk_chance > 0 { "Low" }
-                                                else { "None" };
+                                let risk_text = if option.risk_chance > 75 {
+                                    "Very High"
+                                } else if option.risk_chance > 50 {
+                                    "High"
+                                } else if option.risk_chance > 25 {
+                                    "Medium"
+                                } else if option.risk_chance > 0 {
+                                    "Low"
+                                } else {
+                                    "None"
+                                };
                                 ui.label(format!("Risk: {} ({}%)", risk_text, option.risk_chance));
                             });
 
                             if button_response.clicked() {
                                 let mut rng = rand::rng();
-                                if option.risk_chance > 0 && rng.random_range(1..=100) <= option.risk_chance {
+                                if option.risk_chance > 0
+                                    && rng.random_range(1..=100) <= option.risk_chance
+                                {
                                     if let Some(outcome) = &option.failure_outcome {
-                                        outcome_to_apply = Some((outcome.clone(), option.failure_result.clone()));
+                                        outcome_to_apply =
+                                            Some((outcome.clone(), option.failure_result.clone()));
                                     }
                                 } else {
-                                    outcome_to_apply = Some((option.success_outcome.clone(), option.success_result.clone()));
+                                    outcome_to_apply = Some((
+                                        option.success_outcome.clone(),
+                                        option.success_result.clone(),
+                                    ));
                                 }
                                 close_event = true;
                             }
@@ -321,7 +368,9 @@ impl eframe::App for LotusApp {
         if close_event {
             // Update context tracking if this was a procedural event
             if let Some(event) = &self.current_event {
-                if let (Some(proc_id), Some(proc_domain)) = (&event.procedural_id, &event.procedural_domain) {
+                if let (Some(proc_id), Some(proc_domain)) =
+                    (&event.procedural_id, &event.procedural_domain)
+                {
                     // Parse the domain string back to enum
                     let domain = match proc_domain.as_str() {
                         "Family" => EventDomain::Family,
@@ -356,7 +405,13 @@ impl eframe::App for LotusApp {
                 for ft in &self.floating_texts {
                     let alpha = ((2.0 - ft.age) / 2.0).max(0.0); // Fade out
                     let color = ft.color.linear_multiply(alpha);
-                    ui.painter().text(ft.pos, Align2::CENTER_CENTER, &ft.text, egui::FontId::proportional(16.0), color);
+                    ui.painter().text(
+                        ft.pos,
+                        Align2::CENTER_CENTER,
+                        &ft.text,
+                        egui::FontId::proportional(16.0),
+                        color,
+                    );
                 }
             });
     }
