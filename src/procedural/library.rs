@@ -132,3 +132,25 @@ impl SituationLibrary {
 struct SituationConfig {
     situations: Vec<SituationTemplate>,
 }
+
+impl EventDomain {
+    pub fn as_str(&self) -> &str {
+        match self {
+            EventDomain::Family => "Family",
+            EventDomain::Work => "Work",
+            EventDomain::Public => "Public",
+            EventDomain::Party => "Party",
+        }
+    }
+}
+
+impl ChoiceType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            ChoiceType::Conform => "conform",
+            ChoiceType::Resist => "resist",
+            ChoiceType::Manipulate => "manipulate",
+            ChoiceType::Ignore => "ignore",
+        }
+    }
+}
