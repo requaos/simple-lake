@@ -1,0 +1,23 @@
+excuse_library = [
+  "company policy",
+  "budget constraints",
+  "timing issues",
+  "strategic priorities",
+  "team dynamics",
+  "market conditions",
+]
+
+relationship_types = [
+  "parent",
+  "sibling",
+  "cousin",
+  "uncle",
+  "aunt",
+]
+
+[colleague_descriptors]
+0 = ["a desperate colleague", "a downtrodden worker"]
+1 = ["a struggling colleague", "an unreliable coworker"]
+2 = ["an average colleague", "an unremarkable coworker"]
+3 = ["a well-connected colleague", "a high-ranking coworker"]
+4 = ["a powerful Party member", "an elite colleague"]

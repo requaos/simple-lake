@@ -1,0 +1,57 @@
+[[situations]]
+id = "work_promotion_passed_over"
+domain = "work"
+tier_min = 1
+tier_max = 3
+life_stage_min = 2
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+  "A promotion you were qualified for goes to {colleague_descriptor}.",
+  "You watch as {colleague_descriptor} gets the promotion you deserved.",
+]
+conflicts = [
+  "Your boss says it's '{excuse}'.",
+  "Management cites '{excuse}' as the reason.",
+]
+stakes = [
+  "This could affect your career trajectory.",
+  "Your colleagues are watching how you react.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept it gracefully", "Congratulate your colleague"]
+scs_change = 15
+finance_change = -10
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 5
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Demand an explanation", "File a formal complaint"]
+scs_change = -20
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -15
+risk_modifier = 30
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Say nothing and move on", "Focus on your current work"]
+scs_change = 0
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 0
+risk_modifier = 0

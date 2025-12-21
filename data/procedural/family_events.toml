@@ -1,0 +1,21 @@
+# Placeholder for family events
+[[situations]]
+id = "family_placeholder"
+domain = "family"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 10
+
+[situations.fragments]
+openings = ["Your family {relationship_type} needs help."]
+conflicts = ["They ask you to {excuse}."]
+stakes = ["What will you do?"]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Help them"]
+scs_change = 5
+finance_change = -50

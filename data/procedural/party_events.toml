@@ -1,0 +1,21 @@
+# Placeholder for party events
+[[situations]]
+id = "party_placeholder"
+domain = "party"
+tier_min = 2
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = ["Party officials invite you to an event."]
+conflicts = ["Attendance is 'voluntary'."]
+stakes = ["This could impact your standing."]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend enthusiastically"]
+scs_change = 20
+guanxi_party_change = 10
