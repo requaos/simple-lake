@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -87,4 +88,47 @@ pub struct VariableLibraries {
 pub struct SituationLibrary {
     pub by_domain: HashMap<EventDomain, Vec<SituationTemplate>>,
     pub variables: VariableLibraries,
+}
+
+impl SituationLibrary {
+    pub fn from_embedded_configs() -> Result<Self> {
+        // Load embedded TOML files
+        let work_toml = include_str!("../../data/procedural/work_events.toml");
+        let family_toml = include_str!("../../data/procedural/family_events.toml");
+        let public_toml = include_str!("../../data/procedural/public_events.toml");
+        let party_toml = include_str!("../../data/procedural/party_events.toml");
+        let variables_toml = include_str!("../../data/procedural/variables.toml");
+
+        // Parse situations
+        let work_config: SituationConfig = toml::from_str(work_toml)
+            .context("Failed to parse work_events.toml")?;
+        let family_config: SituationConfig = toml::from_str(family_toml)
+            .context("Failed to parse family_events.toml")?;
+        let public_config: SituationConfig = toml::from_str(public_toml)
+            .context("Failed to parse public_events.toml")?;
+        let party_config: SituationConfig = toml::from_str(party_toml)
+            .context("Failed to parse party_events.toml")?;
+
+        // Parse variables
+        let variables: VariableLibraries = toml::from_str(variables_toml)
+            .context("Failed to parse variables.toml")?;
+
+        // Build by_domain HashMap
+        let mut by_domain = HashMap::new();
+        by_domain.insert(EventDomain::Work, work_config.situations);
+        by_domain.insert(EventDomain::Family, family_config.situations);
+        by_domain.insert(EventDomain::Public, public_config.situations);
+        by_domain.insert(EventDomain::Party, party_config.situations);
+
+        Ok(Self {
+            by_domain,
+            variables,
+        })
+    }
+}
+
+// Helper struct for TOML deserialization
+#[derive(Debug, Deserialize)]
+struct SituationConfig {
+    situations: Vec<SituationTemplate>,
 }
