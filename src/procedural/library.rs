@@ -1,3 +1,90 @@
-// Placeholder - will implement next
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-pub struct SituationLibrary;
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EventDomain {
+    Family,
+    Work,
+    Public,
+    Party,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Severity {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ChoiceType {
+    Conform,
+    Resist,
+    Manipulate,
+    Ignore,
+}
+
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+pub struct StatProfile {
+    #[serde(default)]
+    pub scs_change: i32,
+    #[serde(default)]
+    pub finance_change: i32,
+    #[serde(default)]
+    pub career_level_change: i32,
+    #[serde(default)]
+    pub guanxi_family_change: i32,
+    #[serde(default)]
+    pub guanxi_network_change: i32,
+    #[serde(default)]
+    pub guanxi_party_change: i32,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct NarrativeFragments {
+    pub openings: Vec<String>,
+    pub conflicts: Vec<String>,
+    pub stakes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ChoiceArchetype {
+    pub archetype: ChoiceType,
+    pub text_fragments: Vec<String>,
+    #[serde(flatten)]
+    pub base_stats: StatProfile,
+    #[serde(default)]
+    pub risk_modifier: i8,
+    #[serde(default)]
+    pub requirements: HashMap<String, u32>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SituationTemplate {
+    pub id: String,
+    pub domain: EventDomain,
+    pub tier_min: usize,
+    pub tier_max: usize,
+    pub life_stage_min: usize,
+    pub life_stage_max: usize,
+    pub severity: Severity,
+    pub base_risk: u8,
+    pub fragments: NarrativeFragments,
+    pub choices: Vec<ChoiceArchetype>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct VariableLibraries {
+    pub colleague_descriptors: HashMap<usize, Vec<String>>,
+    pub excuse_library: Vec<String>,
+    pub relationship_types: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct SituationLibrary {
+    pub by_domain: HashMap<EventDomain, Vec<SituationTemplate>>,
+    pub variables: VariableLibraries,
+}
