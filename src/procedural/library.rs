@@ -83,7 +83,7 @@ pub struct VariableLibraries {
     pub relationship_types: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SituationLibrary {
     pub by_domain: HashMap<EventDomain, Vec<SituationTemplate>>,
     pub variables: VariableLibraries,
