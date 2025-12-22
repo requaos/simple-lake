@@ -93,36 +93,50 @@ pub fn generate_event(player_state: &LotusApp) -> EventData {
     }
 
     // Fallback to handcrafted events
+    log::info!("=== FALLING BACK TO HANDCRAFTED EVENTS ===");
+    log::info!("  Reason: Procedural generation returned None");
+    log::info!("  Player state: tier={}, life_stage={}", current_tier, current_stage);
 
     let mut potential_events: Vec<usize> = Vec::new();
 
     // 1. Try to find a non-generic (tier-specific) event for the current stage
     if let Some((tier_specific, _)) = player_state.event_index.get(&(current_stage, current_tier)) {
+        log::debug!("  Found {} tier-specific events for stage={}, tier={}", tier_specific.len(), current_stage, current_tier);
         potential_events.extend(tier_specific);
     }
 
     let chosen_event_template: &EventData = if let Some(&event_index) =
         potential_events.choose(&mut rng)
     {
+        log::info!("✓ Selected tier-specific handcrafted event: '{}'", player_state.event_database[event_index].title);
         &player_state.event_database[event_index]
     } else {
         // 2. If none, find a generic event for the current stage
+        log::debug!("  No tier-specific events, trying generic events");
         if let Some((_, generic)) = player_state.event_index.get(&(current_stage, current_tier)) {
+            log::debug!("  Found {} generic events for stage={}, tier={}", generic.len(), current_stage, current_tier);
             potential_events.extend(generic);
         }
         if let Some(&event_index) = potential_events.choose(&mut rng) {
+            log::info!("✓ Selected generic handcrafted event: '{}'", player_state.event_database[event_index].title);
             &player_state.event_database[event_index]
         } else {
             // 3. Fallback: find *any* generic event from a past life stage
+            log::debug!("  No generic events for current stage, trying past life stages");
             for stage in (1..current_stage).rev() {
                 if let Some((_, generic)) = player_state.event_index.get(&(stage, current_tier)) {
+                    log::debug!("  Found {} generic events from past stage={}", generic.len(), stage);
                     potential_events.extend(generic);
                 }
             }
             if let Some(&event_index) = potential_events.choose(&mut rng) {
+                log::info!("✓ Selected past life stage handcrafted event: '{}'", player_state.event_database[event_index].title);
                 &player_state.event_database[event_index]
             } else {
                 // 4. Absolute fallback
+                log::error!("!!! NO EVENTS FOUND !!!");
+                log::error!("  No handcrafted events available for tier={}, life_stage={}", current_tier, current_stage);
+                log::error!("  Returning error event");
                 return EventData {
                     title: "No Event Found!".to_string(),
                     description: format!(

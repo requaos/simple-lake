@@ -8,7 +8,7 @@ use rand::distr::weighted::WeightedIndex;
 use rand::prelude::*;
 use std::collections::VecDeque;
 
-/// Filter situations based on player state and context
+/// Filter situations based on player state and context with detailed logging
 fn filter_situations<'a>(
     situations: &'a [&'a SituationTemplate],
     player_tier: usize,
@@ -17,28 +17,76 @@ fn filter_situations<'a>(
     encounter_history: &std::collections::HashSet<String>,
     allow_wildcard: bool,
 ) -> Vec<&'a SituationTemplate> {
-    situations
+    let total_situations = situations.len();
+    log::debug!("Starting situation filtering with {} total situations", total_situations);
+    log::debug!("  Player state: tier={}, life_stage={}", player_tier, life_stage);
+    log::debug!("  Wildcard mode: {}", allow_wildcard);
+
+    let last_two_domains: Vec<&EventDomain> = recent_domains.iter().take(2).collect();
+    if !last_two_domains.is_empty() {
+        log::debug!("  Recent domains (last 2): {:?}", last_two_domains.iter().map(|d| d.as_str()).collect::<Vec<_>>());
+    }
+
+    let mut tier_filtered = 0;
+    let mut stage_filtered = 0;
+    let mut encountered_filtered = 0;
+    let mut domain_filtered = 0;
+
+    let filtered: Vec<&'a SituationTemplate> = situations
         .iter()
         .copied()
         .filter(|s| {
             // Tier filter: player_tier ± 1
             let tier_ok = s.tier_min <= player_tier.saturating_add(1)
                 && s.tier_max >= player_tier.saturating_sub(1);
+            if !tier_ok {
+                log::trace!("  FILTERED (tier): {} - tier_range=({}-{}), player_tier={}",
+                    s.id, s.tier_min, s.tier_max, player_tier);
+                tier_filtered += 1;
+                return false;
+            }
 
             // Life stage filter: current or previous stage
             let stage_ok = s.life_stage_min <= life_stage
                 && s.life_stage_max >= life_stage.saturating_sub(1).max(1);
+            if !stage_ok {
+                log::trace!("  FILTERED (life_stage): {} - stage_range=({}-{}), player_stage={}",
+                    s.id, s.life_stage_min, s.life_stage_max, life_stage);
+                stage_filtered += 1;
+                return false;
+            }
 
             // Encounter history filter
             let not_encountered = !encounter_history.contains(&s.id);
+            if !not_encountered {
+                log::trace!("  FILTERED (already_encountered): {}", s.id);
+                encountered_filtered += 1;
+                return false;
+            }
 
             // Recent domain filter (last 2 events)
-            let last_two_domains: Vec<&EventDomain> = recent_domains.iter().take(2).collect();
             let domain_ok = allow_wildcard || !last_two_domains.contains(&&s.domain);
+            if !domain_ok {
+                log::trace!("  FILTERED (recent_domain): {} - domain={}", s.id, s.domain.as_str());
+                domain_filtered += 1;
+                return false;
+            }
 
-            tier_ok && stage_ok && not_encountered && domain_ok
+            log::trace!("  PASSED: {} (domain={}, tier={}-{}, stage={}-{})",
+                s.id, s.domain.as_str(), s.tier_min, s.tier_max, s.life_stage_min, s.life_stage_max);
+            true
         })
-        .collect()
+        .collect();
+
+    log::info!("Situation filtering complete:");
+    log::info!("  Total situations: {}", total_situations);
+    log::info!("  Filtered by tier: {}", tier_filtered);
+    log::info!("  Filtered by life_stage: {}", stage_filtered);
+    log::info!("  Filtered by encounter_history: {}", encountered_filtered);
+    log::info!("  Filtered by recent_domain: {}", domain_filtered);
+    log::info!("  Remaining candidates: {}", filtered.len());
+
+    filtered
 }
 
 /// Check if player meets requirements for a choice
@@ -64,10 +112,15 @@ fn player_meets_requirements(
 
 /// Generate a procedural event based on player state
 pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) -> Option<EventData> {
+    log::info!("=== PROCEDURAL EVENT GENERATION ATTEMPT ===");
+
     let library = &player_state.situation_library;
 
     // 10% wildcard probability: ignore domain filter
     let allow_wildcard = rng.random_bool(0.1);
+    if allow_wildcard {
+        log::info!("WILDCARD mode activated - ignoring recent domain filter");
+    }
 
     // Collect all situations from all domains
     let all_situations: Vec<&SituationTemplate> = library
@@ -75,6 +128,8 @@ pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) ->
         .values()
         .flat_map(|situations| situations.iter())
         .collect();
+
+    log::debug!("Total situations in library: {}", all_situations.len());
 
     // Filter situations based on player state and context
     let candidates = filter_situations(
@@ -87,6 +142,9 @@ pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) ->
     );
 
     if candidates.is_empty() {
+        log::warn!("PROCEDURAL GENERATION FAILED: No candidate situations after filtering");
+        log::warn!("  Reason: All situations filtered out by tier/stage/history/domain criteria");
+        log::warn!("  Will fall back to handcrafted events");
         return None;
     }
 
@@ -116,6 +174,15 @@ pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) ->
     let dist = WeightedIndex::new(&weights).ok()?;
     let selected_situation = candidates[dist.sample(rng)];
 
+    log::info!("Selected situation: '{}' (domain={}, tier={}-{}, stage={}-{})",
+        selected_situation.id,
+        selected_situation.domain.as_str(),
+        selected_situation.tier_min,
+        selected_situation.tier_max,
+        selected_situation.life_stage_min,
+        selected_situation.life_stage_max
+    );
+
     // Generate event description
     let description = assemble_description(
         &selected_situation.fragments,
@@ -136,14 +203,36 @@ pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) ->
     );
 
     // Assemble choices - filter by requirements
+    let total_choices = selected_situation.choices.len();
+    log::debug!("Filtering {} choices by player requirements", total_choices);
+
     let available_choices: Vec<&ChoiceArchetype> = selected_situation
         .choices
         .iter()
-        .filter(|c| player_meets_requirements(player_state, &c.requirements))
+        .filter(|c| {
+            let meets_reqs = player_meets_requirements(player_state, &c.requirements);
+            if !meets_reqs {
+                log::debug!("  Choice '{}' filtered - requirements not met: {:?}",
+                    c.archetype.as_str(), c.requirements);
+            }
+            meets_reqs
+        })
         .collect();
+
+    log::info!("Available choices: {}/{}", available_choices.len(), total_choices);
 
     // Must have at least one available choice
     if available_choices.is_empty() {
+        log::warn!("PROCEDURAL GENERATION FAILED: No available choices");
+        log::warn!("  Situation: '{}'", selected_situation.id);
+        log::warn!("  Reason: All {} choices filtered by requirement checks", total_choices);
+        log::warn!("  Player stats: career={}, family={}, network={}, party={}",
+            player_state.career_level,
+            player_state.guanxi_family,
+            player_state.guanxi_network,
+            player_state.guanxi_party
+        );
+        log::warn!("  Will fall back to handcrafted events");
         return None;
     }
 
@@ -221,6 +310,11 @@ pub fn generate_procedural_event(player_state: &LotusApp, rng: &mut impl Rng) ->
             }
         })
         .collect();
+
+    log::info!("✓ PROCEDURAL EVENT GENERATION SUCCEEDED");
+    log::info!("  Event: '{}' from domain '{}'", title, selected_situation.domain.as_str());
+    log::info!("  Situation ID: '{}'", selected_situation.id);
+    log::info!("  Options available: {}", options.len());
 
     Some(EventData {
         title,

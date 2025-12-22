@@ -58,6 +58,9 @@ pub struct LotusApp {
 }
 
 fn main() -> anyhow::Result<()> {
+    // Initialize logger (set RUST_LOG=debug for detailed logging)
+    env_logger::init();
+
     // 1. Check command line arguments
     let args: Vec<String> = std::env::args().collect();
 

@@ -18,6 +18,27 @@ A Rust-based game built with `eframe`/`egui` that simulates a social credit syst
 cargo run
 ```
 
+### Running with logging enabled
+The game includes detailed logging for event generation. Set the `RUST_LOG` environment variable to control logging verbosity:
+
+```bash
+# Info level - shows event generation success/failure and key decisions
+RUST_LOG=info cargo run
+
+# Debug level - shows detailed filtering and player state information
+RUST_LOG=debug cargo run
+
+# Trace level - shows every situation that's filtered and why
+RUST_LOG=trace cargo run
+```
+
+**Logging output includes:**
+- Whether procedural or handcrafted events are used
+- Filtering criteria and counts (tier, life_stage, encounter history, domain)
+- Why situations were filtered (field names and values)
+- Success/failure reasons for procedural generation
+- Selected event details (ID, domain, title)
+
 ### Converting CSV event data to JSON
 The game uses `data/events.csv` and `data/event_options.csv` to define game content. These must be converted to `src/events.json` before running:
 ```bash
