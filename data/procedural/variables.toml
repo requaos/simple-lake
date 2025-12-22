@@ -300,3 +300,105 @@ propaganda_activity = [
   "participate in a study session",
   "write supportive articles",
 ]
+
+# Public-specific variables
+stranger_type = [
+  "an elderly person",
+  "a frazzled parent",
+  "a confused tourist",
+  "a well-dressed businessperson",
+  "a struggling student",
+  "a migrant worker",
+]
+
+small_favor = [
+  "directions",
+  "help with their phone",
+  "a small amount of money",
+  "to borrow your charger",
+  "assistance carrying something",
+  "help reading a form",
+]
+
+public_place = [
+  "the subway station",
+  "the shopping district",
+  "the park",
+  "the bus terminal",
+  "the town square",
+  "the market",
+]
+
+appointment_type = [
+  "meeting",
+  "appointment",
+  "scheduled commitment",
+  "important event",
+  "deadline",
+]
+
+public_violation = [
+  "littering deliberately",
+  "jaywalking across a busy street",
+  "vandalizing public property",
+  "smoking in a non-smoking area",
+  "dumping trash illegally",
+  "defacing a public notice",
+]
+
+violation_perpetrator = [
+  "a young person",
+  "an older man",
+  "a teenager",
+  "someone who looks desperate",
+  "a well-dressed individual",
+]
+
+public_service = [
+  "the government office",
+  "the clinic",
+  "the post office",
+  "the service center",
+  "the registration desk",
+]
+
+queue_jumper = [
+  "a well-dressed woman",
+  "an impatient man",
+  "someone on their phone",
+  "an aggressive person",
+  "a group of teenagers",
+]
+
+public_transport = [
+  "the subway",
+  "the bus",
+  "the metro",
+  "the commuter train",
+]
+
+seat_requester = [
+  "an elderly person",
+  "a pregnant woman",
+  "someone with a cane",
+  "a parent with a small child",
+  "someone who appears tired",
+]
+
+suspicious_behavior = [
+  "loitering near a restricted area",
+  "walking in an irregular pattern",
+  "looking around nervously",
+  "meeting with unregistered individuals",
+  "being in an area at an unusual time",
+  "exhibiting non-standard movement patterns",
+]
+
+survey_topic = [
+  "community satisfaction",
+  "government services",
+  "social harmony",
+  "public safety",
+  "civic engagement",
+  "neighborhood quality",
+]
