@@ -1,3 +1,7 @@
+# Variable libraries for madlibs-style text assembly
+# Variables are tier-specific where appropriate to match player progression
+
+# Work-related variables
 excuse_library = [
   "company policy",
   "budget constraints",
@@ -5,6 +9,8 @@ excuse_library = [
   "strategic priorities",
   "team dynamics",
   "market conditions",
+  "political considerations",
+  "organizational restructuring",
 ]
 
 relationship_types = [
@@ -15,9 +21,161 @@ relationship_types = [
   "aunt",
 ]
 
+# Family-specific variables
+parent_type = [
+  "father",
+  "mother",
+  "parent",
+]
+
+sibling_type = [
+  "brother",
+  "sister",
+  "sibling",
+  "older brother",
+  "younger sister",
+  "twin",
+]
+
+relative_type = [
+  "cousin",
+  "uncle",
+  "aunt",
+  "nephew",
+  "niece",
+  "in-law",
+  "distant cousin",
+  "second cousin",
+]
+
+# Amounts (financial)
+small_amount = [
+  "200",
+  "300",
+  "500",
+]
+
+medium_amount = [
+  "800",
+  "1,000",
+  "1,200",
+  "1,500",
+]
+
+large_amount = [
+  "3,000",
+  "5,000",
+  "8,000",
+  "10,000",
+]
+
+# Time periods
+time_period = [
+  "six months",
+  "eight months",
+  "a year",
+  "eighteen months",
+]
+
+# Authority figures
+authority_figure = [
+  "a local Party official",
+  "a hospital administrator",
+  "a government bureaucrat",
+  "a neighborhood committee chief",
+  "your supervisor's superior",
+]
+
+# Infractions (social credit violations)
+infraction = [
+  "speaking critically of the government online",
+  "failing to pay debts on time",
+  "jaywalking repeatedly",
+  "spreading rumors",
+  "associating with foreign nationals improperly",
+  "skipping mandatory volunteer service",
+  "posting unauthorized opinions online",
+]
+
+# Educational subjects
+unpractical_subject = [
+  "art",
+  "music",
+  "poetry",
+  "traditional dance",
+  "creative writing",
+  "philosophy",
+  "theater",
+]
+
+practical_subject = [
+  "engineering",
+  "medicine",
+  "computer science",
+  "business administration",
+  "Party administration",
+  "applied sciences",
+]
+
+# Personal topics (awkward family questions)
+personal_topic = [
+  "your marriage prospects",
+  "your salary",
+  "your social credit score",
+  "your career progress",
+  "why you're still single",
+  "your lack of children",
+  "your housing situation",
+]
+
+# Successful relatives
+successful_relative = [
+  "cousin who works for the Party",
+  "sibling with a high social credit score",
+  "uncle with government connections",
+  "brother-in-law who owns a business",
+  "cousin who married well",
+]
+
+# Marriage candidates
+unsuitable_match = [
+  "someone from a wealthy family",
+  "a Party member's child",
+  "a business owner's offspring",
+  "someone you've never met",
+  "a person twice your age",
+  "someone you have nothing in common with",
+]
+
+# Tier-specific colleague descriptors (for work events)
 [colleague_descriptors]
-0 = ["a desperate colleague", "a downtrodden worker"]
-1 = ["a struggling colleague", "an unreliable coworker"]
-2 = ["an average colleague", "an unremarkable coworker"]
-3 = ["a well-connected colleague", "a high-ranking coworker"]
-4 = ["a powerful Party member", "an elite colleague"]
+"0" = [
+  "a desperate colleague",
+  "a downtrodden worker",
+  "a struggling coworker",
+  "someone on the verge of being fired",
+]
+"1" = [
+  "a struggling colleague",
+  "an unreliable coworker",
+  "a colleague with problems",
+  "someone barely holding on",
+]
+"2" = [
+  "an average colleague",
+  "an unremarkable coworker",
+  "a typical worker",
+  "a regular employee",
+]
+"3" = [
+  "a well-connected colleague",
+  "a high-ranking coworker",
+  "someone with guanxi",
+  "a respected team member",
+]
+"4" = [
+  "a powerful Party member",
+  "an elite colleague",
+  "a top-tier executive",
+  "someone with impeccable connections",
+]
