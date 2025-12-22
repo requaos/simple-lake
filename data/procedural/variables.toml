@@ -179,3 +179,124 @@ unsuitable_match = [
   "a top-tier executive",
   "someone with impeccable connections",
 ]
+
+# Party-specific variables
+political_topic = [
+  "Xi Jinping Thought",
+  "socialism with Chinese characteristics",
+  "the Party's leadership role",
+  "national rejuvenation",
+  "core socialist values",
+  "the Chinese Dream",
+  "ideological purity",
+  "Party discipline",
+]
+
+day_time = [
+  "Saturday morning",
+  "Sunday afternoon",
+  "this weekend",
+  "next Saturday",
+  "the coming weekend",
+]
+
+time_duration = [
+  "three hours",
+  "four hours",
+  "half a day",
+  "the entire morning",
+  "most of the afternoon",
+]
+
+party_observer = [
+  "the neighborhood committee",
+  "your work unit",
+  "local Party officials",
+  "the community oversight board",
+  "Party monitors",
+]
+
+membership_level = [
+  "probationary member",
+  "full member",
+  "committee member",
+  "local branch secretary",
+]
+
+party_official = [
+  "a district Party secretary",
+  "a neighborhood committee leader",
+  "a high-ranking official",
+  "a local Party chief",
+  "a government administrator",
+  "a Party discipline inspector",
+]
+
+controversial_topic = [
+  "historical revisionism",
+  "foreign influences",
+  "capitalist tendencies",
+  "individualism",
+  "Western democratic ideas",
+  "bourgeois liberalization",
+]
+
+denouncement_target = [
+  "a neighbor",
+  "a colleague",
+  "a former classmate",
+  "someone in your building",
+  "a community member",
+]
+
+political_crime = [
+  "spreading harmful rumors",
+  "expressing dangerous opinions",
+  "insufficient political awareness",
+  "ideological deviation",
+  "failing to report suspicious activity",
+  "antisocial behavior",
+]
+
+volunteer_activity = [
+  "neighborhood cleanup",
+  "traffic direction duty",
+  "community propaganda work",
+  "public security patrol",
+  "elder care visits",
+  "sanitation inspection",
+]
+
+party_elite = [
+  "a provincial Party official",
+  "a well-connected bureaucrat",
+  "a high-ranking administrator",
+  "an influential Party member",
+  "a government minister's associate",
+]
+
+favor_request = [
+  "expedite a permit",
+  "overlook a violation",
+  "arrange a transfer",
+  "secure a promotion",
+  "grant special access",
+  "provide insider information",
+]
+
+propaganda_campaign = [
+  "the latest national initiative",
+  "a patriotic education drive",
+  "an anti-corruption campaign",
+  "a social credit awareness program",
+  "a community harmony project",
+]
+
+propaganda_activity = [
+  "share approved posts on social media",
+  "attend a patriotic rally",
+  "display campaign posters",
+  "distribute pamphlets",
+  "participate in a study session",
+  "write supportive articles",
+]
