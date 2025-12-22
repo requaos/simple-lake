@@ -13,6 +13,111 @@ excuse_library = [
   "organizational restructuring",
 ]
 
+work_time = [
+  "the morning shift",
+  "yesterday afternoon",
+  "last Thursday",
+  "the team meeting",
+  "the client presentation",
+]
+
+work_colleague = [
+  "A coworker",
+  "Your desk neighbor",
+  "A team member",
+  "Someone from your department",
+]
+
+work_day = [
+  "Monday",
+  "last Tuesday",
+  "Wednesday morning",
+  "Friday afternoon",
+]
+
+work_obligation = [
+  "the mandatory training",
+  "the department meeting",
+  "their shift",
+  "the client deadline",
+]
+
+work_record = [
+  "attendance records",
+  "the timesheet",
+  "the project log",
+  "shift documentation",
+]
+
+overtime_period = [
+  "an extra 10 hours",
+  "evenings this week",
+  "the entire weekend",
+  "late nights for the next two weeks",
+]
+
+work_project = [
+  "the quarterly report",
+  "the client deliverable",
+  "the system upgrade",
+  "the product launch",
+  "the budget proposal",
+]
+
+safety_violation = [
+  "equipment isn't being properly maintained",
+  "workers are operating without required protective gear",
+  "emergency exits are being blocked",
+  "dangerous chemicals are improperly stored",
+  "safety inspections are being falsified",
+]
+
+political_metric = [
+  "Party loyalty score",
+  "ideological awareness",
+  "political study participation",
+  "civic engagement rating",
+  "socialist values alignment",
+]
+
+monitoring_target = [
+  "certain colleagues' political attitudes",
+  "employee social media activity",
+  "workers with family abroad",
+  "anyone expressing discontent",
+  "new hires' reliability",
+]
+
+political_team_activity = [
+  "a Party study session",
+  "a patriotic team-building retreat",
+  "an ideological education workshop",
+  "a socialist values training",
+  "a loyalty demonstration event",
+]
+
+work_mistake = [
+  "the budget overrun",
+  "the missed deadline",
+  "the client complaint",
+  "the quality control failure",
+  "the regulatory violation",
+]
+
+bribe_amount = [
+  "5,000 yuan",
+  "10,000 yuan",
+  "15,000 yuan",
+  "a month's salary",
+]
+
+work_decision = [
+  "the contract approval",
+  "the vendor selection",
+  "the permit processing",
+  "the regulatory review",
+]
+
 relationship_types = [
   "parent",
   "sibling",
