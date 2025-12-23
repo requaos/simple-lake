@@ -8,6 +8,7 @@ use std::f32::consts::TAU;
 #[derive(Clone)]
 struct PetalInfo {
     base_shape: egui::epaint::CubicBezierShape,
+    bounding_rect: egui::Rect,
     text_pos: Pos2,
     text: String,
     tier: usize,
@@ -109,8 +110,29 @@ impl Widget for LotusWidget {
                     let offset_vec = vec2(angle.sin(), -angle.cos()) * tier_radius * 0.75;
                     let text_pos = center + offset_vec;
 
+                    // Calculate bounding rect by sampling the bezier curve
+                    let mut min_x = f32::INFINITY;
+                    let mut min_y = f32::INFINITY;
+                    let mut max_x = f32::NEG_INFINITY;
+                    let mut max_y = f32::NEG_INFINITY;
+
+                    for i in 0..=20 {
+                        let t = i as f32 / 20.0;
+                        let point = base_shape.sample(t);
+                        min_x = min_x.min(point.x);
+                        min_y = min_y.min(point.y);
+                        max_x = max_x.max(point.x);
+                        max_y = max_y.max(point.y);
+                    }
+
+                    let bounding_rect = egui::Rect::from_min_max(
+                        Pos2::new(min_x, min_y),
+                        Pos2::new(max_x, max_y),
+                    );
+
                     petals.push(PetalInfo {
                         base_shape,
+                        bounding_rect,
                         text_pos,
                         text: Self::get_petal_text(tier, petal),
                         tier,
@@ -154,7 +176,7 @@ impl Widget for LotusWidget {
 
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
-            let hover_rect = petal_info.base_shape.visual_bounding_rect();
+            let hover_rect = petal_info.bounding_rect;
 
             // Debug: Log all bounding rects when widget is hovered
             if response.hovered() && petal_info.total_index < 3 {
