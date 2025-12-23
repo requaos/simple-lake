@@ -174,6 +174,8 @@ pub struct VariableLibraries {
 
     // Public variables
     #[serde(default)]
+    pub wait_time: Vec<String>,
+    #[serde(default)]
     pub stranger_type: Vec<String>,
     #[serde(default)]
     pub small_favor: Vec<String>,
@@ -236,7 +238,8 @@ impl SituationLibrary {
         log::info!("  parent_type: {} items", variables.parent_type.len());
         log::info!("  political_topic: {} items", variables.political_topic.len());
         log::info!("  stranger_type: {} items", variables.stranger_type.len());
-        log::info!("  (Total variable types checked: 6 of 60+)");
+        log::info!("  wait_time: {} items", variables.wait_time.len());
+        log::info!("  (Total variable types checked: 7 of 60+)");
 
         // Check for any completely empty variable lists
         let mut empty_count = 0;

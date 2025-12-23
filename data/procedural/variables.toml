@@ -407,6 +407,13 @@ propaganda_activity = [
 ]
 
 # Public-specific variables
+wait_time = [
+  "twenty minutes",
+  "half an hour",
+  "forty-five minutes",
+  "over an hour",
+]
+
 stranger_type = [
   "an elderly person",
   "a frazzled parent",

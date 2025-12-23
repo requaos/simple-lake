@@ -128,6 +128,7 @@ fn substitute_variables(
     substitute!("{propaganda_activity}", &variables.propaganda_activity);
 
     // Public variables
+    substitute!("{wait_time}", &variables.wait_time);
     substitute!("{stranger_type}", &variables.stranger_type);
     substitute!("{small_favor}", &variables.small_favor);
     substitute!("{public_place}", &variables.public_place);
