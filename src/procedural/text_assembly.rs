@@ -1,5 +1,6 @@
 use super::library::{NarrativeFragments, VariableLibraries};
 use rand::prelude::*;
+use log::{debug, info};
 
 pub fn assemble_description(
     fragments: &NarrativeFragments,
@@ -44,11 +45,14 @@ fn substitute_variables(
     player_tier: usize,
     rng: &mut impl Rng,
 ) -> String {
+    debug!("Starting variable substitution for text: {}", text);
+
     // Helper macro to substitute a variable placeholder with a random choice from a list
     macro_rules! substitute {
         ($placeholder:expr, $list:expr) => {
             if !$list.is_empty() && text.contains($placeholder) {
                 if let Some(value) = $list.choose(rng) {
+                    debug!("  Replacing {} with '{}'", $placeholder, value);
                     text = text.replace($placeholder, value);
                 }
             }
@@ -63,6 +67,7 @@ fn substitute_variables(
             .or_else(|| variables.colleague_descriptors.get("2"))
             .expect("No colleague descriptors");
         if let Some(descriptor) = descriptors.choose(rng) {
+            debug!("  Replacing {{colleague_descriptor}} with '{}' (tier {})", descriptor, player_tier);
             text = text.replace("{colleague_descriptor}", descriptor);
         }
     }
@@ -131,5 +136,21 @@ fn substitute_variables(
     substitute!("{suspicious_behavior}", &variables.suspicious_behavior);
     substitute!("{survey_topic}", &variables.survey_topic);
 
+    // Check for any remaining unreplaced placeholders
+    if text.contains('{') && text.contains('}') {
+        let remaining_placeholders: Vec<&str> = text
+            .split('{')
+            .skip(1)
+            .filter_map(|s| s.split('}').next())
+            .collect();
+        if !remaining_placeholders.is_empty() {
+            log::warn!(
+                "Unreplaced placeholders found: {:?}",
+                remaining_placeholders
+            );
+        }
+    }
+
+    info!("Final text after substitution: {}", text);
     text
 }
