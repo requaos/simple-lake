@@ -22,6 +22,14 @@ struct CachedGeometry {
     rect: egui::Rect,
 }
 
+/// Debug information for displaying in UI
+#[derive(Clone, Default)]
+pub struct LotusDebugInfo {
+    pub pointer_pos: Option<Pos2>,
+    pub widget_hovered: bool,
+    pub hovered_petals: Vec<usize>,
+}
+
 /// Our custom widget.
 /// This widget is "dumb" - it just receives a total_index and renders it.
 pub struct LotusWidget {
@@ -65,12 +73,10 @@ impl Widget for LotusWidget {
 
         // Properly allocate the entire available space for interaction
         let available = ui.available_size();
-        let (rect, mut response) = ui.allocate_exact_size(
+        let (rect, response) = ui.allocate_exact_size(
             available,
             Sense::hover().union(Sense::click())
         );
-
-        log::trace!("Widget allocated rect: {:?}, size: {:?}", rect, available);
 
         let center = rect.center();
         let base_radius = rect.width().min(rect.height()) * 0.45;
@@ -166,35 +172,18 @@ impl Widget for LotusWidget {
         // Get pointer position - use latest_pos() which always returns the last known position
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
 
-        // Debug: Log pointer position every frame
-        log::debug!("Pointer position: {:?}, widget rect: {:?}", pointer_pos, rect);
-
-        // Also check if main widget response is hovered
-        if response.hovered() {
-            log::debug!("Main widget is hovered");
-        }
+        // Collect debug info for UI display
+        let mut hovered_petals = Vec::new();
 
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
             let hover_rect = petal_info.bounding_rect;
 
-            // Debug: Log all bounding rects when widget is hovered
-            if response.hovered() && petal_info.total_index < 3 {
-                log::debug!("Petal {} hover_rect: {:?}", petal_info.total_index, hover_rect);
-            }
-
             // Manual hover detection using pointer position
             let is_hovered = if let Some(pos) = pointer_pos {
                 let contains = hover_rect.contains(pos);
-
-                // Log detection attempt for first few petals when widget is hovered
-                if response.hovered() && petal_info.total_index < 3 {
-                    log::debug!("Petal {} contains check: pos={:?}, contains={}",
-                        petal_info.total_index, pos, contains);
-                }
-
                 if contains {
-                    log::debug!("Pointer INSIDE petal {} hover_rect: {:?}", petal_info.total_index, hover_rect);
+                    hovered_petals.push(petal_info.total_index);
                 }
                 contains
             } else {
@@ -209,8 +198,6 @@ impl Widget for LotusWidget {
                 // Hover started - trigger animation by storing start time
                 let time = ui.input(|i| i.time);
                 ui.memory_mut(|mem| mem.data.insert_temp(petal_id.with("anim_start"), time));
-                log::debug!("Petal hover triggered: tier={}, petal={}, total_index={}",
-                    petal_info.tier, petal_info.petal, petal_info.total_index);
             }
             ui.memory_mut(|mem| mem.data.insert_temp(hover_state_id, is_hovered));
 
@@ -348,6 +335,14 @@ impl Widget for LotusWidget {
             token_radius,
             Stroke::new(token_stroke, Color32::from_black_alpha(150)),
         );
+
+        // Store debug info for UI display
+        let debug_info = LotusDebugInfo {
+            pointer_pos,
+            widget_hovered: response.hovered(),
+            hovered_petals,
+        };
+        ui.memory_mut(|mem| mem.data.insert_temp(widget_id.with("debug_info"), debug_info));
 
         response
     }

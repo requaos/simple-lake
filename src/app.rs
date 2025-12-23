@@ -1,5 +1,5 @@
 use super::game_data::{EventOutcome, generate_event};
-use super::lotus_widget::LotusWidget;
+use super::lotus_widget::{LotusDebugInfo, LotusWidget};
 use super::procedural::EventDomain;
 use super::{FloatingText, LotusApp};
 use eframe::egui::{
@@ -445,5 +445,43 @@ impl eframe::App for LotusApp {
                     );
                 }
             });
+
+        // --- Debug Panel ---
+        let widget_id = Id::new("lotus_widget");
+        if let Some(debug_info) = ctx.memory(|mem| {
+            mem.data
+                .get_temp::<LotusDebugInfo>(widget_id.with("debug_info"))
+        }) {
+            Window::new("Debug Info")
+                .anchor(Align2::RIGHT_BOTTOM, vec2(-10.0, -10.0))
+                .collapsible(true)
+                .resizable(false)
+                .default_open(false)
+                .show(ctx, |ui| {
+                    ui.label(format!(
+                        "Pointer: {}",
+                        if let Some(pos) = debug_info.pointer_pos {
+                            format!("({:.0}, {:.0})", pos.x, pos.y)
+                        } else {
+                            "None".to_string()
+                        }
+                    ));
+                    ui.label(format!("Widget Hovered: {}", debug_info.widget_hovered));
+                    ui.separator();
+                    if debug_info.hovered_petals.is_empty() {
+                        ui.label("No petals hovered");
+                    } else {
+                        ui.label(format!(
+                            "Hovered Petals: {}",
+                            debug_info
+                                .hovered_petals
+                                .iter()
+                                .map(|i| i.to_string())
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        ));
+                    }
+                });
+        }
     }
 }
