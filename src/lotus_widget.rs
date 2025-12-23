@@ -61,12 +61,16 @@ impl LotusWidget {
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         let widget_id = ui.id().with("lotus_widget");
-        // Use Sense::hover() | Sense::click() to ensure we get all pointer events
-        let mut response = ui.allocate_rect(
-            ui.available_rect_before_wrap(),
+
+        // Properly allocate the entire available space for interaction
+        let available = ui.available_size();
+        let (rect, mut response) = ui.allocate_exact_size(
+            available,
             Sense::hover().union(Sense::click())
         );
-        let rect = response.rect;
+
+        log::debug!("Widget allocated rect: {:?}, size: {:?}", rect, available);
+
         let center = rect.center();
         let base_radius = rect.width().min(rect.height()) * 0.45;
 
@@ -146,12 +150,6 @@ impl Widget for LotusWidget {
         // Also check if main widget response is hovered
         if response.hovered() {
             log::debug!("Main widget is hovered");
-            // Draw a debug border when widget is hovered
-            painter.rect_stroke(
-                rect,
-                0.0,
-                Stroke::new(3.0, Color32::from_rgb(255, 0, 0)),
-            );
         }
 
         for petal_info in &cached_geo.petals {
