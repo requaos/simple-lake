@@ -230,27 +230,140 @@ impl SituationLibrary {
         let variables: VariableLibraries =
             toml::from_str(variables_toml).context("Failed to parse variables.toml")?;
 
-        // Log variable library statistics
+        // Log variable library statistics - ALL variables
         log::info!("=== Variable Library Loaded ===");
+        log::info!("Work variables:");
         log::info!("  excuse_library: {} items", variables.excuse_library.len());
         log::info!("  work_time: {} items", variables.work_time.len());
         log::info!("  work_colleague: {} items", variables.work_colleague.len());
+        log::info!("  work_day: {} items", variables.work_day.len());
+        log::info!("  work_obligation: {} items", variables.work_obligation.len());
+        log::info!("  work_record: {} items", variables.work_record.len());
+        log::info!("  overtime_period: {} items", variables.overtime_period.len());
+        log::info!("  work_project: {} items", variables.work_project.len());
+        log::info!("  safety_violation: {} items", variables.safety_violation.len());
+        log::info!("  political_metric: {} items", variables.political_metric.len());
+        log::info!("  monitoring_target: {} items", variables.monitoring_target.len());
+        log::info!("  political_team_activity: {} items", variables.political_team_activity.len());
+        log::info!("  work_mistake: {} items", variables.work_mistake.len());
+        log::info!("  bribe_amount: {} items", variables.bribe_amount.len());
+        log::info!("  work_decision: {} items", variables.work_decision.len());
+
+        log::info!("Family variables:");
+        log::info!("  relationship_types: {} items", variables.relationship_types.len());
         log::info!("  parent_type: {} items", variables.parent_type.len());
+        log::info!("  sibling_type: {} items", variables.sibling_type.len());
+        log::info!("  relative_type: {} items", variables.relative_type.len());
+        log::info!("  small_amount: {} items", variables.small_amount.len());
+        log::info!("  medium_amount: {} items", variables.medium_amount.len());
+        log::info!("  large_amount: {} items", variables.large_amount.len());
+        log::info!("  time_period: {} items", variables.time_period.len());
+        log::info!("  authority_figure: {} items", variables.authority_figure.len());
+        log::info!("  infraction: {} items", variables.infraction.len());
+        log::info!("  unpractical_subject: {} items", variables.unpractical_subject.len());
+        log::info!("  practical_subject: {} items", variables.practical_subject.len());
+        log::info!("  personal_topic: {} items", variables.personal_topic.len());
+        log::info!("  successful_relative: {} items", variables.successful_relative.len());
+        log::info!("  unsuitable_match: {} items", variables.unsuitable_match.len());
+
+        log::info!("Party variables:");
         log::info!("  political_topic: {} items", variables.political_topic.len());
-        log::info!("  stranger_type: {} items", variables.stranger_type.len());
+        log::info!("  day_time: {} items", variables.day_time.len());
+        log::info!("  time_duration: {} items", variables.time_duration.len());
+        log::info!("  party_observer: {} items", variables.party_observer.len());
+        log::info!("  membership_level: {} items", variables.membership_level.len());
+        log::info!("  party_official: {} items", variables.party_official.len());
+        log::info!("  controversial_topic: {} items", variables.controversial_topic.len());
+        log::info!("  denouncement_target: {} items", variables.denouncement_target.len());
+        log::info!("  political_crime: {} items", variables.political_crime.len());
+        log::info!("  volunteer_activity: {} items", variables.volunteer_activity.len());
+        log::info!("  party_elite: {} items", variables.party_elite.len());
+        log::info!("  favor_request: {} items", variables.favor_request.len());
+        log::info!("  propaganda_campaign: {} items", variables.propaganda_campaign.len());
+        log::info!("  propaganda_activity: {} items", variables.propaganda_activity.len());
+
+        log::info!("Public variables:");
         log::info!("  wait_time: {} items", variables.wait_time.len());
-        log::info!("  (Total variable types checked: 7 of 60+)");
+        log::info!("  stranger_type: {} items", variables.stranger_type.len());
+        log::info!("  small_favor: {} items", variables.small_favor.len());
+        log::info!("  public_place: {} items", variables.public_place.len());
+        log::info!("  appointment_type: {} items", variables.appointment_type.len());
+        log::info!("  public_violation: {} items", variables.public_violation.len());
+        log::info!("  violation_perpetrator: {} items", variables.violation_perpetrator.len());
+        log::info!("  public_service: {} items", variables.public_service.len());
+        log::info!("  queue_jumper: {} items", variables.queue_jumper.len());
+        log::info!("  public_transport: {} items", variables.public_transport.len());
+        log::info!("  seat_requester: {} items", variables.seat_requester.len());
+        log::info!("  suspicious_behavior: {} items", variables.suspicious_behavior.len());
+        log::info!("  survey_topic: {} items", variables.survey_topic.len());
 
-        // Check for any completely empty variable lists
-        let mut empty_count = 0;
-        if variables.work_time.is_empty() { empty_count += 1; }
-        if variables.work_colleague.is_empty() { empty_count += 1; }
-        if variables.parent_type.is_empty() { empty_count += 1; }
-        if variables.political_topic.is_empty() { empty_count += 1; }
-        if variables.stranger_type.is_empty() { empty_count += 1; }
+        log::info!("Tier-specific variables:");
+        log::info!("  colleague_descriptors: {} tiers", variables.colleague_descriptors.len());
 
-        if empty_count > 0 {
-            log::warn!("  {} variable lists are empty - they may not be in variables.toml", empty_count);
+        // Count and warn about empty variable lists
+        let mut empty_vars = Vec::new();
+        if variables.excuse_library.is_empty() { empty_vars.push("excuse_library"); }
+        if variables.work_time.is_empty() { empty_vars.push("work_time"); }
+        if variables.work_colleague.is_empty() { empty_vars.push("work_colleague"); }
+        if variables.work_day.is_empty() { empty_vars.push("work_day"); }
+        if variables.work_obligation.is_empty() { empty_vars.push("work_obligation"); }
+        if variables.work_record.is_empty() { empty_vars.push("work_record"); }
+        if variables.overtime_period.is_empty() { empty_vars.push("overtime_period"); }
+        if variables.work_project.is_empty() { empty_vars.push("work_project"); }
+        if variables.safety_violation.is_empty() { empty_vars.push("safety_violation"); }
+        if variables.political_metric.is_empty() { empty_vars.push("political_metric"); }
+        if variables.monitoring_target.is_empty() { empty_vars.push("monitoring_target"); }
+        if variables.political_team_activity.is_empty() { empty_vars.push("political_team_activity"); }
+        if variables.work_mistake.is_empty() { empty_vars.push("work_mistake"); }
+        if variables.bribe_amount.is_empty() { empty_vars.push("bribe_amount"); }
+        if variables.work_decision.is_empty() { empty_vars.push("work_decision"); }
+        if variables.relationship_types.is_empty() { empty_vars.push("relationship_types"); }
+        if variables.parent_type.is_empty() { empty_vars.push("parent_type"); }
+        if variables.sibling_type.is_empty() { empty_vars.push("sibling_type"); }
+        if variables.relative_type.is_empty() { empty_vars.push("relative_type"); }
+        if variables.small_amount.is_empty() { empty_vars.push("small_amount"); }
+        if variables.medium_amount.is_empty() { empty_vars.push("medium_amount"); }
+        if variables.large_amount.is_empty() { empty_vars.push("large_amount"); }
+        if variables.time_period.is_empty() { empty_vars.push("time_period"); }
+        if variables.authority_figure.is_empty() { empty_vars.push("authority_figure"); }
+        if variables.infraction.is_empty() { empty_vars.push("infraction"); }
+        if variables.unpractical_subject.is_empty() { empty_vars.push("unpractical_subject"); }
+        if variables.practical_subject.is_empty() { empty_vars.push("practical_subject"); }
+        if variables.personal_topic.is_empty() { empty_vars.push("personal_topic"); }
+        if variables.successful_relative.is_empty() { empty_vars.push("successful_relative"); }
+        if variables.unsuitable_match.is_empty() { empty_vars.push("unsuitable_match"); }
+        if variables.political_topic.is_empty() { empty_vars.push("political_topic"); }
+        if variables.day_time.is_empty() { empty_vars.push("day_time"); }
+        if variables.time_duration.is_empty() { empty_vars.push("time_duration"); }
+        if variables.party_observer.is_empty() { empty_vars.push("party_observer"); }
+        if variables.membership_level.is_empty() { empty_vars.push("membership_level"); }
+        if variables.party_official.is_empty() { empty_vars.push("party_official"); }
+        if variables.controversial_topic.is_empty() { empty_vars.push("controversial_topic"); }
+        if variables.denouncement_target.is_empty() { empty_vars.push("denouncement_target"); }
+        if variables.political_crime.is_empty() { empty_vars.push("political_crime"); }
+        if variables.volunteer_activity.is_empty() { empty_vars.push("volunteer_activity"); }
+        if variables.party_elite.is_empty() { empty_vars.push("party_elite"); }
+        if variables.favor_request.is_empty() { empty_vars.push("favor_request"); }
+        if variables.propaganda_campaign.is_empty() { empty_vars.push("propaganda_campaign"); }
+        if variables.propaganda_activity.is_empty() { empty_vars.push("propaganda_activity"); }
+        if variables.wait_time.is_empty() { empty_vars.push("wait_time"); }
+        if variables.stranger_type.is_empty() { empty_vars.push("stranger_type"); }
+        if variables.small_favor.is_empty() { empty_vars.push("small_favor"); }
+        if variables.public_place.is_empty() { empty_vars.push("public_place"); }
+        if variables.appointment_type.is_empty() { empty_vars.push("appointment_type"); }
+        if variables.public_violation.is_empty() { empty_vars.push("public_violation"); }
+        if variables.violation_perpetrator.is_empty() { empty_vars.push("violation_perpetrator"); }
+        if variables.public_service.is_empty() { empty_vars.push("public_service"); }
+        if variables.queue_jumper.is_empty() { empty_vars.push("queue_jumper"); }
+        if variables.public_transport.is_empty() { empty_vars.push("public_transport"); }
+        if variables.seat_requester.is_empty() { empty_vars.push("seat_requester"); }
+        if variables.suspicious_behavior.is_empty() { empty_vars.push("suspicious_behavior"); }
+        if variables.survey_topic.is_empty() { empty_vars.push("survey_topic"); }
+
+        if !empty_vars.is_empty() {
+            log::warn!("WARNING: {} empty variable lists: {:?}", empty_vars.len(), empty_vars);
+        } else {
+            log::info!("✓ All variable lists loaded successfully!");
         }
 
         // Build by_domain HashMap
