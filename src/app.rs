@@ -448,16 +448,18 @@ impl eframe::App for LotusApp {
 
         // --- Debug Panel ---
         let widget_id = Id::new("lotus_widget");
-        if let Some(debug_info) = ctx.memory(|mem| {
+        let debug_info = ctx.memory(|mem| {
             mem.data
                 .get_temp::<LotusDebugInfo>(widget_id.with("debug_info"))
-        }) {
-            Window::new("Debug Info")
-                .anchor(Align2::RIGHT_BOTTOM, vec2(-10.0, -10.0))
-                .collapsible(true)
-                .resizable(false)
-                .default_open(false)
-                .show(ctx, |ui| {
+        });
+
+        Window::new("Debug Info")
+            .anchor(Align2::RIGHT_BOTTOM, vec2(-10.0, -10.0))
+            .collapsible(true)
+            .resizable(false)
+            .default_open(true)
+            .show(ctx, |ui| {
+                if let Some(debug_info) = debug_info {
                     ui.label(format!(
                         "Pointer: {}",
                         if let Some(pos) = debug_info.pointer_pos {
@@ -481,7 +483,9 @@ impl eframe::App for LotusApp {
                                 .join(", ")
                         ));
                     }
-                });
-        }
+                } else {
+                    ui.label("No debug data available");
+                }
+            });
     }
 }

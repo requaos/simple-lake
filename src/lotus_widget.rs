@@ -69,7 +69,7 @@ impl LotusWidget {
 /// Implementation of the `Widget` trait for our `LotusWidget`.
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        let widget_id = ui.id().with("lotus_widget");
+        let widget_id = egui::Id::new("lotus_widget");
 
         // Properly allocate the entire available space for interaction
         let available = ui.available_size();
