@@ -252,39 +252,6 @@ unsuitable_match = [
   "someone you have nothing in common with",
 ]
 
-# Tier-specific colleague descriptors (for work events)
-[colleague_descriptors]
-"0" = [
-  "a desperate colleague",
-  "a downtrodden worker",
-  "a struggling coworker",
-  "someone on the verge of being fired",
-]
-"1" = [
-  "a struggling colleague",
-  "an unreliable coworker",
-  "a colleague with problems",
-  "someone barely holding on",
-]
-"2" = [
-  "an average colleague",
-  "an unremarkable coworker",
-  "a typical worker",
-  "a regular employee",
-]
-"3" = [
-  "a well-connected colleague",
-  "a high-ranking coworker",
-  "someone with guanxi",
-  "a respected team member",
-]
-"4" = [
-  "a powerful Party member",
-  "an elite colleague",
-  "a top-tier executive",
-  "someone with impeccable connections",
-]
-
 # Party-specific variables
 political_topic = [
   "Xi Jinping Thought",
@@ -513,4 +480,37 @@ survey_topic = [
   "public safety",
   "civic engagement",
   "neighborhood quality",
+]
+
+# Tier-specific colleague descriptors (for work events)
+[colleague_descriptors]
+"0" = [
+  "a desperate colleague",
+  "a downtrodden worker",
+  "a struggling coworker",
+  "someone on the verge of being fired",
+]
+"1" = [
+  "a struggling colleague",
+  "an unreliable coworker",
+  "a colleague with problems",
+  "someone barely holding on",
+]
+"2" = [
+  "an average colleague",
+  "an unremarkable coworker",
+  "a typical worker",
+  "a regular employee",
+]
+"3" = [
+  "a well-connected colleague",
+  "a high-ranking coworker",
+  "someone with guanxi",
+  "a respected team member",
+]
+"4" = [
+  "a powerful Party member",
+  "an elite colleague",
+  "a top-tier executive",
+  "someone with impeccable connections",
 ]
