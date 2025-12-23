@@ -61,7 +61,11 @@ impl LotusWidget {
 impl Widget for LotusWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         let widget_id = ui.id().with("lotus_widget");
-        let mut response = ui.allocate_rect(ui.available_rect_before_wrap(), Sense::hover());
+        // Use Sense::hover() | Sense::click() to ensure we get all pointer events
+        let mut response = ui.allocate_rect(
+            ui.available_rect_before_wrap(),
+            Sense::hover().union(Sense::click())
+        );
         let rect = response.rect;
         let center = rect.center();
         let base_radius = rect.width().min(rect.height()) * 0.45;
@@ -133,14 +137,21 @@ impl Widget for LotusWidget {
         let mut normal_petals = Vec::new();
         let mut animating_petal = None;
 
-        // Get pointer position - use interact_pos() which works even without interact() calls
-        let pointer_pos = ui.input(|i| i.pointer.interact_pos());
+        // Get pointer position - use latest_pos() which always returns the last known position
+        let pointer_pos = ui.input(|i| i.pointer.latest_pos());
 
-        // Debug: Log pointer position once per frame
-        if let Some(pos) = pointer_pos {
-            log::trace!("Pointer at: ({}, {}), widget rect: {:?}", pos.x, pos.y, rect);
-        } else {
-            log::trace!("No pointer position available");
+        // Debug: Log pointer position every frame
+        log::trace!("Pointer position: {:?}, widget rect: {:?}", pointer_pos, rect);
+
+        // Also check if main widget response is hovered
+        if response.hovered() {
+            log::debug!("Main widget is hovered");
+            // Draw a debug border when widget is hovered
+            painter.rect_stroke(
+                rect,
+                0.0,
+                Stroke::new(3.0, Color32::from_rgb(255, 0, 0)),
+            );
         }
 
         for petal_info in &cached_geo.petals {
