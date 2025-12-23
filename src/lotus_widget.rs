@@ -133,12 +133,14 @@ impl Widget for LotusWidget {
         let mut normal_petals = Vec::new();
         let mut animating_petal = None;
 
-        // Check if pointer is over the widget at all
-        let pointer_pos = ui.input(|i| i.pointer.hover_pos());
+        // Get pointer position - use interact_pos() which works even without interact() calls
+        let pointer_pos = ui.input(|i| i.pointer.interact_pos());
 
         // Debug: Log pointer position once per frame
         if let Some(pos) = pointer_pos {
             log::trace!("Pointer at: ({}, {}), widget rect: {:?}", pos.x, pos.y, rect);
+        } else {
+            log::trace!("No pointer position available");
         }
 
         for petal_info in &cached_geo.petals {
