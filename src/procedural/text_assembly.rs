@@ -50,10 +50,15 @@ fn substitute_variables(
     // Helper macro to substitute a variable placeholder with a random choice from a list
     macro_rules! substitute {
         ($placeholder:expr, $list:expr) => {
-            if !$list.is_empty() && text.contains($placeholder) {
-                if let Some(value) = $list.choose(rng) {
-                    debug!("  Replacing {} with '{}'", $placeholder, value);
-                    text = text.replace($placeholder, value);
+            if text.contains($placeholder) {
+                if $list.is_empty() {
+                    log::warn!("  Variable list for {} is EMPTY - cannot substitute", $placeholder);
+                } else {
+                    debug!("  Variable list for {} has {} items", $placeholder, $list.len());
+                    if let Some(value) = $list.choose(rng) {
+                        debug!("  Replacing {} with '{}'", $placeholder, value);
+                        text = text.replace($placeholder, value);
+                    }
                 }
             }
         };

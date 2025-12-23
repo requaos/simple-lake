@@ -228,6 +228,28 @@ impl SituationLibrary {
         let variables: VariableLibraries =
             toml::from_str(variables_toml).context("Failed to parse variables.toml")?;
 
+        // Log variable library statistics
+        log::info!("=== Variable Library Loaded ===");
+        log::info!("  excuse_library: {} items", variables.excuse_library.len());
+        log::info!("  work_time: {} items", variables.work_time.len());
+        log::info!("  work_colleague: {} items", variables.work_colleague.len());
+        log::info!("  parent_type: {} items", variables.parent_type.len());
+        log::info!("  political_topic: {} items", variables.political_topic.len());
+        log::info!("  stranger_type: {} items", variables.stranger_type.len());
+        log::info!("  (Total variable types checked: 6 of 60+)");
+
+        // Check for any completely empty variable lists
+        let mut empty_count = 0;
+        if variables.work_time.is_empty() { empty_count += 1; }
+        if variables.work_colleague.is_empty() { empty_count += 1; }
+        if variables.parent_type.is_empty() { empty_count += 1; }
+        if variables.political_topic.is_empty() { empty_count += 1; }
+        if variables.stranger_type.is_empty() { empty_count += 1; }
+
+        if empty_count > 0 {
+            log::warn!("  {} variable lists are empty - they may not be in variables.toml", empty_count);
+        }
+
         // Build by_domain HashMap
         let mut by_domain = HashMap::new();
         by_domain.insert(EventDomain::Work, work_config.situations);
