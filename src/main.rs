@@ -47,6 +47,11 @@ pub struct LotusApp {
     floating_texts: VecDeque<FloatingText>,
     history: Vec<String>,
 
+    // Movement animation state
+    movement_queue: VecDeque<usize>, // Queue of petals to move through
+    movement_animation_start: Option<f64>, // Time when current step started
+    movement_step_duration: f64, // Time per petal in seconds
+
     // Procedural event system
     situation_library: procedural::SituationLibrary,
 
@@ -136,6 +141,9 @@ fn main() -> anyhow::Result<()> {
                     life_stage: 1,  // NEW: Initialize life stage
                     floating_texts: VecDeque::new(),
                     history: Vec::new(),
+                    movement_queue: VecDeque::new(),
+                    movement_animation_start: None,
+                    movement_step_duration: 0.3, // 0.3 seconds per petal
                     situation_library,
                     recent_event_domains: VecDeque::new(),
                     encounter_history: HashSet::new(),

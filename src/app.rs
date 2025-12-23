@@ -203,6 +203,54 @@ impl eframe::App for LotusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let event_is_open = self.current_event.is_some();
 
+        // --- Process Movement Animation ---
+        if !self.movement_queue.is_empty() && !event_is_open {
+            let current_time = ctx.input(|i| i.time);
+
+            // Start animation if not started
+            if self.movement_animation_start.is_none() {
+                self.movement_animation_start = Some(current_time);
+            }
+
+            let elapsed = current_time - self.movement_animation_start.unwrap();
+
+            // Check if it's time to move to the next petal
+            if elapsed >= self.movement_step_duration {
+                if let Some(next_petal) = self.movement_queue.pop_front() {
+                    let old_petal = self.player_petal;
+                    self.player_petal = next_petal;
+
+                    // Check for age-up when crossing petal 0
+                    if self.player_petal < old_petal {
+                        self.age_up();
+                    }
+
+                    // Reset animation start for next step
+                    self.movement_animation_start = if !self.movement_queue.is_empty() {
+                        Some(current_time)
+                    } else {
+                        None
+                    };
+
+                    // If movement is complete (queue is empty), trigger event
+                    if self.movement_queue.is_empty() {
+                        if !self.is_review_petal(self.player_petal) {
+                            self.current_event = Some(generate_event(self));
+                            self.last_event_result = None;
+                        } else {
+                            self.current_event = None;
+                            if self.player_petal != 0 {
+                                self.last_event_result = None;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Request repaint to continue animation
+            ctx.request_repaint();
+        }
+
         // --- Left Stats Panel ---
         let left_panel_response = egui::SidePanel::left("left_panel")
             .resizable(false)
@@ -265,62 +313,34 @@ impl eframe::App for LotusApp {
 
                     ui.separator();
 
-                    let old_petal = self.player_petal;
-                    let mut moved = false;
-                    let mut spaces_moved = 0;
+                    // Only allow movement if not currently animating
+                    let is_animating = !self.movement_queue.is_empty();
 
-                    if ui.button("Move Counter-Clockwise").clicked() {
-                        self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
-                            % self.num_petals_per_tier;
-                        moved = true;
-                        spaces_moved = 1;
-                        if self.player_petal > old_petal {
-                            self.age_up();
-                        }
+                    if ui.add_enabled(!is_animating, egui::Button::new("Move Counter-Clockwise")).clicked() {
+                        // Queue a counter-clockwise move
+                        let next_petal = (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
+                        self.movement_queue.push_back(next_petal);
                     }
-                    if ui.button("Move Clockwise").clicked() {
-                        self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-                        moved = true;
-                        spaces_moved = 1;
-                        if self.player_petal < old_petal {
-                            self.age_up();
-                        }
+                    if ui.add_enabled(!is_animating, egui::Button::new("Move Clockwise")).clicked() {
+                        // Queue a clockwise move
+                        let next_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+                        self.movement_queue.push_back(next_petal);
                     }
 
                     ui.separator();
 
-                    if ui.button("🎲 Roll Dice").clicked() {
+                    if ui.add_enabled(!is_animating, egui::Button::new("🎲 Roll Dice")).clicked() {
                         let mut rng = rand::rng();
                         let roll = rng.random_range(1..=6);
 
-                        // Move clockwise by the rolled amount
+                        // Queue all the moves for the dice roll
                         for _ in 0..roll {
-                            let prev_petal = self.player_petal;
-                            self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-
-                            // Check for age-up when crossing petal 0
-                            if self.player_petal < prev_petal {
-                                self.age_up();
-                            }
+                            let next_petal = (self.movement_queue.back().unwrap_or(&self.player_petal) + 1) % self.num_petals_per_tier;
+                            self.movement_queue.push_back(next_petal);
                         }
-
-                        moved = true;
-                        spaces_moved = roll;
 
                         // Add dice roll result to history
                         self.history.push(format!("[Age {}] Rolled {} on the dice", self.player_age, roll));
-                    }
-
-                    if moved {
-                        if !self.is_review_petal(self.player_petal) {
-                            self.current_event = Some(generate_event(self));
-                            self.last_event_result = None;
-                        } else {
-                            self.current_event = None;
-                            if self.player_petal != 0 {
-                                self.last_event_result = None;
-                            }
-                        }
                     }
                 });
             });
