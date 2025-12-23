@@ -172,23 +172,27 @@ impl Widget for LotusWidget {
         // Get pointer position - use latest_pos() which always returns the last known position
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
 
+        // Find the topmost hovered petal (check in reverse rendering order)
+        let topmost_hovered_petal = if let Some(pos) = pointer_pos {
+            // Check petals in reverse order (last rendered = topmost)
+            cached_geo.petals.iter().rev().find(|petal_info| {
+                petal_info.bounding_rect.contains(pos)
+            }).map(|p| p.total_index)
+        } else {
+            None
+        };
+
         // Collect debug info for UI display
         let mut hovered_petals = Vec::new();
+        if let Some(idx) = topmost_hovered_petal {
+            hovered_petals.push(idx);
+        }
 
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
-            let hover_rect = petal_info.bounding_rect;
 
-            // Manual hover detection using pointer position
-            let is_hovered = if let Some(pos) = pointer_pos {
-                let contains = hover_rect.contains(pos);
-                if contains {
-                    hovered_petals.push(petal_info.total_index);
-                }
-                contains
-            } else {
-                false
-            };
+            // Only the topmost petal is considered hovered
+            let is_hovered = topmost_hovered_petal == Some(petal_info.total_index);
 
             // Track hover state transitions to trigger animation
             let hover_state_id = petal_id.with("hover_state");
