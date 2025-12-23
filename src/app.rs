@@ -37,11 +37,42 @@ impl LotusApp {
         petal_index == 0 || petal_index == 4 || petal_index == 8
     }
 
+    /// Formats EventOutcome deltas as a compact string (e.g., "+10 SCS, -5 Finance")
+    fn format_stat_deltas(outcome: &EventOutcome) -> String {
+        let mut deltas = Vec::new();
+
+        if outcome.scs_change != 0 {
+            deltas.push(format!("{:+} SCS", outcome.scs_change));
+        }
+        if outcome.finance_change != 0 {
+            deltas.push(format!("{:+} Finance", outcome.finance_change));
+        }
+        if outcome.career_level_change != 0 {
+            deltas.push(format!("{:+} Career", outcome.career_level_change));
+        }
+        if outcome.guanxi_family_change != 0 {
+            deltas.push(format!("{:+} Family", outcome.guanxi_family_change));
+        }
+        if outcome.guanxi_network_change != 0 {
+            deltas.push(format!("{:+} Network", outcome.guanxi_network_change));
+        }
+        if outcome.guanxi_party_change != 0 {
+            deltas.push(format!("{:+} Party", outcome.guanxi_party_change));
+        }
+
+        if deltas.is_empty() {
+            String::from("No change")
+        } else {
+            deltas.join(", ")
+        }
+    }
+
     /// Safely applies all stat changes from an EventOutcome
     fn apply_outcome(&mut self, outcome: &EventOutcome, ui_rect: Rect, result_text: &str) {
         // --- Log to History ---
+        let stat_deltas = Self::format_stat_deltas(outcome);
         self.history
-            .push(format!("[Age {}] {}", self.player_age, result_text));
+            .push(format!("[Age {}] {} [{}]", self.player_age, result_text, stat_deltas));
         if self.history.len() > 100 {
             // Keep history from getting too long
             self.history.remove(0);
