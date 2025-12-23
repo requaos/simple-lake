@@ -262,12 +262,18 @@ impl eframe::App for LotusApp {
                     if ui.button("Exit Application").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
+
+                    ui.separator();
+
                     let old_petal = self.player_petal;
                     let mut moved = false;
+                    let mut spaces_moved = 0;
+
                     if ui.button("Move Counter-Clockwise").clicked() {
                         self.player_petal = (self.player_petal + self.num_petals_per_tier - 1)
                             % self.num_petals_per_tier;
                         moved = true;
+                        spaces_moved = 1;
                         if self.player_petal > old_petal {
                             self.age_up();
                         }
@@ -275,10 +281,36 @@ impl eframe::App for LotusApp {
                     if ui.button("Move Clockwise").clicked() {
                         self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
                         moved = true;
+                        spaces_moved = 1;
                         if self.player_petal < old_petal {
                             self.age_up();
                         }
                     }
+
+                    ui.separator();
+
+                    if ui.button("🎲 Roll Dice").clicked() {
+                        let mut rng = rand::rng();
+                        let roll = rng.random_range(1..=6);
+
+                        // Move clockwise by the rolled amount
+                        for _ in 0..roll {
+                            let prev_petal = self.player_petal;
+                            self.player_petal = (self.player_petal + 1) % self.num_petals_per_tier;
+
+                            // Check for age-up when crossing petal 0
+                            if self.player_petal < prev_petal {
+                                self.age_up();
+                            }
+                        }
+
+                        moved = true;
+                        spaces_moved = roll;
+
+                        // Add dice roll result to history
+                        self.history.push(format!("[Age {}] Rolled {} on the dice", self.player_age, roll));
+                    }
+
                     if moved {
                         if !self.is_review_petal(self.player_petal) {
                             self.current_event = Some(generate_event(self));
