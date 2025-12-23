@@ -214,11 +214,14 @@ impl eframe::App for LotusApp {
 
             let elapsed = current_time - self.movement_animation_start.unwrap();
 
-            // Check if it's time to move to the next petal
+            // Check if it's time to move to the next position
             if elapsed >= self.movement_step_duration {
-                if let Some(next_petal) = self.movement_queue.pop_front() {
+                if let Some(next_total_index) = self.movement_queue.pop_front() {
                     let old_petal = self.player_petal;
-                    self.player_petal = next_petal;
+
+                    // Update both tier and petal from total_index
+                    self.player_tier = next_total_index / self.num_petals_per_tier;
+                    self.player_petal = next_total_index % self.num_petals_per_tier;
 
                     // Check for age-up when crossing petal 0
                     if self.player_petal < old_petal {
@@ -232,16 +235,18 @@ impl eframe::App for LotusApp {
                         None
                     };
 
-                    // If movement is complete (queue is empty), trigger event
+                    // If movement is complete (queue is empty), trigger event or review
                     if self.movement_queue.is_empty() {
-                        if !self.is_review_petal(self.player_petal) {
-                            self.current_event = Some(generate_event(self));
-                            self.last_event_result = None;
-                        } else {
+                        if self.is_review_petal(self.player_petal) {
+                            // At review petal - update tier based on SCS
+                            self.update_player_tier_from_scs();
                             self.current_event = None;
                             if self.player_petal != 0 {
                                 self.last_event_result = None;
                             }
+                        } else {
+                            self.current_event = Some(generate_event(self));
+                            self.last_event_result = None;
                         }
                     }
                 }
@@ -317,14 +322,18 @@ impl eframe::App for LotusApp {
                     let is_animating = !self.movement_queue.is_empty();
 
                     if ui.add_enabled(!is_animating, egui::Button::new("Move Counter-Clockwise")).clicked() {
-                        // Queue a counter-clockwise move
+                        // Queue a counter-clockwise move (total_index)
+                        let current_total = self.player_tier * self.num_petals_per_tier + self.player_petal;
                         let next_petal = (self.player_petal + self.num_petals_per_tier - 1) % self.num_petals_per_tier;
-                        self.movement_queue.push_back(next_petal);
+                        let next_total = self.player_tier * self.num_petals_per_tier + next_petal;
+                        self.movement_queue.push_back(next_total);
                     }
                     if ui.add_enabled(!is_animating, egui::Button::new("Move Clockwise")).clicked() {
-                        // Queue a clockwise move
+                        // Queue a clockwise move (total_index)
+                        let current_total = self.player_tier * self.num_petals_per_tier + self.player_petal;
                         let next_petal = (self.player_petal + 1) % self.num_petals_per_tier;
-                        self.movement_queue.push_back(next_petal);
+                        let next_total = self.player_tier * self.num_petals_per_tier + next_petal;
+                        self.movement_queue.push_back(next_total);
                     }
 
                     ui.separator();
@@ -333,10 +342,15 @@ impl eframe::App for LotusApp {
                         let mut rng = rand::rng();
                         let roll = rng.random_range(1..=6);
 
-                        // Queue all the moves for the dice roll
+                        // Queue all the moves for the dice roll (using total_index)
+                        let mut current_total = self.player_tier * self.num_petals_per_tier + self.player_petal;
                         for _ in 0..roll {
-                            let next_petal = (self.movement_queue.back().unwrap_or(&self.player_petal) + 1) % self.num_petals_per_tier;
-                            self.movement_queue.push_back(next_petal);
+                            let current_petal = current_total % self.num_petals_per_tier;
+                            let current_tier = current_total / self.num_petals_per_tier;
+                            let next_petal = (current_petal + 1) % self.num_petals_per_tier;
+                            let next_total = current_tier * self.num_petals_per_tier + next_petal;
+                            self.movement_queue.push_back(next_total);
+                            current_total = next_total;
                         }
 
                         // Add dice roll result to history

@@ -48,9 +48,9 @@ pub struct LotusApp {
     history: Vec<String>,
 
     // Movement animation state
-    movement_queue: VecDeque<usize>, // Queue of petals to move through
+    movement_queue: VecDeque<usize>, // Queue of total_index positions to move through (tier * petals_per_tier + petal)
     movement_animation_start: Option<f64>, // Time when current step started
-    movement_step_duration: f64, // Time per petal in seconds
+    movement_step_duration: f64, // Time per position in seconds
 
     // Procedural event system
     situation_library: procedural::SituationLibrary,
