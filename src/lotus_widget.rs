@@ -161,7 +161,7 @@ impl Widget for LotusWidget {
 
         // Separate petals into normal and animating for z-ordering
         let mut normal_petals = Vec::new();
-        let mut animating_petal = None;
+        let mut animating_petals = Vec::new();
 
         // Get pointer position - use latest_pos() which always returns the last known position
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
@@ -273,7 +273,7 @@ impl Widget for LotusWidget {
             let render_data = (petal_info.clone(), scale, final_color);
 
             if is_animating {
-                animating_petal = Some(render_data);
+                animating_petals.push(render_data);
             } else {
                 normal_petals.push(render_data);
             }
@@ -299,8 +299,8 @@ impl Widget for LotusWidget {
             );
         }
 
-        // Render animating petal on top (higher z-order)
-        if let Some((petal_info, scale, final_color)) = animating_petal {
+        // Render animating petals on top (higher z-order)
+        for (petal_info, scale, final_color) in animating_petals {
             let (petal_mesh, petal_stroke_shape) = create_petal_mesh_from_base(
                 &petal_info.base_shape,
                 scale,
