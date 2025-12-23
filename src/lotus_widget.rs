@@ -133,11 +133,19 @@ impl Widget for LotusWidget {
         let mut normal_petals = Vec::new();
         let mut animating_petal = None;
 
+        // Check if pointer is over the widget at all
+        let pointer_pos = ui.input(|i| i.pointer.hover_pos());
+
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
             let hover_rect = petal_info.base_shape.visual_bounding_rect();
-            let petal_response = ui.interact(hover_rect, petal_id, Sense::hover());
-            let is_hovered = petal_response.hovered();
+
+            // Manual hover detection using pointer position
+            let is_hovered = if let Some(pos) = pointer_pos {
+                hover_rect.contains(pos)
+            } else {
+                false
+            };
 
             // Track hover state transitions to trigger animation
             let hover_state_id = petal_id.with("hover_state");
@@ -147,6 +155,8 @@ impl Widget for LotusWidget {
                 // Hover started - trigger animation by storing start time
                 let time = ui.input(|i| i.time);
                 ui.memory_mut(|mem| mem.data.insert_temp(petal_id.with("anim_start"), time));
+                log::debug!("Petal hover triggered: tier={}, petal={}, total_index={}",
+                    petal_info.tier, petal_info.petal, petal_info.total_index);
             }
             ui.memory_mut(|mem| mem.data.insert_temp(hover_state_id, is_hovered));
 
@@ -206,19 +216,17 @@ impl Widget for LotusWidget {
                 base_color_rgba.into()
             };
 
-            let render_data = (petal_info.clone(), scale, final_color, petal_response.clone());
+            let render_data = (petal_info.clone(), scale, final_color);
 
             if is_animating {
                 animating_petal = Some(render_data);
             } else {
                 normal_petals.push(render_data);
             }
-
-            response |= petal_response;
         }
 
         // Render normal petals first
-        for (petal_info, scale, final_color, _) in normal_petals {
+        for (petal_info, scale, final_color) in normal_petals {
             let (petal_mesh, petal_stroke_shape) = create_petal_mesh_from_base(
                 &petal_info.base_shape,
                 scale,
@@ -238,7 +246,7 @@ impl Widget for LotusWidget {
         }
 
         // Render animating petal on top (higher z-order)
-        if let Some((petal_info, scale, final_color, _)) = animating_petal {
+        if let Some((petal_info, scale, final_color)) = animating_petal {
             let (petal_mesh, petal_stroke_shape) = create_petal_mesh_from_base(
                 &petal_info.base_shape,
                 scale,
