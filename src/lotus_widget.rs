@@ -165,9 +165,8 @@ impl Widget for LotusWidget {
         ];
         let text_font = FontId::proportional(16.0);
 
-        // Separate petals into normal and animating for z-ordering
-        let mut normal_petals = Vec::new();
-        let mut animating_petals = Vec::new();
+        // Collect all petal render data in original order
+        let mut all_petals = Vec::new();
 
         // Get pointer position - use latest_pos() which always returns the last known position
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
@@ -261,42 +260,24 @@ impl Widget for LotusWidget {
                 base_color_rgba.into()
             };
 
-            let render_data = (petal_info.clone(), scale, final_color);
+            let render_data = (petal_info.clone(), scale, final_color, is_animating);
+            all_petals.push(render_data);
+        }
 
-            if is_animating {
-                animating_petals.push(render_data);
+        // Render all petals in original order (maintains z-order)
+        for (petal_info, scale, final_color, is_animating) in all_petals {
+            // Use slightly thicker stroke for animating petals
+            let stroke = if is_animating {
+                Stroke::new(2.0, Color32::from_black_alpha(100))
             } else {
-                normal_petals.push(render_data);
-            }
-        }
+                Stroke::new(1.0, Color32::from_black_alpha(60))
+            };
 
-        // Render normal petals first
-        for (petal_info, scale, final_color) in normal_petals {
             let (petal_mesh, petal_stroke_shape) = create_petal_mesh_from_base(
                 &petal_info.base_shape,
                 scale,
                 final_color,
-                Stroke::new(1.0, Color32::from_black_alpha(60)),
-            );
-
-            painter.add(petal_mesh);
-            painter.add(petal_stroke_shape);
-            painter.text(
-                petal_info.text_pos,
-                Align2::CENTER_CENTER,
-                &petal_info.text,
-                text_font.clone(),
-                Color32::BLACK,
-            );
-        }
-
-        // Render animating petals on top (higher z-order)
-        for (petal_info, scale, final_color) in animating_petals {
-            let (petal_mesh, petal_stroke_shape) = create_petal_mesh_from_base(
-                &petal_info.base_shape,
-                scale,
-                final_color,
-                Stroke::new(2.0, Color32::from_black_alpha(100)),
+                stroke,
             );
 
             painter.add(petal_mesh);
