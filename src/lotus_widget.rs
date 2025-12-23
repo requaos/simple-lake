@@ -136,16 +136,30 @@ impl Widget for LotusWidget {
         // Check if pointer is over the widget at all
         let pointer_pos = ui.input(|i| i.pointer.hover_pos());
 
+        // Debug: Log pointer position once per frame
+        if let Some(pos) = pointer_pos {
+            log::trace!("Pointer at: ({}, {}), widget rect: {:?}", pos.x, pos.y, rect);
+        }
+
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
             let hover_rect = petal_info.base_shape.visual_bounding_rect();
 
             // Manual hover detection using pointer position
             let is_hovered = if let Some(pos) = pointer_pos {
-                hover_rect.contains(pos)
+                let contains = hover_rect.contains(pos);
+                if contains {
+                    log::debug!("Pointer INSIDE petal {} hover_rect: {:?}", petal_info.total_index, hover_rect);
+                }
+                contains
             } else {
                 false
             };
+
+            // Debug: Log hover rect for first petal to see coordinates
+            if petal_info.total_index == 0 {
+                log::trace!("Petal 0 hover_rect: {:?}", hover_rect);
+            }
 
             // Track hover state transitions to trigger animation
             let hover_state_id = petal_id.with("hover_state");
