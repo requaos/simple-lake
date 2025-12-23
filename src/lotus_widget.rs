@@ -28,6 +28,7 @@ pub struct LotusDebugInfo {
     pub pointer_pos: Option<Pos2>,
     pub widget_hovered: bool,
     pub hovered_petals: Vec<usize>,
+    pub player_petal: usize,
 }
 
 /// Our custom widget.
@@ -168,10 +169,10 @@ impl Widget for LotusWidget {
         // Collect all petal render data in original order
         let mut all_petals = Vec::new();
 
-        // Get pointer position - use latest_pos() which always returns the last known position
+        // Get pointer position for debug info
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
 
-        // Find the topmost hovered petal (check in reverse rendering order)
+        // Find the topmost hovered petal (for debug display only)
         let topmost_hovered_petal = if let Some(pos) = pointer_pos {
             // Check petals in reverse order (last rendered = topmost)
             cached_geo.petals.iter().rev().find(|petal_info| {
@@ -190,19 +191,19 @@ impl Widget for LotusWidget {
         for petal_info in &cached_geo.petals {
             let petal_id = response.id.with(petal_info.total_index);
 
-            // Only the topmost petal is considered hovered
-            let is_hovered = topmost_hovered_petal == Some(petal_info.total_index);
+            // Animation triggers on the player's current petal
+            let is_player_petal = petal_info.total_index == self.player_total_index;
 
-            // Track hover state transitions to trigger animation
-            let hover_state_id = petal_id.with("hover_state");
-            let was_hovered = ui.memory(|mem| mem.data.get_temp::<bool>(hover_state_id).unwrap_or(false));
+            // Track player petal transitions to trigger animation
+            let player_state_id = petal_id.with("player_state");
+            let was_player_petal = ui.memory(|mem| mem.data.get_temp::<bool>(player_state_id).unwrap_or(false));
 
-            if is_hovered && !was_hovered {
-                // Hover started - trigger animation by storing start time
+            if is_player_petal && !was_player_petal {
+                // Player moved to this petal - trigger animation by storing start time
                 let time = ui.input(|i| i.time);
                 ui.memory_mut(|mem| mem.data.insert_temp(petal_id.with("anim_start"), time));
             }
-            ui.memory_mut(|mem| mem.data.insert_temp(hover_state_id, is_hovered));
+            ui.memory_mut(|mem| mem.data.insert_temp(player_state_id, is_player_petal));
 
             // Get animation progress (0.0 to 1.0 over animation duration)
             let anim_duration = 0.6; // Total animation duration in seconds
@@ -326,6 +327,7 @@ impl Widget for LotusWidget {
             pointer_pos,
             widget_hovered: response.hovered(),
             hovered_petals,
+            player_petal: self.player_total_index,
         };
         ui.memory_mut(|mem| mem.data.insert_temp(widget_id.with("debug_info"), debug_info));
 

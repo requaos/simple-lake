@@ -492,6 +492,7 @@ impl eframe::App for LotusApp {
             .default_open(true)
             .show(ctx, |ui| {
                 if let Some(debug_info) = debug_info {
+                    ui.label(format!("Player Petal: {}", debug_info.player_petal));
                     ui.label(format!(
                         "Pointer: {}",
                         if let Some(pos) = debug_info.pointer_pos {
