@@ -69,7 +69,7 @@ impl Widget for LotusWidget {
             Sense::hover().union(Sense::click())
         );
 
-        log::debug!("Widget allocated rect: {:?}, size: {:?}", rect, available);
+        log::trace!("Widget allocated rect: {:?}, size: {:?}", rect, available);
 
         let center = rect.center();
         let base_radius = rect.width().min(rect.height()) * 0.45;
@@ -145,7 +145,7 @@ impl Widget for LotusWidget {
         let pointer_pos = ui.input(|i| i.pointer.latest_pos());
 
         // Debug: Log pointer position every frame
-        log::trace!("Pointer position: {:?}, widget rect: {:?}", pointer_pos, rect);
+        log::debug!("Pointer position: {:?}, widget rect: {:?}", pointer_pos, rect);
 
         // Also check if main widget response is hovered
         if response.hovered() {
@@ -156,9 +156,21 @@ impl Widget for LotusWidget {
             let petal_id = response.id.with(petal_info.total_index);
             let hover_rect = petal_info.base_shape.visual_bounding_rect();
 
+            // Debug: Log all bounding rects when widget is hovered
+            if response.hovered() && petal_info.total_index < 3 {
+                log::debug!("Petal {} hover_rect: {:?}", petal_info.total_index, hover_rect);
+            }
+
             // Manual hover detection using pointer position
             let is_hovered = if let Some(pos) = pointer_pos {
                 let contains = hover_rect.contains(pos);
+
+                // Log detection attempt for first few petals when widget is hovered
+                if response.hovered() && petal_info.total_index < 3 {
+                    log::debug!("Petal {} contains check: pos={:?}, contains={}",
+                        petal_info.total_index, pos, contains);
+                }
+
                 if contains {
                     log::debug!("Pointer INSIDE petal {} hover_rect: {:?}", petal_info.total_index, hover_rect);
                 }
@@ -166,11 +178,6 @@ impl Widget for LotusWidget {
             } else {
                 false
             };
-
-            // Debug: Log hover rect for first petal to see coordinates
-            if petal_info.total_index == 0 {
-                log::trace!("Petal 0 hover_rect: {:?}", hover_rect);
-            }
 
             // Track hover state transitions to trigger animation
             let hover_state_id = petal_id.with("hover_state");
