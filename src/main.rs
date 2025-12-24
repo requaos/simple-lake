@@ -3,11 +3,12 @@ mod app;
 mod converter;
 mod game_data;
 mod lotus_widget;
+mod procedural;
 
 use crate::game_data::EventData;
+use crate::procedural::EventDomain;
 use eframe::egui;
-use std::fs;
-use std::collections::{VecDeque, HashMap};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 // --- Floating Text Animation ---
 pub struct FloatingText {
@@ -45,9 +46,21 @@ pub struct LotusApp {
     last_event_result: Option<String>,
     floating_texts: VecDeque<FloatingText>,
     history: Vec<String>,
+
+    // Procedural event system
+    situation_library: procedural::SituationLibrary,
+
+    // Context tracking
+    recent_event_domains: VecDeque<EventDomain>,
+    encounter_history: HashSet<String>,
+    event_counter: usize,
+    encounter_map: HashMap<String, usize>,
 }
 
 fn main() -> anyhow::Result<()> {
+    // Initialize logger (set RUST_LOG=debug for detailed logging)
+    env_logger::init();
+
     // 1. Check command line arguments
     let args: Vec<String> = std::env::args().collect();
 
@@ -77,7 +90,9 @@ fn main() -> anyhow::Result<()> {
         let mut event_index = HashMap::new();
         for (i, event) in event_database.iter().enumerate() {
             for tier in event.min_tier..=event.max_tier {
-                let (tier_specific, generic) = event_index.entry((event.life_stage, tier)).or_insert_with(|| (Vec::new(), Vec::new()));
+                let (tier_specific, generic) = event_index
+                    .entry((event.life_stage, tier))
+                    .or_insert_with(|| (Vec::new(), Vec::new()));
                 if event.is_generic {
                     generic.push(i);
                 } else {
@@ -98,6 +113,10 @@ fn main() -> anyhow::Result<()> {
                 visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(218, 165, 32); // Gold for hovered
                 cc.egui_ctx.set_visuals(visuals);
 
+                // Load situation library
+                let situation_library = procedural::SituationLibrary::from_embedded_configs()
+                    .expect("Failed to load situation library");
+
                 Ok(Box::new(LotusApp {
                     event_database,
                     event_index,
@@ -113,10 +132,15 @@ fn main() -> anyhow::Result<()> {
                     guanxi_party: 0,
                     current_event: None,
                     last_event_result: None,
-                    player_age: 18,  // NEW: Initialize age
-                    life_stage: 1,   // NEW: Initialize life stage
+                    player_age: 18, // NEW: Initialize age
+                    life_stage: 1,  // NEW: Initialize life stage
                     floating_texts: VecDeque::new(),
                     history: Vec::new(),
+                    situation_library,
+                    recent_event_domains: VecDeque::new(),
+                    encounter_history: HashSet::new(),
+                    event_counter: 0,
+                    encounter_map: HashMap::new(),
                 }))
             }),
         )

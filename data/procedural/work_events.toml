@@ -1,0 +1,590 @@
+# Work domain events - workplace dynamics, career progression, and professional obligations
+
+[[situations]]
+id = "work_promotion_passed_over"
+domain = "work"
+tier_min = 1
+tier_max = 3
+life_stage_min = 2
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+  "A promotion you were qualified for goes to {colleague_descriptor}.",
+  "You watch as {colleague_descriptor} gets the promotion you deserved.",
+  "The position you've been working toward is given to {colleague_descriptor}.",
+  "Management announces that {colleague_descriptor} will fill the role you expected to get.",
+  "After months of preparation, you learn {colleague_descriptor} received the promotion instead.",
+]
+conflicts = [
+  "Your boss says it's '{excuse}'.",
+  "Management cites '{excuse}' as the reason.",
+  "HR explains it came down to '{excuse}'.",
+  "You're told the decision was based on '{excuse}'.",
+  "The official justification is '{excuse}', but everyone knows it's about connections.",
+]
+stakes = [
+  "This could affect your career trajectory for years.",
+  "Your colleagues are watching how you react to this setback.",
+  "How you handle disappointment is noted in your performance file.",
+  "This decision reveals the true criteria for advancement here.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept it gracefully and congratulate them", "Express understanding and commitment to improve", "Thank management for the consideration"]
+scs_change = 15
+finance_change = -10
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 5
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Demand a detailed explanation", "File a formal complaint with HR", "Challenge the decision openly"]
+scs_change = -20
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -15
+risk_modifier = 30
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Say nothing and move on", "Focus on your current work", "Pretend it doesn't matter"]
+scs_change = 0
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 0
+risk_modifier = 0
+
+[[situations]]
+id = "work_colleague_cover_request"
+domain = "work"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 25
+
+[situations.fragments]
+openings = [
+  "A colleague pulls you aside and asks you to cover for their absence during {work_time}.",
+  "{work_colleague} urgently needs you to lie about their whereabouts on {work_day}.",
+  "A coworker begs you to provide an alibi for when they missed {work_obligation}.",
+  "{work_colleague} asks you to falsify {work_record} to hide their absence.",
+]
+conflicts = [
+  "They claim it's for a family emergency, but you suspect they're lying.",
+  "If discovered, you'll both face disciplinary action and social credit penalties.",
+  "The surveillance system might already have recorded their actual location.",
+  "You need their goodwill, but this could seriously backfire.",
+  "Your supervisor has been asking questions about that exact time period.",
+]
+stakes = [
+  "Workplace loyalty is valued, but so is honesty and rule-following.",
+  "Being caught in a lie could permanently damage your trustworthiness score.",
+  "Your response reveals whether you prioritize relationships or regulations.",
+  "This colleague might return the favor someday - or betray you to save themselves.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Refuse and suggest they tell the truth", "Decline and recommend they go through official channels", "Say no and explain the risks"]
+scs_change = 10
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = 10
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Agree to cover for them", "Provide the alibi they need", "Help them without hesitation"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 15
+guanxi_party_change = -10
+risk_modifier = 35
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Agree, but expect a favor in return", "Cover for them in exchange for something you need", "Help, but make it clear they owe you"]
+scs_change = 0
+finance_change = 5
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -5
+risk_modifier = 30
+requirements = { guanxi_network = 1 }
+
+[[situations]]
+id = "work_unpaid_overtime_pressure"
+domain = "work"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+  "Your manager announces that everyone is expected to work {overtime_period} unpaid to meet the deadline.",
+  "The team leader 'requests volunteers' for {overtime_period} of unpaid overtime this week.",
+  "You receive a message that dedication to {work_project} requires {overtime_period} of extra unpaid work.",
+  "Management makes it clear that 'committed employees' will work {overtime_period} extra without compensation.",
+]
+conflicts = [
+  "It's technically voluntary, but those who refuse are quietly marked as 'unmotivated'.",
+  "You're exhausted and have your own life, but showing dedication could help your career.",
+  "Others are already agreeing enthusiastically - refusing will make you stand out.",
+  "The deadline is arbitrary and could easily be extended, but no one will say that.",
+  "Your performance review is coming up, and this will definitely be mentioned.",
+]
+stakes = [
+  "Workplace dedication is a component of your social credit evaluation.",
+  "Standing up for work-life balance is seen as selfishness in this culture.",
+  "Your compliance with 'voluntary' requests measures your malleability.",
+  "How you respond affects your standing with both management and peers.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Volunteer enthusiastically", "Agree immediately and work the extra hours", "Show dedication by accepting without complaint"]
+scs_change = 20
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = -5
+guanxi_network_change = 5
+guanxi_party_change = 10
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse and cite labor laws", "Decline and explain you have other commitments", "Stand up for proper compensation"]
+scs_change = -15
+finance_change = 0
+career_level_change = -10
+guanxi_family_change = 5
+guanxi_network_change = -10
+guanxi_party_change = -20
+risk_modifier = 25
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Agree but do minimal work", "Show up but accomplish little", "Participate visibly but inefficiently"]
+scs_change = 5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_network = 1 }
+
+[[situations]]
+id = "work_safety_violation_witness"
+domain = "work"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 30
+
+[situations.fragments]
+openings = [
+  "You notice that {safety_violation} at your workplace - a clear safety code violation.",
+  "During your shift, you discover {safety_violation}, which could endanger workers.",
+  "You witness management instructing workers to {safety_violation}.",
+  "It becomes clear that the company has been {safety_violation} to cut costs.",
+]
+conflicts = [
+  "Reporting it could lead to penalties for the company and resentment from management.",
+  "Staying silent makes you complicit if someone gets hurt.",
+  "Your supervisor hints that 'team players' don't make waves about minor issues.",
+  "The safety hotline exists, but everyone knows reporting can make you a target.",
+  "You need this job, and whistleblowers rarely fare well in the system.",
+]
+stakes = [
+  "Worker safety violations that cause harm are traced back to who knew and said nothing.",
+  "Reporting demonstrates civic responsibility; silence shows complicity.",
+  "This is a test of whether you prioritize human welfare or job security.",
+  "The surveillance system may already have evidence - the question is whether you'll act.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Report it through official safety channels", "File a formal complaint with authorities", "Document and report the violation properly"]
+scs_change = 25
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = -15
+guanxi_party_change = 15
+risk_modifier = 20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Confront management directly about it", "Refuse to work until it's fixed", "Organize workers to demand changes"]
+scs_change = -10
+finance_change = 0
+career_level_change = -15
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -25
+risk_modifier = 45
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Say nothing and hope nothing bad happens", "Avoid the area and pretend you didn't notice", "Keep your head down"]
+scs_change = -25
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -10
+risk_modifier = 35
+
+[[situations]]
+id = "work_performance_review_pressure"
+domain = "work"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+  "Your annual performance review is scheduled, and you know your supervisor values {political_metric} over actual work.",
+  "During your review, your manager focuses heavily on {political_metric} rather than your job performance.",
+  "You're told your review score depends on improving your {political_metric}.",
+  "Your boss hints that advancement requires better {political_metric}, not just good work.",
+]
+conflicts = [
+  "You've done excellent work, but political factors seem to matter more.",
+  "The evaluation criteria have changed to emphasize ideology over competence.",
+  "Your personal beliefs don't align with what they want to hear.",
+  "Being authentic could cost you, but pretending feels like betraying yourself.",
+  "The review directly affects your social credit score and career prospects.",
+]
+stakes = [
+  "Performance reviews are shared with the social credit system.",
+  "Your career advancement depends on demonstrating the right attitudes.",
+  "This evaluation will follow you to every future job application.",
+  "How you present yourself here defines your official identity.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Express enthusiastic political alignment", "Commit to improving ideological awareness", "Demonstrate model employee attitudes"]
+scs_change = 20
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 15
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Focus the discussion on actual work performance", "Challenge the political criteria", "Insist on merit-based evaluation"]
+scs_change = -15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = -20
+risk_modifier = 30
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Say what they want to hear without meaning it", "Perform political compliance strategically", "Give correct answers while staying detached"]
+scs_change = 10
+finance_change = 0
+career_level_change = 3
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = 10
+requirements = { guanxi_network = 1 }
+
+[[situations]]
+id = "work_informant_recruitment"
+domain = "work"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 35
+
+[situations.fragments]
+openings = [
+  "A Party official from HR privately asks you to keep them informed about {monitoring_target}.",
+  "You're approached about becoming an informal monitor of {monitoring_target} in your department.",
+  "Management requests that you report on {monitoring_target} as a 'workplace quality initiative'.",
+  "A supervisor takes you aside and asks you to watch {monitoring_target} and report anything concerning.",
+]
+conflicts = [
+  "They frame it as helping colleagues stay out of trouble, but it's clearly surveillance.",
+  "Agreeing makes you a spy; refusing marks you as potentially unreliable.",
+  "This is presented as an opportunity, but it feels like a test of loyalty.",
+  "You work with these people every day - betraying their trust would be permanent.",
+  "Your response to this request will definitely be noted in your file.",
+]
+stakes = [
+  "Becoming an informant opens doors but closes relationships.",
+  "Refusing could limit your career or mark you for increased scrutiny.",
+  "This decision reveals what kind of person you're willing to become.",
+  "Everyone who accepts these roles tells themselves it's for the greater good.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Agree to report on colleagues", "Accept the monitoring role", "Commit to being their eyes and ears"]
+scs_change = 30
+finance_change = 10
+career_level_change = 10
+guanxi_family_change = 0
+guanxi_network_change = -20
+guanxi_party_change = 25
+risk_modifier = -20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse to spy on colleagues", "Decline and express discomfort with the request", "Reject the role firmly"]
+scs_change = -20
+finance_change = 0
+career_level_change = -10
+guanxi_family_change = 5
+guanxi_network_change = 10
+guanxi_party_change = -30
+risk_modifier = 40
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Agree but provide only harmless information", "Accept while planning to protect colleagues", "Take the role but report nothing meaningful"]
+scs_change = 5
+finance_change = 5
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = 35
+requirements = { guanxi_network = 2 }
+
+[[situations]]
+id = "work_team_building_political"
+domain = "work"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 10
+
+[situations.fragments]
+openings = [
+  "The work unit announces mandatory attendance at a {political_team_activity} on {day_time}.",
+  "Your department is required to participate in {political_team_activity} this weekend.",
+  "Management schedules {political_team_activity} and makes it clear attendance is expected.",
+  "The company organizes {political_team_activity}, framed as voluntary but clearly mandatory.",
+]
+conflicts = [
+  "You had plans, but skipping marks you as lacking team spirit and political awareness.",
+  "These events are tedious propaganda sessions disguised as team building.",
+  "Attendance is tracked and factors into performance evaluations.",
+  "Everyone pretends to be enthusiastic, and refusing breaks the collective facade.",
+  "Your participation level will be observed and noted by multiple supervisors.",
+]
+stakes = [
+  "Workplace political activities demonstrate your ideological alignment.",
+  "Team participation is considered a measure of your social integration.",
+  "These events build the guanxi networks that determine career advancement.",
+  "Absence is noticed more than attendance; compliance is the default expectation.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and participate enthusiastically", "Show up and engage actively", "Cancel your plans to demonstrate dedication"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -5
+guanxi_network_change = 10
+guanxi_party_change = 10
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Skip it and keep your original plans", "Refuse to attend", "Decline and cite personal commitments"]
+scs_change = -20
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 5
+guanxi_network_change = -15
+guanxi_party_change = -15
+risk_modifier = 15
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Attend briefly then leave early", "Show up for appearance but minimize involvement", "Participate minimally while being visible"]
+scs_change = 5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 15
+requirements = { guanxi_network = 1 }
+
+[[situations]]
+id = "work_mistake_responsibility"
+domain = "work"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 25
+
+[situations.fragments]
+openings = [
+  "A major error in {work_project} is discovered, and while it wasn't entirely your fault, you're being pressured to take full blame.",
+  "Your supervisor suggests you accept responsibility for {work_mistake} to 'protect the team'.",
+  "Management wants someone to blame for {work_mistake}, and they're looking at you despite shared responsibility.",
+  "A problem with {work_project} has emerged, and your boss wants you to fall on your sword for the group.",
+]
+conflicts = [
+  "Taking the blame will severely harm your career and social credit score.",
+  "But refusing means the whole team might face consequences, including people you care about.",
+  "Your supervisor promises to 'remember this' and help you later, but those promises are empty.",
+  "The mistake was genuinely a collective failure, but someone has to be the scapegoat.",
+  "Standing up for yourself might be seen as not being a team player.",
+]
+stakes = [
+  "Accepting undeserved blame permanently marks your record.",
+  "This reveals whether your workplace values truth or convenient narratives.",
+  "Your response affects not just this job, but your entire career trajectory.",
+  "Being a scapegoat is remembered in your file; refusing to be one is remembered by your team.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept responsibility to protect the team", "Take the blame gracefully", "Agree to be the scapegoat"]
+scs_change = -20
+finance_change = 0
+career_level_change = -10
+guanxi_family_change = 0
+guanxi_network_change = 15
+guanxi_party_change = 10
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse and explain the shared responsibility", "Stand up for yourself and cite the facts", "Demand fair accountability for everyone involved"]
+scs_change = -10
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = -15
+risk_modifier = 30
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Negotiate for compensation before accepting", "Agree only if they guarantee future protection", "Accept blame but demand concrete promises in writing"]
+scs_change = -10
+finance_change = 15
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_network = 2 }
+
+[[situations]]
+id = "work_bribery_opportunity"
+domain = "work"
+tier_min = 1
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "high"
+base_risk = 40
+
+[situations.fragments]
+openings = [
+  "A vendor offers you {bribe_amount} to expedite their contract approval process.",
+  "Someone seeking business with your company discreetly suggests {bribe_amount} for your 'consultation fees'.",
+  "You're offered {bribe_amount} in exchange for favorable treatment on {work_decision}.",
+  "A business partner hints at {bribe_amount} for helping them navigate the approval process more smoothly.",
+]
+conflicts = [
+  "The money would help your family significantly, but corruption charges are severe.",
+  "Everyone at your level takes these gifts - refusing might seem naive or suspicious.",
+  "Anti-corruption cameras and monitoring have intensified recently.",
+  "Accepting builds guanxi networks; refusing could insult someone powerful.",
+  "The offer is framed as standard business practice, but it's clearly illegal.",
+]
+stakes = [
+  "Corruption crackdowns are unpredictable - today's acceptable practice is tomorrow's prison sentence.",
+  "Your financial struggles are real, but getting caught would destroy everything.",
+  "This decision reveals whether you prioritize ethics or advancement through the system.",
+  "Taking bribes is how relationships work here, but it's also a permanent vulnerability.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Refuse politely and report the attempt", "Decline and follow proper procedures", "Reject the offer and maintain professional standards"]
+scs_change = 20
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = 15
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse and publicly denounce the corruption", "Report them to anti-corruption authorities immediately", "Reject it and demand they be investigated"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -20
+guanxi_party_change = 20
+risk_modifier = 25
+requirements = { career_level = 3 }
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Accept the payment discreetly", "Take the money and provide the help", "Agree to the arrangement quietly"]
+scs_change = -15
+finance_change = 30
+career_level_change = 5
+guanxi_family_change = 5
+guanxi_network_change = 15
+guanxi_party_change = -10
+risk_modifier = 55
+requirements = { guanxi_network = 2 }

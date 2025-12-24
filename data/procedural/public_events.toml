@@ -1,0 +1,514 @@
+# Public domain events - interactions with strangers, public spaces, and civic obligations
+
+[[situations]]
+id = "public_stranger_help_request"
+domain = "public"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+  "A {stranger_type} approaches you on the street, asking for {small_favor}.",
+  "While waiting at {public_place}, {stranger_type} asks you for help with {small_favor}.",
+  "You're stopped by {stranger_type} who desperately needs {small_favor}.",
+  "At {public_place}, {stranger_type} claims they're in trouble and needs {small_favor}.",
+]
+conflicts = [
+  "They seem genuine, but you've heard warnings about scams targeting helpful people.",
+  "Surveillance cameras are recording this entire interaction.",
+  "This could be a social credit test - both helping and refusing carry risks.",
+  "You're already running late, and this will make you miss your {appointment_type}.",
+  "Other people are watching to see how you'll respond.",
+]
+stakes = [
+  "Being publicly helpful could raise your social standing - or mark you as a target.",
+  "The wrong choice here could be flagged on your social credit record.",
+  "How you treat strangers in public is always being monitored and evaluated.",
+  "This interaction will be recorded and analyzed by the surveillance system.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Help them while calling authorities to verify", "Assist but document everything", "Help in a way that's clearly visible to cameras"]
+scs_change = 15
+finance_change = -5
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 5
+risk_modifier = 10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Help them without hesitation", "Provide assistance based on human decency", "Do what's right regardless of cameras"]
+scs_change = 5
+finance_change = -10
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -5
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Pretend you didn't hear and walk away", "Claim you're too busy to help", "Ignore them completely"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 0
+risk_modifier = -15
+
+[[situations]]
+id = "public_witnessed_violation"
+domain = "public"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 30
+
+[situations.fragments]
+openings = [
+  "You witness someone {public_violation} right in front of you.",
+  "While walking through {public_place}, you see {violation_perpetrator} clearly {public_violation}.",
+  "At {public_place}, you notice {violation_perpetrator} {public_violation}.",
+  "You're the only witness as {violation_perpetrator} commits {public_violation}.",
+]
+conflicts = [
+  "There's a reporting kiosk nearby with a camera pointed directly at you.",
+  "The violator notices you watching and looks desperate.",
+  "Your civic duty is to report this, but {violation_perpetrator} might face severe punishment.",
+  "If you don't report it and cameras identify you as a witness, you could be implicated.",
+  "The surveillance system has likely already recorded the violation and your presence.",
+]
+stakes = [
+  "Failing to report witnessed violations is itself a social credit offense.",
+  "This is exactly the kind of civic responsibility the system rewards.",
+  "The cameras are watching to see if you'll do your 'duty' as a citizen.",
+  "Your response to public violations directly impacts your trustworthiness score.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Report it immediately at the kiosk", "Use the social credit app to file a report", "Call the authorities right away"]
+scs_change = 25
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = 15
+risk_modifier = -20
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Approach the violator and offer to 'forget' what you saw for a fee", "Use this as leverage for a favor", "Suggest they compensate you for your silence"]
+scs_change = -15
+finance_change = 20
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = -10
+risk_modifier = 45
+requirements = { guanxi_network = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Pretend you saw nothing and leave quickly", "Look away and keep walking", "Mind your own business"]
+scs_change = -20
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -15
+risk_modifier = 25
+
+[[situations]]
+id = "public_queue_conflict"
+domain = "public"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 10
+
+[situations.fragments]
+openings = [
+  "You've been waiting in line at {public_service} for {wait_time} when someone cuts in front of you.",
+  "At {public_place}, {queue_jumper} brazenly skips the entire queue you've been standing in.",
+  "While queuing for {public_service}, {queue_jumper} pushes past everyone to the front.",
+  "After waiting {wait_time} in line, {queue_jumper} cuts directly in front of you.",
+]
+conflicts = [
+  "Other people in the queue are looking at you expectantly to say something.",
+  "The queue-jumper seems well-dressed and confident - possibly well-connected.",
+  "There's a surveillance camera above the queue entrance recording everything.",
+  "You're exhausted and frustrated, but making a scene could be flagged as 'disruptive behavior'.",
+  "No one else is speaking up, and the staff members are pretending not to notice.",
+]
+stakes = [
+  "Standing up for social order is valued, but so is avoiding public conflict.",
+  "Your patience under provocation is being monitored and scored.",
+  "How you handle minor injustices reveals your character to the surveillance system.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Politely point out the queue to them", "Calmly ask them to go to the back of the line", "Suggest they respect the orderly queue"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 5
+risk_modifier = 15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Loudly call out their behavior", "Publicly shame them for queue-jumping", "Physically block them from cutting"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = -10
+risk_modifier = 30
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Say nothing and let them cut", "Avoid confrontation entirely", "Just accept it and wait longer"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 0
+risk_modifier = -10
+
+[[situations]]
+id = "public_lost_child"
+domain = "public"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+  "A young child approaches you at {public_place}, crying and saying they can't find their parent.",
+  "You notice a lost child wandering alone through {public_place}, clearly distressed.",
+  "A small child grabs your arm at {public_place}, sobbing that they're lost.",
+  "At {public_place}, you hear a child crying - they're alone and looking for their family.",
+]
+conflicts = [
+  "Helping could be seen as suspicious, especially in an era of stranger-danger paranoia.",
+  "But leaving a child alone would be viewed as heartless on the surveillance footage.",
+  "There's a police station nearby, but getting directly involved means paperwork and questions.",
+  "The child is genuinely distressed, but you know how easily good intentions are misinterpreted.",
+  "Surveillance cameras are recording your every move - this will be reviewed.",
+]
+stakes = [
+  "How you treat vulnerable people in public is a key social credit metric.",
+  "The system rewards civic responsibility but also flags unusual behavior.",
+  "This situation will generate a detailed record of your character and judgment.",
+  "Your response could be cited as evidence of either trustworthiness or suspicious behavior.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Call authorities and wait at a distance", "Report to security and let them handle it", "Use a police kiosk to report the situation"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 5
+guanxi_network_change = 0
+guanxi_party_change = 10
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Help the child find their parent yourself", "Comfort them and actively search for their family", "Stay with them until they're reunited"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 25
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Keep walking and avoid involvement", "Assume someone else will help", "It's not your problem"]
+scs_change = -25
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = -10
+guanxi_party_change = -10
+risk_modifier = 10
+
+[[situations]]
+id = "public_transport_seat_pressure"
+domain = "public"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 5
+
+[situations.fragments]
+openings = [
+  "On the crowded {public_transport}, you finally get a seat just as {seat_requester} boards.",
+  "You're sitting on {public_transport} when {seat_requester} stands right in front of you, staring pointedly.",
+  "After standing for {wait_time} on {public_transport}, you finally sit down - then {seat_requester} approaches.",
+  "As you settle into your seat on {public_transport}, {seat_requester} asks you to give it up.",
+]
+conflicts = [
+  "You're exhausted after a long day, but social expectations are clear.",
+  "Other passengers are watching to see if you'll follow proper etiquette.",
+  "There's a 'Respect Priority Seating' poster right above you.",
+  "You have your own difficulties, but they might not be visible to others.",
+  "The request seems entitled rather than genuine need, but you can't be sure.",
+]
+stakes = [
+  "Small acts of courtesy (or rudeness) accumulate in your social credit profile.",
+  "Public behavior on transportation is frequently cited in score adjustments.",
+  "How you treat others in shared spaces reflects your social values.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Immediately offer your seat", "Stand up without being asked", "Give up your seat graciously"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 5
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Politely explain you need the seat too", "Suggest they ask someone else", "Remain seated and ignore the request"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = -5
+risk_modifier = 15
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Pretend to be asleep", "Look at your phone and ignore them", "Act like you didn't notice"]
+scs_change = -15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = -5
+risk_modifier = 10
+
+[[situations]]
+id = "public_community_cleanup"
+domain = "public"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 10
+
+[situations.fragments]
+openings = [
+  "The neighborhood committee announces a 'voluntary' community cleanup on {day_time}.",
+  "You receive a message that residents are 'encouraged' to participate in a cleanup event on {day_time}.",
+  "The community board posts a notice about a cleanup day - attendance is 'optional but appreciated'.",
+  "Your neighborhood organizes a public cleanup session for {day_time}, with attendance being tracked.",
+]
+conflicts = [
+  "You had plans for {day_time}, but non-participation gets noted in your file.",
+  "The word 'voluntary' feels like a fiction when attendance is recorded.",
+  "Neighbors who skip these events are quietly marked as 'unsociable'.",
+  "You're genuinely busy, but there's no way to explain that won't sound like an excuse.",
+  "The neighborhood committee leader will personally note who shows up and who doesn't.",
+]
+stakes = [
+  "Community participation is a key metric in social credit scoring.",
+  "Being seen as a good neighbor directly impacts your tier status.",
+  "These 'voluntary' events are actually mandatory for maintaining good standing.",
+  "Your civic engagement record follows you when you apply for anything.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and participate enthusiastically", "Show up and volunteer for extra tasks", "Cancel your plans to demonstrate civic duty"]
+scs_change = 20
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = 10
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Show up briefly for appearance then leave", "Attend but do minimal work while being visible", "Make excuses to look busy without contributing much"]
+scs_change = 5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_network = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Skip it and keep your plans", "Don't show up", "Ignore the 'invitation'"]
+scs_change = -25
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = -15
+risk_modifier = 10
+
+[[situations]]
+id = "public_surveillance_flagged"
+domain = "public"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 25
+
+[situations.fragments]
+openings = [
+  "You receive an automated notice that you were flagged for {suspicious_behavior} at {public_place}.",
+  "A message alerts you that surveillance cameras recorded you {suspicious_behavior}.",
+  "The social credit system flags you for {suspicious_behavior} based on public camera footage.",
+  "An AI system has marked your behavior as 'irregular' after you were seen {suspicious_behavior}.",
+]
+conflicts = [
+  "The behavior was innocent, but the AI's judgment is what matters.",
+  "You can appeal, but that creates more scrutiny of your entire record.",
+  "Accepting the flag means penalty points; disputing it means investigation.",
+  "The appeal process is deliberately cumbersome and often makes things worse.",
+  "There's no one to explain your side to - just algorithms and databases.",
+]
+stakes = [
+  "Automated surveillance decisions are rarely overturned, even when wrong.",
+  "How you respond to this flag affects whether it becomes permanent or temporary.",
+  "Fighting the system can be riskier than accepting minor injustices.",
+  "This incident will be cross-referenced with everything else in your file.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept the flag and penalty without complaint", "Submit a contrite acknowledgment", "Agree to additional monitoring to demonstrate compliance"]
+scs_change = -15
+finance_change = -10
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = -20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["File a formal appeal with evidence", "Demand human review of the footage", "Insist on your right to contest automated decisions"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -15
+risk_modifier = 40
+requirements = { career_level = 2 }
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Use connections to get the flag removed quietly", "Have someone with influence intervene", "Call in a favor to make this disappear"]
+scs_change = 5
+finance_change = -20
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -10
+guanxi_party_change = 5
+risk_modifier = 25
+requirements = { guanxi_network = 2 }
+
+[[situations]]
+id = "public_civic_survey"
+domain = "public"
+tier_min = 0
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 5
+
+[situations.fragments]
+openings = [
+  "You're stopped at {public_place} by someone conducting a 'civic satisfaction survey'.",
+  "A survey team approaches you at {public_place}, asking about {survey_topic}.",
+  "While passing through {public_place}, you're invited to participate in a community feedback survey.",
+  "At {public_place}, a tablet-wielding surveyor asks if you have a moment to answer questions about {survey_topic}.",
+]
+conflicts = [
+  "Your answers will be linked to your ID and added to your social credit file.",
+  "They want honest feedback, but certain answers could flag you as problematic.",
+  "You can decline, but refusal to participate is also noted and scored.",
+  "The questions are clearly designed to test political loyalty more than gather opinions.",
+  "You're being watched to see if your public statements align with your data profile.",
+]
+stakes = [
+  "Civic participation is encouraged, but only if you give the 'right' answers.",
+  "These surveys test whether your public persona matches your monitored behavior.",
+  "Your responses become part of the permanent record used to calculate trustworthiness.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Participate and give ideologically correct answers", "Answer enthusiastically with approved opinions", "Complete the survey with model citizen responses"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 10
+risk_modifier = 0
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Answer honestly even if it's critical", "Give genuine feedback about problems", "Speak truthfully despite the risks"]
+scs_change = -15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = -20
+risk_modifier = 35
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Politely decline to participate", "Say you're too busy", "Walk away without answering"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -5
+risk_modifier = 5

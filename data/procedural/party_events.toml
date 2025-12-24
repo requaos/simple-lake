@@ -1,0 +1,577 @@
+# Party Events - Social Credit Dystopia Theme
+# These events focus on Party membership, political obligations, and ideological conformity
+
+[[situations]]
+id = "party_study_session_mandatory"
+domain = "party"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+    "You receive a 'mandatory invitation' to a {political_topic} study session this weekend.",
+    "The Party committee announces a special {political_topic} education event - attendance will be tracked.",
+    "A notice arrives: all citizens must attend a {political_topic} lecture on {day_time}.",
+    "Your workplace organizes a {political_topic} study group - your manager emphasizes it's 'compulsory'.",
+]
+conflicts = [
+    "Missing it means a black mark on your file and questions about your political commitment.",
+    "The session is {time_duration} long and conflicts with important personal plans.",
+    "You'll be tested on the material and your answers will be recorded.",
+    "Attendance records are shared with the social credit bureau.",
+    "Your level of enthusiasm will be observed and reported by {party_observer}.",
+]
+stakes = [
+    "This is a test of your political consciousness and Party loyalty.",
+    "Your participation affects both your social credit and Party standing.",
+    "Neighbors and colleagues will judge your level of commitment.",
+    "Those who attend enthusiastically get bonus points; those who skip face consequences.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and participate enthusiastically", "Arrive early and take detailed notes", "Show exemplary political awareness"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 15
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Skip it entirely", "Refuse to attend on principle", "Make an excuse and stay away"]
+scs_change = -30
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -20
+risk_modifier = 40
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Attend but sit in the back quietly", "Show up just to sign in, then leave", "Appear present but disengaged"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -5
+risk_modifier = 30
+requirements = { guanxi_network = 1 }
+
+# ============================================================================
+
+[[situations]]
+id = "party_membership_recruitment"
+domain = "party"
+tier_min = 2
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 3
+severity = "high"
+base_risk = 25
+
+[situations.fragments]
+openings = [
+    "A Party official approaches you about joining the Party as a {membership_level} member.",
+    "{party_official} 'suggests' that someone with your potential should consider Party membership.",
+    "You're invited to apply for Party membership - it's framed as an 'opportunity'.",
+    "The neighborhood committee recommends you for Party membership consideration.",
+]
+conflicts = [
+    "Membership means constant political obligations, meetings, and demonstrations of loyalty.",
+    "Joining could advance your career, but it means surrendering personal autonomy.",
+    "You'd have to publicly denounce {controversial_topic} and toe the Party line on everything.",
+    "Members are expected to report on neighbors, friends, and family.",
+    "Declining might be seen as 'lack of political ambition' or worse, disloyalty.",
+]
+stakes = [
+    "This decision will define your relationship with the state for life.",
+    "Party membership opens doors but demands absolute ideological conformity.",
+    "Your choice signals your political reliability to those in power.",
+    "Once you join, there's no leaving - it's a lifetime commitment.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept eagerly and express gratitude", "Apply for membership immediately", "Embrace the opportunity wholeheartedly"]
+scs_change = 30
+finance_change = 0
+career_level_change = 10
+guanxi_family_change = -10
+guanxi_network_change = 0
+guanxi_party_change = 30
+risk_modifier = -20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Politely decline the invitation", "Say you're not ready for such responsibility", "Refuse as respectfully as possible"]
+scs_change = -20
+finance_change = 0
+career_level_change = -10
+guanxi_family_change = 5
+guanxi_network_change = 0
+guanxi_party_change = -25
+risk_modifier = 35
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Appear honored but stall with excuses", "Express interest while delaying commitment", "Navigate carefully without committing"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = -10
+risk_modifier = 30
+requirements = { guanxi_party = 1 }
+
+# ============================================================================
+
+[[situations]]
+id = "party_denouncement_pressure"
+domain = "party"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 35
+
+[situations.fragments]
+openings = [
+    "At a community meeting, you're asked to publicly denounce {denouncement_target} for {political_crime}.",
+    "The Party committee expects you to sign a letter condemning {denouncement_target}.",
+    "You're pressured to testify against {denouncement_target} at a 'criticism session'.",
+    "Everyone at work is signing a petition against {denouncement_target} - they're watching to see if you will too.",
+]
+conflicts = [
+    "You know {denouncement_target} personally and they don't deserve this treatment.",
+    "Refusing to participate could mark you as sympathizing with 'antisocial elements'.",
+    "This is a loyalty test - your response will be carefully noted.",
+    "The accusation against {denouncement_target} seems exaggerated or fabricated.",
+    "Others have already participated enthusiastically - you're one of the last holdouts.",
+]
+stakes = [
+    "Your willingness to denounce others proves your political reliability.",
+    "This moment will be remembered - by both the authorities and {denouncement_target}.",
+    "Participation means complicity in someone else's suffering.",
+    "This is how the system maintains control - through mutual surveillance and betrayal.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Denounce them publicly and enthusiastically", "Sign the petition and add extra criticism", "Participate fully in the condemnation"]
+scs_change = 25
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = -5
+guanxi_network_change = -15
+guanxi_party_change = 20
+risk_modifier = -20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse to participate", "Defend the accused person", "Stand up against the persecution"]
+scs_change = -40
+finance_change = 0
+career_level_change = -15
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = -30
+risk_modifier = 50
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Sign but with minimal commentary", "Participate reluctantly and quietly", "Do the minimum required"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = -5
+guanxi_party_change = 5
+risk_modifier = 25
+requirements = { guanxi_party = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Find an excuse to be absent", "Claim you didn't receive the notice", "Avoid the situation entirely"]
+scs_change = -15
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -15
+risk_modifier = 35
+
+# ============================================================================
+
+[[situations]]
+id = "party_volunteer_weekend"
+domain = "party"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+    "The Party committee 'invites' you to volunteer this weekend for {volunteer_activity}.",
+    "You receive notice of mandatory 'voluntary' service: {volunteer_activity} on {day_time}.",
+    "Community service is required - you're assigned to {volunteer_activity}.",
+    "The neighborhood watch expects all residents to participate in {volunteer_activity}.",
+]
+conflicts = [
+    "Your entire weekend will be consumed by unpaid political labor.",
+    "Skipping it means being labeled as 'lacking community spirit'.",
+    "This is the third consecutive weekend you've been 'volunteered'.",
+    "The work is pointless - clearly just a demonstration of obedience.",
+    "Your name will be on a public list showing who participated and who didn't.",
+]
+stakes = [
+    "Volunteer work is how lower-tier citizens prove their worthiness for advancement.",
+    "This 'rebuilds' your social standing through visible submission.",
+    "Participation is tracked and affects your social credit evaluation.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Volunteer enthusiastically", "Show up early and work hard", "Demonstrate proper political attitude"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 10
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse to participate", "Tell them you have other plans", "Skip it and face the consequences"]
+scs_change = -25
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -20
+risk_modifier = 35
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Show up but do minimal work", "Sign in then leave early", "Appear to participate without real effort"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 25
+requirements = { guanxi_network = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Claim illness to avoid it", "Pretend you never got the notice", "Find an excuse"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -10
+risk_modifier = 20
+
+# ============================================================================
+
+[[situations]]
+id = "party_banquet_networking"
+domain = "party"
+tier_min = 3
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+    "As a high-tier citizen, you're invited to an exclusive Party banquet with {party_elite}.",
+    "You receive a formal invitation to dine with {party_elite} at a prestigious event.",
+    "A Party official invites you to a private banquet - this is a networking opportunity.",
+    "Your social credit score qualifies you for an elite Party gathering this weekend.",
+]
+conflicts = [
+    "Attendance requires an expensive 'contribution' of {large_amount} yuan to the 'development fund'.",
+    "You'll be expected to toast the leadership and express proper ideological enthusiasm.",
+    "This is where deals are made and favors are traded - you're out of your depth.",
+    "Not attending means losing valuable Party connections and appearing ungrateful.",
+    "Your behavior will be observed by those who determine future opportunities.",
+]
+stakes = [
+    "Access to Party elite can open doors or close them permanently.",
+    "This is how power operates in the system - through exclusive gatherings and obligations.",
+    "Your performance could lead to career advancement or political scrutiny.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and network enthusiastically", "Participate fully and make connections", "Embrace the opportunity"]
+scs_change = 20
+finance_change = -150
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 10
+guanxi_party_change = 20
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Decline the invitation politely", "Skip the event", "Refuse to participate"]
+scs_change = -15
+finance_change = 0
+career_level_change = -5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -20
+risk_modifier = 25
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Attend but minimize participation", "Show up briefly then leave", "Network selectively"]
+scs_change = 5
+finance_change = -50
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 5
+risk_modifier = 20
+requirements = { guanxi_party = 2 }
+
+# ============================================================================
+
+[[situations]]
+id = "party_ideological_purity_test"
+domain = "party"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 30
+
+[situations.fragments]
+openings = [
+    "You're summoned for a surprise 'ideological purity assessment' by the Party committee.",
+    "A questionnaire arrives testing your views on {controversial_topic} - answers will be reviewed.",
+    "The workplace Party secretary wants to discuss your 'political consciousness' in private.",
+    "You're selected for a random loyalty evaluation interview.",
+]
+conflicts = [
+    "The questions are designed to trap you - there are 'correct' answers you must know.",
+    "Your responses will be compared to your past statements for consistency.",
+    "This could be routine screening or targeted investigation - you don't know which.",
+    "Others who 'failed' this test were demoted or blacklisted.",
+    "Any hesitation or nuance will be interpreted as ideological doubt.",
+]
+stakes = [
+    "This determines whether you're considered politically reliable.",
+    "Your answers become part of your permanent Party file.",
+    "Failing means scrutiny, re-education, or worse.",
+    "The system demands absolute ideological conformity - this is how it's enforced.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Answer with perfect Party orthodoxy", "Demonstrate flawless political consciousness", "Show unwavering ideological commitment"]
+scs_change = 25
+finance_change = 0
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 20
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Answer honestly, even if risky", "Express some independence of thought", "Refuse to simply parrot the line"]
+scs_change = -35
+finance_change = 0
+career_level_change = -10
+guanxi_family_change = 5
+guanxi_network_change = 0
+guanxi_party_change = -30
+risk_modifier = 45
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Give carefully calibrated answers", "Be orthodox but not suspiciously perfect", "Navigate the questions strategically"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 10
+risk_modifier = 25
+requirements = { guanxi_party = 2 }
+
+# ============================================================================
+
+[[situations]]
+id = "party_official_favor_request"
+domain = "party"
+tier_min = 2
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "high"
+base_risk = 30
+
+[situations.fragments]
+openings = [
+    "{party_official} privately asks you for a 'favor' - {favor_request}.",
+    "A Party official hints that they need your help with {favor_request}.",
+    "You're approached discreetly: {party_official} wants {favor_request}.",
+    "{party_official} suggests a 'mutually beneficial arrangement' involving {favor_request}.",
+]
+conflicts = [
+    "This is clearly corruption, but refusing could mark you as uncooperative.",
+    "Helping them creates an obligation - they'll expect favors in return.",
+    "What they're asking could be illegal or at minimum ethically questionable.",
+    "Your compliance could be used against you later as kompromat.",
+    "Others in your position have advanced their careers by being 'helpful'.",
+]
+stakes = [
+    "This is how the system really works - official channels are theater, this is reality.",
+    "Your choice determines whether you become part of the corruption network.",
+    "Cooperation could mean protection and advancement, or future exploitation.",
+    "The official has power over your career, permits, and opportunities.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Agree to help without question", "Provide the requested favor", "Demonstrate you're a team player"]
+scs_change = 10
+finance_change = -100
+career_level_change = 10
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 25
+risk_modifier = 20
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse the request firmly", "Report the corruption attempt", "Stand on principle"]
+scs_change = -30
+finance_change = 0
+career_level_change = -15
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -35
+risk_modifier = 50
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Appear to agree while stalling", "Negotiate the terms carefully", "Find a way to minimize your involvement"]
+scs_change = 0
+finance_change = -30
+career_level_change = 5
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 10
+risk_modifier = 35
+requirements = { guanxi_party = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Pretend you didn't understand the request", "Avoid giving a clear answer", "Ghost them politely"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -15
+risk_modifier = 30
+
+# ============================================================================
+
+[[situations]]
+id = "party_propaganda_participation"
+domain = "party"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+    "You're asked to participate in a {propaganda_campaign} promoting {political_topic}.",
+    "The Party needs volunteers to spread awareness about {political_topic} - you're 'selected'.",
+    "Your workplace assigns you to distribute propaganda materials about {political_topic}.",
+    "A neighborhood campaign requires residents to {propaganda_activity}.",
+]
+conflicts = [
+    "You'll have to publicly endorse positions you may not believe in.",
+    "Time commitment is significant and unpaid.",
+    "Neighbors and colleagues will see your level of enthusiasm (or lack thereof).",
+    "Refusing means you're 'not supportive of important Party initiatives'.",
+    "The propaganda is obviously misleading or exaggerated.",
+]
+stakes = [
+    "Participation demonstrates correct political attitudes.",
+    "This is how the system maintains its narrative - through mass participation.",
+    "Your involvement is visible and will be remembered.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Participate actively and visibly", "Embrace the campaign enthusiastically", "Distribute materials with proper attitude"]
+scs_change = 15
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 15
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Refuse to participate", "Tell them you won't spread propaganda", "Skip it entirely"]
+scs_change = -20
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = -20
+risk_modifier = 30
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Do the bare minimum required", "Participate halfheartedly", "Go through the motions"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_network = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Claim you're too busy", "Find an excuse to avoid it", "Pretend you forgot"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 0
+guanxi_party_change = -10
+risk_modifier = 15

@@ -1,0 +1,520 @@
+# Family Events - Social Credit Dystopia Theme
+# These events focus on family dynamics, obligations, and conflicts in an authoritarian surveillance state
+
+[[situations]]
+id = "family_elderly_parent_care"
+domain = "family"
+tier_min = 1
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "high"
+base_risk = 25
+
+[situations.fragments]
+openings = [
+    "Your elderly {parent_type} needs medical care that isn't covered by the state health plan.",
+    "Your aging {parent_type} has fallen ill, but the public hospital waitlist is {time_period} long.",
+    "Your {parent_type}'s health is deteriorating. The state-approved treatment is inadequate.",
+    "A private clinic could help your {parent_type}, but it would cost {large_amount} yuan.",
+    "Your {parent_type} needs constant care. Your siblings are 'too busy' to help.",
+]
+conflicts = [
+    "The only option is an expensive private facility that would drain your savings.",
+    "You could use your guanxi to skip the queue, but it would mean owing a favor to {authority_figure}.",
+    "Your family expects you to shoulder the entire financial burden.",
+    "Choosing private care might be seen as 'lacking trust in the state healthcare system'.",
+    "The neighborhood committee is watching how you handle this 'test of filial piety'.",
+]
+stakes = [
+    "Your choice will affect both your parent's health and your social standing.",
+    "Family obligations conflict with your financial stability and social credit.",
+    "This decision could set a precedent for how your family sees you.",
+    "The wrong choice could be reported as 'unpatriotic healthcare choices'.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Wait for public healthcare", "Trust the state system", "Accept the long wait"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = -5
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Pay for private care immediately", "Liquidate savings for treatment", "Prioritize your parent's health"]
+scs_change = -15
+finance_change = -200
+career_level_change = 0
+guanxi_family_change = 15
+guanxi_network_change = 0
+guanxi_party_change = -5
+risk_modifier = 20
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Use connections to skip the queue", "Call in favors for priority treatment", "Leverage your guanxi"]
+scs_change = 5
+finance_change = -50
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = -15
+guanxi_party_change = 0
+risk_modifier = 15
+requirements = { guanxi_network = 2 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Let your siblings handle it", "Distance yourself from the situation", "Claim you can't afford to help"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -20
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 10
+
+# ============================================================================
+
+[[situations]]
+id = "family_wedding_expense"
+domain = "family"
+tier_min = 2
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 3
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+    "A {relative_type} you barely know invites you to their wedding.",
+    "You receive an elaborate wedding invitation from a distant {relative_type}.",
+    "Your {relative_type} is getting married in an expensive ceremony across the country.",
+    "A family wedding requires a 'generous' red envelope of at least {medium_amount} yuan.",
+]
+conflicts = [
+    "The expected 'gift' would consume a significant portion of your monthly salary.",
+    "Declining might offend the extended family and hurt your social standing.",
+    "Your attendance is being tracked - the family will know if you don't show up.",
+    "Not giving an adequate gift would be seen as 'bringing shame to the family name'.",
+    "Other family members are competing to give the most impressive gifts.",
+]
+stakes = [
+    "Your family relationships and reputation are at stake.",
+    "This is a test of your 'proper family values' that neighbors are watching.",
+    "The amount you give will be gossiped about for years.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and give a generous gift", "Meet family expectations fully", "Honor the tradition properly"]
+scs_change = 5
+finance_change = -100
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Decline the invitation politely", "Send regrets and a modest gift", "Refuse to attend"]
+scs_change = -5
+finance_change = -20
+career_level_change = 0
+guanxi_family_change = -15
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 15
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Attend but give a minimal gift with excuses", "Negotiate a 'group gift' with others", "Find a creative compromise"]
+scs_change = 0
+finance_change = -40
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_family = 1 }
+
+# ============================================================================
+
+[[situations]]
+id = "family_member_blacklisted"
+domain = "family"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "high"
+base_risk = 30
+
+[situations.fragments]
+openings = [
+    "Your {relative_type} has been placed on the 'untrustworthy persons' list for {infraction}.",
+    "You learn that your {relative_type} has been blacklisted - their face is on public billboards.",
+    "A family member is now in Tier D, having been caught {infraction}.",
+    "Your {relative_type}'s social credit has collapsed after {infraction}.",
+]
+conflicts = [
+    "They're desperate and asking you for money to survive.",
+    "Association with them could damage your own social credit score.",
+    "Your neighbors know about your relationship and are watching your response.",
+    "The Party committee has 'suggested' you publicly distance yourself from them.",
+    "Helping them could be seen as 'supporting antisocial behavior'.",
+]
+stakes = [
+    "Your loyalty to family conflicts with loyalty to the state.",
+    "This is a test of your 'correct political awareness'.",
+    "Your career advancement depends on having no 'problematic' family connections.",
+    "The wrong choice could cascade - their problem becoming your problem.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Publicly disavow them", "Report their contact to authorities", "Demonstrate loyalty to the state"]
+scs_change = 20
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -25
+guanxi_network_change = 0
+guanxi_party_change = 15
+risk_modifier = -15
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Help them secretly", "Provide financial support discreetly", "Risk your standing to assist"]
+scs_change = -25
+finance_change = -80
+career_level_change = 0
+guanxi_family_change = 20
+guanxi_network_change = 0
+guanxi_party_change = -15
+risk_modifier = 40
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Cut off all contact", "Pretend you don't know them", "Protect yourself by avoiding them"]
+scs_change = 5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -15
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = 10
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Help while maintaining plausible deniability", "Use intermediaries to assist", "Find a careful balance"]
+scs_change = -5
+finance_change = -30
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = -10
+guanxi_party_change = 0
+risk_modifier = 35
+requirements = { guanxi_network = 2 }
+
+# ============================================================================
+
+[[situations]]
+id = "family_child_education_pressure"
+domain = "family"
+tier_min = 2
+tier_max = 4
+life_stage_min = 2
+life_stage_max = 4
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+    "Your child wants to study {unpractical_subject}, but your family insists on {practical_subject}.",
+    "Your parents are pressuring you to force your child into a 'productive' career path.",
+    "Your child shows talent in {unpractical_subject}, but it won't earn social credit points.",
+    "The extended family is horrified that your child wants to pursue {unpractical_subject}.",
+]
+conflicts = [
+    "Following their passion could lead to a low-status, low-income future.",
+    "Your parents threaten to cut off support if you don't 'guide them correctly'.",
+    "The neighborhood sees your parenting choices as a reflection of your own values.",
+    "A 'productive' career means engineering, medicine, or Party administration - nothing else.",
+    "Your choice will be judged by the entire extended family for generations.",
+]
+stakes = [
+    "Your child's happiness conflicts with social expectations and family pressure.",
+    "This decision affects both your child's future and your family standing.",
+    "The Party values 'useful' careers that contribute to national development.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Pressure them toward a practical career", "Enforce family expectations", "Guide them to engineering/medicine"]
+scs_change = 10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = 0
+guanxi_party_change = 5
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Support their passion completely", "Let them choose their own path", "Defend their artistic dreams"]
+scs_change = -10
+finance_change = -50
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = 5
+guanxi_party_change = -5
+risk_modifier = 15
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Find a compromise path", "Suggest a 'useful' arts application", "Navigate between passion and pragmatism"]
+scs_change = 0
+finance_change = -20
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 25
+requirements = { career_level = 2 }
+
+# ============================================================================
+
+[[situations]]
+id = "family_reunion_appearance"
+domain = "family"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 4
+severity = "low"
+base_risk = 10
+
+[situations.fragments]
+openings = [
+    "It's Spring Festival, and your family expects you at the reunion dinner.",
+    "Your extended family is gathering for a major holiday celebration.",
+    "Your {parent_type} demands your presence at the annual family reunion.",
+    "A major family event requires attendance from all members.",
+]
+conflicts = [
+    "Your family will compare everyone's careers, incomes, and social credit scores.",
+    "Relatives will interrogate you about {personal_topic} in front of everyone.",
+    "Your {successful_relative} will be there, successful and eager to boast.",
+    "The entire event is a competition of face, status, and bragging rights.",
+    "Not attending means explaining your absence for years to come.",
+]
+stakes = [
+    "Your family standing and reputation are on display.",
+    "This is an opportunity to strengthen family bonds or reveal weaknesses.",
+    "How you present yourself will affect family dynamics for the year ahead.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Attend and put on a good face", "Participate enthusiastically", "Meet family expectations"]
+scs_change = 5
+finance_change = -30
+career_level_change = 0
+guanxi_family_change = 10
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = -5
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Skip the reunion entirely", "Make excuses and stay away", "Refuse to participate"]
+scs_change = -5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -15
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 10
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Attend briefly then leave early", "Show up but deflect questions", "Manage appearances strategically"]
+scs_change = 0
+finance_change = -15
+career_level_change = 0
+guanxi_family_change = 0
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 15
+requirements = { guanxi_family = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Attend but remain silent and withdrawn", "Be physically present but disengaged", "Endure it passively"]
+scs_change = 0
+finance_change = -20
+career_level_change = 0
+guanxi_family_change = -5
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 5
+
+# ============================================================================
+
+[[situations]]
+id = "family_sibling_comparison"
+domain = "family"
+tier_min = 0
+tier_max = 3
+life_stage_min = 1
+life_stage_max = 4
+severity = "medium"
+base_risk = 15
+
+[situations.fragments]
+openings = [
+    "Your {parent_type} constantly compares you unfavorably to your more successful {sibling_type}.",
+    "At every family gathering, your {parent_type} praises your {sibling_type}'s achievements over yours.",
+    "Your {sibling_type} has a higher social credit score, better job, and won't let you forget it.",
+    "Your family makes it clear that your {sibling_type} is the 'successful one'.",
+]
+conflicts = [
+    "The constant comparisons are damaging your relationship with both your sibling and parents.",
+    "Your achievements are dismissed as 'not good enough' compared to your {sibling_type}.",
+    "Family events have become competitions you're expected to lose.",
+    "Your {parent_type} suggests you should 'learn from' your {sibling_type}'s example.",
+    "The favoritism is obvious to everyone, including extended family.",
+]
+stakes = [
+    "Your self-worth and family relationships are being eroded.",
+    "This dynamic could poison family bonds permanently.",
+    "How you respond will define your role in the family for years.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Accept it and try harder to please them", "Acknowledge their point and commit to improvement", "Swallow your pride"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 5
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = -5
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Confront them about the favoritism", "Demand they treat you equally", "Refuse to accept the comparison"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 25
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Subtly highlight your own achievements", "Redirect conversations away from comparisons", "Play the game strategically"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 5
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 20
+requirements = { guanxi_family = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Distance yourself from family events", "Reduce contact with your parents", "Create emotional boundaries"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 10
+
+# ============================================================================
+
+[[situations]]
+id = "family_marriage_pressure"
+domain = "family"
+tier_min = 1
+tier_max = 4
+life_stage_min = 1
+life_stage_max = 3
+severity = "medium"
+base_risk = 20
+
+[situations.fragments]
+openings = [
+    "Your parents are pressuring you to marry {unsuitable_match} from a 'good family'.",
+    "Your family has arranged meetings with {unsuitable_match} without consulting you.",
+    "Your {parent_type} insists you're 'too old to be picky' and should settle for {unsuitable_match}.",
+    "Family pressure about marriage is intensifying - they've found {unsuitable_match} for you.",
+]
+conflicts = [
+    "The person they've chosen has high social credit but you have no connection with them.",
+    "They prioritize the family's alliance and face over your personal happiness.",
+    "Refusing could mean being labeled 'selfish' and 'ungrateful'.",
+    "Your unmarried status is seen as a 'family embarrassment' they're desperate to fix.",
+    "They threaten to withdraw support if you don't 'seriously consider' their choice.",
+]
+stakes = [
+    "Your autonomy conflicts with family expectations and social pressure.",
+    "Marriage affects both your personal life and family political alliances.",
+    "In this society, a good match means good social credit and connections.",
+]
+
+[[situations.choices]]
+archetype = "conform"
+text_fragments = ["Agree to meet their choice seriously", "Consider the practical benefits", "Accept family wisdom"]
+scs_change = 5
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = 15
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = -10
+
+[[situations.choices]]
+archetype = "resist"
+text_fragments = ["Firmly refuse the arrangement", "Insist on choosing your own partner", "Assert your independence"]
+scs_change = -10
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -20
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 30
+
+[[situations.choices]]
+archetype = "manipulate"
+text_fragments = ["Stall for time with excuses", "Appear to comply while delaying", "Navigate the pressure strategically"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -5
+guanxi_network_change = 5
+guanxi_party_change = 0
+risk_modifier = 25
+requirements = { guanxi_network = 1 }
+
+[[situations.choices]]
+archetype = "ignore"
+text_fragments = ["Avoid family contact to escape pressure", "Change the subject whenever it comes up", "Pretend you didn't hear"]
+scs_change = 0
+finance_change = 0
+career_level_change = 0
+guanxi_family_change = -10
+guanxi_network_change = 0
+guanxi_party_change = 0
+risk_modifier = 15
